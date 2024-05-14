@@ -1,0 +1,18 @@
+#spring.application.name=Proliferate
+#  spring:
+#   security:
+#    oauth2:
+#	client:
+#     registration:
+#	  e auth0:
+#	    client-id: uBaBdv9pMEKMOzXgcSwFf9VosLaKYkOS
+#		client-secret: y-QDnLjBxX1D22wmyed_K9tnHLyWaEnlN-p6EKMf2W6WfhdTUdmfM0tXObZ-7y7t
+#
+#		 scope:
+#		   - openid
+#		   - profile
+#		   - email
+#
+#	  provider:
+#	    auth0:
+#		issuer-url: https://dev-be3owcp4bhsip3m1.us.auth0.com

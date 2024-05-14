@@ -1,0 +1,109 @@
+package com.proliferate.Proliferate.Controller;
+
+import com.proliferate.Proliferate.Domain.DTO.*;
+import com.proliferate.Proliferate.Response.LoginResponse;
+import com.proliferate.Proliferate.Service.AuthenticationService;
+import com.proliferate.Proliferate.Service.InviteService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    @Autowired
+    private final AuthenticationService authenticationService;
+
+    @Autowired
+    private final InviteService inviteService;
+
+    @PostMapping("/studentPersonalDetails")
+    public ResponseEntity<?> registerPersonalDeets(@Valid @RequestBody StudentRegisterPersDeets studentRegisterPersDeets, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return authenticationService.studentRegister(studentRegisterPersDeets);
+    }
+
+    @PostMapping("/tutorPersonalDetails")
+    public ResponseEntity<?> tutorPersonalDetails(@Valid @RequestBody TutorRegister tutorRegister, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return authenticationService.tutorRegister(tutorRegister);
+    }
+
+    @PostMapping("/academicDetail")
+    public ResponseEntity<?> academicDetail(@Valid @RequestBody AcademicDetail academicDetail, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return authenticationService.academicDetails(academicDetail);
+    }
+
+    @PostMapping("/preferences")
+    public ResponseEntity<?> preferences(@Valid @RequestBody Preferences preferences, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return authenticationService.preference(preferences);
+    }
+
+    @PostMapping("/learningGoals")
+    public ResponseEntity<?> learningGoals(@Valid @RequestBody LearningGoals learningGoals, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return authenticationService.learningGoals(learningGoals);
+    }
+
+
+    @GetMapping("/terms-and-conditions")
+    public ResponseEntity<String> getTermsAndConditions() {
+        String termsAndConditions = authenticationService.getTermsAndConditions();
+        return ResponseEntity.ok(termsAndConditions);
+    }
+	
+	@PostMapping("/completeRegistration")
+	public ResponseEntity<?> completeRegistration() {
+		return authenticationService.completeRegistration();
+	}
+
+	
+    @PostMapping("/login")
+    public ResponseEntity <LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return ResponseEntity.ok(authenticationService.login(loginRequest));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Location", "/login")
+                .body("Logged out successfully");
+    }
+
+    @PostMapping("/friend-invite")
+    public ResponseEntity<?> sendFriendInvite(@Valid @RequestBody FriendInvite friendInvite, BindingResult result, Long userId){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return inviteService.friendInvite(friendInvite, userId);
+    }
+}
