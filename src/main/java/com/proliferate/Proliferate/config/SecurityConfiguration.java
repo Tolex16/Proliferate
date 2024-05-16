@@ -38,7 +38,7 @@ public class SecurityConfiguration{
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/studentPersonDetail","api/v1/auth/terms-and-conditions","/api/v1/auth/completeRegistration","/api/v1/auth/logout","/api/v1/auth/login","/api/v1/create")
+                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/studentPersonalDetail","api/v1/auth/terms-and-conditions","/api/v1/auth/completeRegistration","/api/v1/auth/logout","/api/v1/auth/login","/api/v1/create")
                         .permitAll()
                         .requestMatchers("/api/v1/student/**","/api/v1/auth/academicDetail", "/api/v1/auth/preferences","/api/v1/auth/learningGoals").hasAnyAuthority(Role.STUDENT.name())
                         .requestMatchers("/api/v1/tutor/**","/api/v1/auth/academicDetail", "/api/v1/auth/preferences","/api/v1/auth/learningGoals").hasAnyAuthority(Role.TUTOR.name())
