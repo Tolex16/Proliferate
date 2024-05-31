@@ -3,6 +3,7 @@ package com.proliferate.Proliferate.Domain.Entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.proliferate.Proliferate.Domain.DTO.Gender;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.config.StrongPassword;
 import jakarta.persistence.*;
@@ -21,12 +22,12 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name="proliferate_user")
+@Table(name="proliferate_student")
 @NoArgsConstructor
-public class UserEntity implements UserDetails {
+public class StudentEntity implements UserDetails {
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = "student_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
 
@@ -59,7 +60,8 @@ public class UserEntity implements UserDetails {
     private String password;
 
     @Column(name = "gender")
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(name = "age")
     private int age;

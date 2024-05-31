@@ -1,9 +1,9 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
-import com.proliferate.Proliferate.Domain.DTO.UserDto;
-import com.proliferate.Proliferate.Domain.Entities.UserEntity;
+
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.Repository.UserRepository;
+import com.proliferate.Proliferate.Repository.StudentRepository;
+import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,19 +18,32 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class  UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+
+    private final TutorRepository tutorRepository;
 
 
-    @Override
-    public UserDetailsService userDetailsService() {
-        return new UserDetailsService() {
-            @Override
-            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                return userRepository.findByUserName(username)
-                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+@Override
+public UserDetailsService userDetailsService() {
+    return new UserDetailsService() {
+        @Override
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            // Try to find the user as a student
+            var studentOpt = studentRepository.findByUserName(username);
+            if (studentOpt.isPresent()) {
+                return studentOpt.get();
             }
-        };
-    }
 
+            // If not found as a student, try to find the user as a tutor
+            var tutorOpt = tutorRepository.findByUserName(username);
+            if (tutorOpt.isPresent()) {
+                return tutorOpt.get();
+            }
+
+            // If neither student nor tutor is found, throw an exception
+            throw new UsernameNotFoundException("User not found");
+        }
+    };
+}
 
 }

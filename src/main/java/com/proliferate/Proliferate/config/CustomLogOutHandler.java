@@ -1,8 +1,6 @@
 package com.proliferate.Proliferate.config;
 
-import com.proliferate.Proliferate.Domain.Entities.UserEntity;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
-import com.proliferate.Proliferate.Repository.UserRepository;
 import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;

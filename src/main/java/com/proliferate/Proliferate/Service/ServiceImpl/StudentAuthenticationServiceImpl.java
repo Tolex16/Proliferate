@@ -1,18 +1,23 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.*;
+import com.proliferate.Proliferate.Domain.DTO.Student.*;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDto;
 import com.proliferate.Proliferate.Domain.Entities.Role;
-import com.proliferate.Proliferate.Domain.Entities.UserEntity;
+import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
+import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
-import com.proliferate.Proliferate.Repository.UserRepository;
+import com.proliferate.Proliferate.Repository.StudentRepository;
+import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
-import com.proliferate.Proliferate.Service.AuthenticationService;
 import com.proliferate.Proliferate.Service.EmailService;
 import com.proliferate.Proliferate.Service.JwtService;
+import com.proliferate.Proliferate.Service.StudentAuthenticationService;
+import com.proliferate.Proliferate.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +25,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,43 +34,49 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationServiceImpl implements AuthenticationService {
+public class StudentAuthenticationServiceImpl implements StudentAuthenticationService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+	
+	private final TutorRepository tutorRepository;
 
-    private final Mapper<UserEntity, StudentRegisterPersDeets> studentRegisterPersDeetsMapper;
+    @Autowired
+    private final UserService userService;
+    private final Mapper<StudentEntity, StudentRegisterPersDeets> studentRegisterPersDeetsMapper;
 
-    private final Mapper<UserEntity, TutorRegister> tutorRegisterMapper;
+    private final Mapper<StudentEntity, AcademicDetail> academicDetailMapper;
 
-    private final Mapper<UserEntity, AcademicDetail> academicDetailMapper;
+    private final Mapper<StudentEntity, Preferences> preferencesMapper;
 
-    private final Mapper<UserEntity, Preferences> preferencesMapper;
+    private final Mapper<StudentEntity, LearningGoals> learningGoalsMapper;
+    
+	private final EmailService emailService;
 
-    private final Mapper<UserEntity, LearningGoals> learningGoalsMapper;
-    private final EmailService emailService;
-
-    private final Mapper<UserEntity, UserDto> userMapper;
+    private final Mapper<StudentEntity, StudentDto> studentMapper;
+	
+	private final Mapper<TutorEntity, TutorDto> tutorMapper;
+	
     @Autowired
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     public ResponseEntity<?> studentRegister(StudentRegisterPersDeets studentRegisterPersDeets){
-        if(userRepository.existsByUserName(studentRegisterPersDeets.getUserName())){
+        if(studentRepository.existsByUserName(studentRegisterPersDeets.getUserName())){
             throw new UserAlreadyExistsException("There is an account with this username.");
         }
-        if(userRepository.existsByEmail(studentRegisterPersDeets.getEmail())){
+        if(studentRepository.existsByEmail(studentRegisterPersDeets.getEmail())){
             throw new UserAlreadyExistsException("There is an account associated with this email already");
         }
         try {
             studentRegisterPersDeets.setPassword(passwordEncoder.encode(studentRegisterPersDeets.getPassword()));
-            UserEntity userEntity = studentRegisterPersDeetsMapper.mapFrom(studentRegisterPersDeets);
-            userEntity.setRole(Role.STUDENT);
-            userRepository.save(userEntity);
+            StudentEntity studentEntity = studentRegisterPersDeetsMapper.mapFrom(studentRegisterPersDeets);
+            studentEntity.setRole(Role.STUDENT);
+            studentRepository.save(studentEntity);
 
-            var user = userRepository.findByUserName(studentRegisterPersDeets.getUserName()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
-            var jwt = jwtService.genToken(user);
+            var student = studentRepository.findByUserName(studentRegisterPersDeets.getUserName()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
+            var jwt = jwtService.genToken(student, null);
 
             PersonDetailsResponse response = new PersonDetailsResponse(jwt);
             return new ResponseEntity<>(response,HttpStatus.CREATED);
@@ -74,30 +85,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    public ResponseEntity<?> tutorRegister(TutorRegister tutorRegister){
-        if(userRepository.existsByUserName(tutorRegister.getUserName())){
-            throw new UserAlreadyExistsException("There is an account with this username.");
-        }
-        if(userRepository.existsByEmail(tutorRegister.getEmail())){
-            throw new UserAlreadyExistsException("There is an account associated with this email already");
-        }
-        try {
-            tutorRegister.setPassword(passwordEncoder.encode(tutorRegister.getPassword()));
-            UserEntity userEntity = tutorRegisterMapper.mapFrom(tutorRegister);
-            userEntity.setRole(Role.TUTOR);
-            userRepository.save(userEntity);
-            //emailService.sendRegistrationConfirmationEmail(tutorRegister.getEmail(), tutorRegister.getFirstName(), tutorRegister.getEmail(),tutorRegister.getGender(),tutorRegister.getContactNumber(), tutorRegister.getAge(),tutorRegister.getGradeYear());
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (Exception error) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
     public ResponseEntity<?> academicDetails(AcademicDetail academicDetail){
         try {
-            Long userId = jwtService.getUserId();
-            if(userRepository.existsById(userId)){
-                return userRepository.findById(userId).map(
+            Long userId = jwtService.getUserId();;
+            if(studentRepository.existsById(userId)){
+                return studentRepository.findById(userId).map(
                         existingUser -> {
                             Optional.ofNullable(academicDetail.getGradeYear()).ifPresent(existingUser::setGradeYear);
                             Optional.ofNullable(academicDetail.getSubjectsNeedingTutoring()).ifPresent(existingUser::setSubjectsNeedingTutoring);
@@ -105,9 +97,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             Optional.ofNullable(academicDetail.getCurrentLocation()).ifPresent(existingUser::setCurrentLocation);
 //                            existingUser = academicDetailMapper.mapFrom(academicDetail);
 
-                            AcademicDetail updatedUser = academicDetailMapper.mapTo(userRepository.save(existingUser));
+                            AcademicDetail updatedStudent = academicDetailMapper.mapTo(studentRepository.save(existingUser));
 
-                            return new ResponseEntity<>( updatedUser,HttpStatus.CREATED);
+                            return new ResponseEntity<>(HttpStatus.CREATED);
                         }
                         ).orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -122,9 +114,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     public ResponseEntity<?> preference(Preferences preferences) {
         try {
-            Long userId = jwtService.getUserId();
-            if (userRepository.existsById(userId)) {
-                return userRepository.findById(userId).map(
+            Long userId = jwtService.getUserId();;
+            if (studentRepository.existsById(userId)) {
+                return studentRepository.findById(userId).map(
                         existingUser -> {
                             Optional.ofNullable(preferences.getAvailability()).ifPresent(existingUser::setAvailability);
                             Optional.ofNullable(preferences.getAdditionalPreferences()).ifPresent(existingUser::setAdditionalPreferences);
@@ -132,9 +124,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             Optional.ofNullable(preferences.getCommunicationLanguage()).ifPresent(existingUser::setCommunicationLanguage);
 //                            existingUser = academicDetailMapper.mapFrom(academicDetail);
 
-                            Preferences updatedUser = preferencesMapper.mapTo(userRepository.save(existingUser));
+                            Preferences updatedStudent = preferencesMapper.mapTo(studentRepository.save(existingUser));
 
-                            return new ResponseEntity<>(updatedUser, HttpStatus.CREATED);
+                            return new ResponseEntity<>(HttpStatus.CREATED);
                         }
                 ).orElseThrow(() -> new UserNotFoundException("User not found"));
             } else {
@@ -147,16 +139,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     public ResponseEntity<?> learningGoals(LearningGoals learningGoals){
         try {
-            Long userId = jwtService.getUserId();
-            if (userRepository.existsById(userId)) {
-                return userRepository.findById(userId).map(
+            Long userId = jwtService.getUserId();;
+            if (studentRepository.existsById(userId)) {
+                return studentRepository.findById(userId).map(
                         existingUser -> {
                             Optional.ofNullable(learningGoals.getShortTermGoals()).ifPresent(existingUser::setShortTermGoals);
                             Optional.ofNullable(learningGoals.getLongTermGoals()).ifPresent(existingUser::setLongTermGoals);
 
-                            LearningGoals updatedUser = learningGoalsMapper.mapTo(userRepository.save(existingUser));
+                            LearningGoals updatedStudent = learningGoalsMapper.mapTo(studentRepository.save(existingUser));
 
-                            return new ResponseEntity<>(updatedUser, HttpStatus.CREATED);
+                            return new ResponseEntity<>(HttpStatus.CREATED);
                         }
                 ).orElseThrow(() -> new UserNotFoundException("User not found"));
             } else {
@@ -170,19 +162,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 public ResponseEntity<?> completeRegistration() {
     try {
         // Fetch the user entity by ID
-        Long userId = jwtService.getUserId();
-        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+        Long userId = jwtService.getUserId();;
+        StudentEntity studentEntity = studentRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         
         // Check if terms and conditions are approved
-        if (!userEntity.isTermsAndConditionsApproved()) {
+        if (!studentEntity.isTermsAndConditionsApproved()) {
             // If terms and conditions are not approved, update the field to true
-            userEntity.setTermsAndConditionsApproved(true);
-            emailService.sendRegistrationConfirmationEmail(userEntity.getEmail(), userEntity.getFirstName(), userEntity.getEmail(), userEntity.getGender(), userEntity.getContactNumber(), userEntity.getAge(),userEntity.getGradeYear(), userEntity.getSubjectsNeedingTutoring());
-            userRepository.save(userEntity);
+            studentEntity.setTermsAndConditionsApproved(true);
+            emailService.studentRegistrationConfirmationEmail(studentEntity.getEmail(), studentEntity.getFirstName(),studentEntity.getLastName(), studentEntity.getEmail(), studentEntity.getGender(), studentEntity.getContactNumber(), studentEntity.getAge(),studentEntity.getGradeYear(), studentEntity.getSubjectsNeedingTutoring(),studentEntity.getAvailability(), studentEntity.getAdditionalPreferences(),studentEntity.getShortTermGoals(),studentEntity.getLongTermGoals());
+            studentRepository.save(studentEntity);
 
             // Optionally, you can update the user entity to mark registration as completed
-            userEntity.setRegistrationCompleted(true);
-            userRepository.save(userEntity);
+            studentEntity.setRegistrationCompleted(true);
+            studentRepository.save(studentEntity);
             
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -196,23 +188,6 @@ public ResponseEntity<?> completeRegistration() {
     }
 }
 
-    @Override
-    public ResponseEntity<?> changePassword(ChangePasswordRequest changePasswordRequest) {
-        try {
-            Long userId = jwtService.getUserId();
-            return userRepository.findById(userId).map(
-                    existingUser -> {
-
-                        existingUser.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
-                        existingUser.setPassword(passwordEncoder.encode(changePasswordRequest.getConfirmNewPassword()));
-                        userRepository.save(existingUser);
-                        return new ResponseEntity<>(HttpStatus.OK);
-                    }
-            ).orElseThrow(() -> new RuntimeException("User Not Found"));
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 	
 	 public String getTermsAndConditions() {
         StringBuilder termsAndConditions = new StringBuilder();
@@ -236,53 +211,44 @@ public ResponseEntity<?> completeRegistration() {
     }
 
 
-    @Override
-    public boolean isCurrentPasswordValid(String currentPassword) {
-        UserEntity currentUser = getCurrentUser();
-        return currentUser != null && passwordEncoder.matches(currentPassword, currentUser.getPassword());
+public LoginResponse login(LoginRequest loginRequest) {
+    try {
+        // Authenticate the user
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword()));
+    } catch (BadCredentialsException e) {
+        throw new IllegalArgumentException("Invalid username and password", e);
     }
 
-    @Override
-    public void updatePassword(String newPassword) {
-        UserEntity currentUser = getCurrentUser();
-        if (currentUser != null){
-            currentUser.setPassword(passwordEncoder.encode(newPassword));
-            userRepository.save(currentUser);
-        } else {
-            ResponseEntity.badRequest().body("User not found");
-        }
+    // Try to find the user as a student first
+    var studentOpt = studentRepository.findByUserName(loginRequest.getUserName());
+    if (studentOpt.isPresent()) {
+        var student = studentOpt.get();
+        UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
+        var jwt = jwtService.genToken(userDetails, student);
+        StudentDto loggedInStudent = studentMapper.mapTo(student);
+        return new LoginResponse(loggedInStudent, null, jwt);
     }
 
-    private static UserEntity getCurrentUser(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserEntity){
-            return (UserEntity) authentication.getPrincipal();
-        }
-        return null;
-    }
-    public LoginResponse login(LoginRequest loginRequest)
-    {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword()));
-        } catch (BadCredentialsException e){
-            throw new IllegalArgumentException("Invalid username and Password", e);
-        }
-
-        var user = userRepository.findByUserName(loginRequest.getUserName()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
-        var jwt = jwtService.genToken(user);
-
-        UserDto loggedInUser = userMapper.mapTo(user);
-        return new LoginResponse(loggedInUser, jwt);
+    // Try to find the user as a tutor
+    var tutorOpt = tutorRepository.findByUserName(loginRequest.getUserName());
+    if (tutorOpt.isPresent()) {
+        var tutor = tutorOpt.get();
+        UserDetails userDetails = userService.userDetailsService().loadUserByUsername(tutor.getUsername());
+        var jwt = jwtService.genToken(userDetails, tutor);
+        TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
+        return new LoginResponse(null, loggedInTutor, jwt);
     }
 
-    public UserEntity findById(Long id) {
+    // If neither student nor tutor is found, throw an exception
+    throw new IllegalArgumentException("Error in username and password");
+}
 
-        return userRepository.findById(id).get();
-    }
+
 
     @Override
     public String checkMail(String email) {
-        return userRepository.findByEmail(email).map(
+        return studentRepository.findByEmail(email).map(
                 existingUser -> {
                     String foundEmail = Optional.ofNullable(existingUser.getEmail()).orElse(null);
                     return foundEmail;

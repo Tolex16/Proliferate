@@ -1,36 +1,67 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.ChangePasswordRequest;
-import com.proliferate.Proliferate.Service.AuthenticationService;
+import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
+import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.Repository.StudentRepository;
+import com.proliferate.Proliferate.Repository.TutorRepository;
+import com.proliferate.Proliferate.Service.ChangePasswordService;
+import com.proliferate.Proliferate.Service.JwtService;
+import com.proliferate.Proliferate.Service.TutorAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class ChangePasswordController {
     @Autowired
-    private final AuthenticationService authenticationService;
+    private final ChangePasswordService authenticationService;
+
+    @Autowired
+    private final JwtService jwtService;
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
+
+    private final TutorRepository tutorRepository;
+
+    private final StudentRepository studentRepository;
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@Valid @RequestBody @AuthenticationPrincipal ChangePasswordRequest changePasswordRequest, BindingResult result){
-        System.out.println("Has Errors?" + result.hasErrors());
-        if (result.hasErrors()){return ResponseEntity.badRequest().body("Invalid input");}
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        try {
+            Long userId = jwtService.getUserId();  // Use the combined method to get the user ID
 
-        if (!authenticationService.isCurrentPasswordValid(changePasswordRequest.getCurrentPassword())){
-            return ResponseEntity.badRequest().body("Current Password Invalid");
-        }
+            // Check student repository first
+            var studentOpt = studentRepository.findById(userId);
+            if (studentOpt.isPresent()) {
+                var student = studentOpt.get();
+                return authenticationService.changeStudentPassword(student, request);
+            }
 
-        if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())) {
-            return ResponseEntity.badRequest().body("Passwords don't match");
-        }
-        authenticationService.updatePassword(changePasswordRequest.getNewPassword());
-        return ResponseEntity.ok("Password changed successfully");
+            // Check tutor repository if not found in student repository
+            var tutorOpt = tutorRepository.findById(userId);
+            if (tutorOpt.isPresent()) {
+                var tutor = tutorOpt.get();
+                return authenticationService.changeTutorPassword(tutor, request);
+            }
+
+            // If neither found, throw an exception
+            throw new RuntimeException("User Not Found");
+
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+}

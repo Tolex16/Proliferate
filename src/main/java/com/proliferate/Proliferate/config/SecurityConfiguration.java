@@ -3,8 +3,6 @@ package com.proliferate.Proliferate.config;
 
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Service.UserService;
-import com.proliferate.Proliferate.config.JWTAuthenticationFilter;
-import com.proliferate.Proliferate.config.PasswordEncoderConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -38,10 +36,10 @@ public class SecurityConfiguration{
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/studentPersonalDetails","/tutorPersonalDetails","api/v1/auth/terms-and-conditions","/api/v1/auth/logout","/api/v1/auth/login","/api/v1/create")
+                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/studentPersonalDetails","/api/v1/authorize/tutorPersonalDetails","api/v1/auth/terms-and-conditions","/api/v1/auth/login","/api/v1/forgot-password/**","/api/v1/change-password")
                         .permitAll()
-                        .requestMatchers("/api/v1/student/**","/api/v1/auth/academicDetail", "/api/v1/auth/preferences","/api/v1/auth/learningGoals","/api/v1/auth/completeRegistration","/api/v1/forgot-password/**").hasAnyAuthority(Role.STUDENT.name())
-                        .requestMatchers("/api/v1/tutor/**","/api/v1/auth/academicDetail", "/api/v1/auth/preferences","/api/v1/auth/learningGoals", "/api/v1/auth/completeRegistration","/api/v1/forgot-password/**").hasAnyAuthority(Role.TUTOR.name())
+                        .requestMatchers("/api/v1/student/**","/api/v1/auth/academicDetail", "/api/v1/auth/preferences","/api/v1/auth/learningGoals","/api/v1/auth/student-completeRegistration","/api/v1/auth/logout","/api/v1/friend-invite").hasAnyAuthority(Role.STUDENT.name())
+                        .requestMatchers("/api/v1/tutor/**", "/api/v1/authorize/educationExperience","/api/v1/authorize/teachingStyleApproach","/api/v1/authorize/availabilityPreference", "/api/v1/authorize/upload-documents","/api/v1/authorize/tutorCompleteRegistration","/api/v1/auth/logout").hasAnyAuthority(Role.TUTOR.name())
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

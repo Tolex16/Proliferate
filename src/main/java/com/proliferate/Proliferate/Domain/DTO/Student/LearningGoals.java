@@ -1,4 +1,4 @@
-package com.proliferate.Proliferate.Domain.DTO;
+package com.proliferate.Proliferate.Domain.DTO.Student;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

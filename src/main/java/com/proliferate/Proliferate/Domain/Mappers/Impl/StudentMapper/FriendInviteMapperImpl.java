@@ -1,6 +1,6 @@
-package com.proliferate.Proliferate.Domain.Mappers.Impl;
+package com.proliferate.Proliferate.Domain.Mappers.Impl.StudentMapper;
 
-import com.proliferate.Proliferate.Domain.DTO.FriendInvite;
+import com.proliferate.Proliferate.Domain.DTO.Student.FriendInvite;
 import com.proliferate.Proliferate.Domain.Entities.InvitationEmail;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
-import com.proliferate.Proliferate.Domain.Entities.UserEntity;
+import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
+import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -24,8 +25,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${proliferate.app.jwtsecret}")
     private String SECRET;
 
-    public String genToken(UserDetails userDetails ){
+    public String genToken(UserDetails userDetails, Object o){
         return Jwts.builder().setSubject(userDetails.getUsername())
+		        .claim("role", userDetails.getAuthorities())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(getLoginKey(), SignatureAlgorithm.HS256)
@@ -66,14 +68,19 @@ public class JwtServiceImpl implements JwtService {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
-    @Override
-    public Long getUserId() {
-        UserEntity user = (UserEntity) SecurityContextHolder
-                .getContext().
-                getAuthentication()
-                .getPrincipal();
+@Override
+public Long getUserId() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return user.getUserId();
+    if (principal instanceof StudentEntity) {
+        StudentEntity student = (StudentEntity) principal;
+        return student.getUserId();
+    } else if (principal instanceof TutorEntity) {
+        TutorEntity tutor = (TutorEntity) principal;
+        return tutor.getUserId();
+    } else {
+        throw new IllegalArgumentException("Unknown principal type");
     }
+}
 
 }

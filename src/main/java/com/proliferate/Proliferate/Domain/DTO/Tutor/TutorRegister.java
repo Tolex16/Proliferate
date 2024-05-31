@@ -1,5 +1,6 @@
-package com.proliferate.Proliferate.Domain.DTO;
+package com.proliferate.Proliferate.Domain.DTO.Tutor;
 
+import com.proliferate.Proliferate.Domain.DTO.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -7,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class StudentRegisterPersDeets {
+public class TutorRegister {
 
-    private long userId;
+    private long tutorId;
 
     private String firstName;
 
@@ -23,8 +24,7 @@ public class StudentRegisterPersDeets {
 
     private String password;
 
-    private String gender;
+    private Gender gender;
 
     private int age;
-
 }

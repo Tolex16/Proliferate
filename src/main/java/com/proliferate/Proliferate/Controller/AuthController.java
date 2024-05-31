@@ -1,9 +1,10 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.*;
+import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
-import com.proliferate.Proliferate.Service.AuthenticationService;
 import com.proliferate.Proliferate.Service.InviteService;
+import com.proliferate.Proliferate.Service.StudentAuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -15,31 +16,34 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     @Autowired
-    private final AuthenticationService authenticationService;
+    private final StudentAuthenticationService authenticationService;
 
     @Autowired
     private final InviteService inviteService;
 
     @PostMapping("/studentPersonalDetails")
-    public ResponseEntity<?> registerPersonalDeets(@Valid @RequestBody StudentRegisterPersDeets studentRegisterPersDeets, BindingResult result){
+    public ResponseEntity<?> registerPersonalDetails(@Valid @RequestBody StudentRegisterPersDeets studentRegisterPersDeets, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
 
         return authenticationService.studentRegister(studentRegisterPersDeets);
     }
-
-    @PostMapping("/tutorPersonalDetails")
-    public ResponseEntity<?> tutorPersonalDetails(@Valid @RequestBody TutorRegister tutorRegister, BindingResult result){
-        System.out.println("Has errors?" + result.hasErrors());
-        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return authenticationService.tutorRegister(tutorRegister);
+	
+	@GetMapping("/api/genders")
+    public List<String> getGenders() {
+        return Arrays.stream(Gender.values())
+                     .map(Gender::getDisplayName)
+                     .collect(Collectors.toList());
     }
 
     @PostMapping("/academicDetail")
@@ -73,7 +77,7 @@ public class AuthController {
         return ResponseEntity.ok(termsAndConditions);
     }
 	
-	@PostMapping("/completeRegistration")
+	@PostMapping("/student-completeRegistration")
 	public ResponseEntity<?> completeRegistration() {
 		return authenticationService.completeRegistration();
 	}
@@ -100,10 +104,10 @@ public class AuthController {
     }
 
     @PostMapping("/friend-invite")
-    public ResponseEntity<?> sendFriendInvite(@Valid @RequestBody FriendInvite friendInvite, BindingResult result, Long userId){
+    public ResponseEntity<?> sendFriendInvite(@Valid @RequestBody FriendInvite friendInvite, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
 
-        return inviteService.friendInvite(friendInvite, userId);
+        return inviteService.friendInvite(friendInvite);
     }
 }

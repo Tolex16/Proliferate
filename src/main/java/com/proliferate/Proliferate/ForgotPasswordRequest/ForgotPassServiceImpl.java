@@ -1,8 +1,11 @@
 package com.proliferate.Proliferate.ForgotPasswordRequest;
 
 
-import com.proliferate.Proliferate.Domain.Entities.UserEntity;
-import com.proliferate.Proliferate.Repository.UserRepository;
+import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
+import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.Repository.StudentRepository;
+import com.proliferate.Proliferate.Repository.TutorRepository;
+import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +15,7 @@ import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +32,9 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
 
     private final EmailService emailService;
 
-    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+
+    private final TutorRepository tutorRepository;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
@@ -36,47 +42,76 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
     private final int MINS = 5;
 
 
+
     @Transactional
     @Override
     public void initiateForgotPass(String email) {
         try {
-            UserEntity existingUser = userRepository.findByEmail(email).orElse(null);
+            UserDetails existingUser = null;
+            Optional<StudentEntity> studentOpt = studentRepository.findByEmail(email);
+            if (studentOpt.isPresent()) {
+                existingUser = studentOpt.get();
+            } else {
+                Optional<TutorEntity> tutorOpt = tutorRepository.findByEmail(email);
+                if (tutorOpt.isPresent()) {
+                    existingUser = tutorOpt.get();
+                }
+            }
+
             if (existingUser == null) {
                 throw new RuntimeException("User with email " + email + " not found");
             }
-            ForgotPassToken forgotPassToken = new ForgotPassToken();
 
+            ForgotPassToken forgotPassToken = new ForgotPassToken();
             forgotPassToken.setExpireTime(expireTimeRange());
             forgotPassToken.setToken(generateOTP());
             forgotPassToken.setUser(existingUser);
             forgotPassToken.setUsed(false);
+
             forgotPassTokenRep.save(forgotPassToken);
-            emailService.sendPasswordMail(existingUser.getEmail(), existingUser.getFirstName(), forgotPassToken.getToken());
+            emailService.sendPasswordMail(getEmail(existingUser), getFirstName(existingUser), forgotPassToken.getToken());
         } catch (Exception e) {
             throw new RuntimeException("Encountered an error while saving token", e);
         }
-    }
+   }
 
-@Transactional
-@Override
-public ResponseEntity<String> resetPassword(String token, String newPassword) {
-    ForgotPassToken forgotPassToken = forgotPassTokenRep.findByToken(token);
-    if (forgotPassToken == null || !forgotPassToken.getToken().equals(token)) {
-        return ResponseEntity.badRequest().body("Token does not match");
-    }
 
-    UserEntity userEntity = forgotPassToken.getUser();
-    if (userEntity != null) {
+    @Transactional
+    @Override
+    public ResponseEntity<String> resetPassword(String token, String newPassword) {
+        ForgotPassToken forgotPassToken = forgotPassTokenRep.findByToken(token);
+        if (forgotPassToken == null || !forgotPassToken.getToken().equals(token)) {
+            return ResponseEntity.badRequest().body("Token does not match");
+        }
+
+        UserDetails userEntity = forgotPassToken.getUser();
+        if (userEntity == null) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+
         checkValidity(forgotPassToken);
-        userEntity.setPassword(passwordEncoder.encode(newPassword));
+
+        if (userEntity instanceof StudentEntity) {
+            StudentEntity student = (StudentEntity) userEntity;
+            if (!student.isRegistrationCompleted()) {
+                return ResponseEntity.badRequest().body("Registration is not completed for this student");
+            }
+            student.setPassword(passwordEncoder.encode(newPassword));
+            studentRepository.save(student);
+        } else if (userEntity instanceof TutorEntity) {
+            TutorEntity tutor = (TutorEntity) userEntity;
+            if (!tutor.isRegistrationCompleted()) {
+                return ResponseEntity.badRequest().body("Registration is not completed for this tutor");
+            }
+            tutor.setPassword(passwordEncoder.encode(newPassword));
+            tutorRepository.save(tutor);
+        }
+
         forgotPassToken.setUsed(true);
-        userRepository.save(userEntity);
         forgotPassTokenRep.save(forgotPassToken);
-        return ResponseEntity.ok("Password Reset successful.");
-    } else {
-        return ResponseEntity.badRequest().body("User not found");
+
+        return ResponseEntity.ok("Password reset successful.");
     }
-}
 
 
     public LocalDateTime expireTimeRange(){
@@ -108,5 +143,22 @@ public ResponseEntity<String> resetPassword(String token, String newPassword) {
         }
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
+	
+	    private String getFirstName(UserDetails user) {
+        if (user instanceof StudentEntity) {
+            return ((StudentEntity) user).getFirstName();
+        } else if (user instanceof TutorEntity) {
+            return ((TutorEntity) user).getFirstName();
+        }
+        return "";
+    }
 
+    private String getEmail(UserDetails user) {
+        if (user instanceof StudentEntity) {
+            return ((StudentEntity) user).getEmail();
+        } else if (user instanceof TutorEntity) {
+            return ((TutorEntity) user).getEmail();
+        }
+        return "";
+    }
 }
