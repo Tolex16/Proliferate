@@ -84,7 +84,7 @@ public class AuthController {
 
 	
     @PostMapping("/login")
-    public ResponseEntity <LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult result){
+    public ResponseEntity <LoginResponse> login(@Valid @RequestBody LoginStudentRequest loginRequest, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
 

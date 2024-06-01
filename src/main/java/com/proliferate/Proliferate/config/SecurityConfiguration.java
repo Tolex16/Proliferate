@@ -36,10 +36,10 @@ public class SecurityConfiguration{
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/studentPersonalDetails","/api/v1/authorize/tutorPersonalDetails","api/v1/auth/terms-and-conditions","/api/v1/auth/login","/api/v1/forgot-password/**","/api/v1/change-password")
+                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/studentPersonalDetails","/api/v1/authorize/tutorPersonalDetails","api/v1/auth/terms-and-conditions","/api/v1/auth/login","/api/v1/forgot-password/**","/api/v1/change-password","/api/v1/authorize/login-tutor","/api/v1/auth/logout")
                         .permitAll()
-                        .requestMatchers("/api/v1/student/**","/api/v1/auth/academicDetail", "/api/v1/auth/preferences","/api/v1/auth/learningGoals","/api/v1/auth/student-completeRegistration","/api/v1/auth/logout","/api/v1/friend-invite").hasAnyAuthority(Role.STUDENT.name())
-                        .requestMatchers("/api/v1/tutor/**", "/api/v1/authorize/educationExperience","/api/v1/authorize/teachingStyleApproach","/api/v1/authorize/availabilityPreference", "/api/v1/authorize/upload-documents","/api/v1/authorize/tutorCompleteRegistration","/api/v1/auth/logout").hasAnyAuthority(Role.TUTOR.name())
+                        .requestMatchers("/api/v1/student/**","/api/v1/auth/academicDetail", "/api/v1/auth/preferences","/api/v1/auth/learningGoals","/api/v1/auth/student-completeRegistration","/api/v1/friend-invite").hasAnyAuthority(Role.STUDENT.name())
+                        .requestMatchers("/api/v1/tutor/**", "/api/v1/authorize/educationExperience","/api/v1/authorize/teachingStyleApproach","/api/v1/authorize/availabilityPreference", "/api/v1/authorize/upload-documents","/api/v1/authorize/tutorCompleteRegistration").hasAnyAuthority(Role.TUTOR.name())
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

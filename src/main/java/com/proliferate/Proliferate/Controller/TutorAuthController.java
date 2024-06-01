@@ -1,9 +1,7 @@
 package com.proliferate.Proliferate.Controller;
 
-import com.proliferate.Proliferate.Domain.DTO.Tutor.AvailabilityPreference;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.EducationExperience;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TeachingStyleApproach;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorRegister;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
+import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.TutorAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/authorize")
@@ -74,4 +69,11 @@ public class TutorAuthController {
 		return authenticationService.completeRegistration();
 	}
 
+    @PostMapping("/login-tutor")
+    public ResponseEntity <LoginResponse> login(@RequestBody LoginTutorRequest loginRequest, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return ResponseEntity.ok(authenticationService.login(loginRequest));
+    }
 }

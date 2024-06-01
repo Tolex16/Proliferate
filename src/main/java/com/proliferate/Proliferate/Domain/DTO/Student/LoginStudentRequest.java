@@ -1,11 +1,11 @@
-package com.proliferate.Proliferate.Domain.DTO;
+package com.proliferate.Proliferate.Domain.DTO.Student;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Data
-public class LoginRequest {
+public class LoginStudentRequest {
     private final String userName;
 
     private final String password;

@@ -1,9 +1,7 @@
 package com.proliferate.Proliferate.Service;
 
-import com.proliferate.Proliferate.Domain.DTO.Tutor.AvailabilityPreference;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.EducationExperience;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TeachingStyleApproach;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorRegister;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
+import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +18,8 @@ public interface TutorAuthenticationService {
 	ResponseEntity uploadDocuments(MultipartFile educationalCertificates, MultipartFile resumeCurriculumVitae, MultipartFile professionalDevelopmentCert, MultipartFile identificationDocuments);
 	
 	ResponseEntity completeRegistration();
+
+    LoginResponse login(LoginTutorRequest loginTutorRequest);
 
     String checkMail(String email);
 

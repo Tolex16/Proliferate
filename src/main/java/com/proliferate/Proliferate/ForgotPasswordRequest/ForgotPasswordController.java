@@ -1,5 +1,7 @@
 package com.proliferate.Proliferate.ForgotPasswordRequest;
 
+import com.proliferate.Proliferate.Domain.DTO.ResetPassword;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +23,8 @@ public class ForgotPasswordController {
 
 
    @PostMapping("/reset")
-    public ResponseEntity<String> resetPassword(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
-    return forgotPassTokenService.resetPassword(token, newPassword);
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPassword resetPassword) {
+    return forgotPassTokenService.resetPassword(resetPassword);
 }
 
 }

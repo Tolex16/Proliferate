@@ -8,10 +8,9 @@ import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.TutorRepository;
+import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
-import com.proliferate.Proliferate.Service.EmailService;
-import com.proliferate.Proliferate.Service.JwtService;
-import com.proliferate.Proliferate.Service.TutorAuthenticationService;
+import com.proliferate.Proliferate.Service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +34,9 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
     private final PasswordEncoder passwordEncoder;
 
     private final TutorRepository tutorRepository;
+
+    @Autowired
+    private final UserService tutorService;
     private final Mapper<TutorEntity, TutorRegister> tutorRegisterMapper;
 
     private final Mapper<TutorEntity, EducationExperience> educationExperienceMapper;
@@ -226,6 +229,27 @@ public ResponseEntity<?> completeRegistration() {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+
+    public LoginResponse login(LoginTutorRequest loginTutorRequest)
+    {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginTutorRequest.getEmail(), loginTutorRequest.getPassword()));
+        } catch (BadCredentialsException e){
+            throw new IllegalArgumentException("Invalid email and Password", e);
+        }
+        // Try to find the user as a tutor
+        var tutorOpt = tutorRepository.findByEmail(loginTutorRequest.getEmail());
+        if (tutorOpt.isPresent()) {
+            var tutor = tutorOpt.get();
+            UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
+            var jwt = jwtService.genToken(userDetails, tutor);
+            TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
+            return new LoginResponse(null, loggedInTutor, jwt);
+        }
+
+        // If neither student nor tutor is found, throw an exception
+        throw new IllegalArgumentException("Error in username and password");
+    }
 
     @Override
     public String checkMail(String email) {

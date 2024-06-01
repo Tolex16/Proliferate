@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.ForgotPasswordRequest;
 
 
+import com.proliferate.Proliferate.Domain.DTO.ResetPassword;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Repository.StudentRepository;
@@ -78,9 +79,9 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
 
     @Transactional
     @Override
-    public ResponseEntity<String> resetPassword(String token, String newPassword) {
-        ForgotPassToken forgotPassToken = forgotPassTokenRep.findByToken(token);
-        if (forgotPassToken == null || !forgotPassToken.getToken().equals(token)) {
+    public ResponseEntity<String> resetPassword(ResetPassword resetPassword) {
+        ForgotPassToken forgotPassToken = forgotPassTokenRep.findByToken(resetPassword.getToken());
+        if (forgotPassToken == null || !forgotPassToken.getToken().equals(resetPassword.getToken())) {
             return ResponseEntity.badRequest().body("Token does not match");
         }
 
@@ -96,14 +97,14 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
             if (!student.isRegistrationCompleted()) {
                 return ResponseEntity.badRequest().body("Registration is not completed for this student");
             }
-            student.setPassword(passwordEncoder.encode(newPassword));
+            student.setPassword(passwordEncoder.encode(resetPassword.getNewPassword()));
             studentRepository.save(student);
         } else if (userEntity instanceof TutorEntity) {
             TutorEntity tutor = (TutorEntity) userEntity;
             if (!tutor.isRegistrationCompleted()) {
                 return ResponseEntity.badRequest().body("Registration is not completed for this tutor");
             }
-            tutor.setPassword(passwordEncoder.encode(newPassword));
+            tutor.setPassword(passwordEncoder.encode(resetPassword.getNewPassword()));
             tutorRepository.save(tutor);
         }
 

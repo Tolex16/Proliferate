@@ -17,6 +17,6 @@ public class LoginResponse {
 	private final TutorDto tutorDto;
 
     @JsonProperty("token")
-    private final String  token;
+    private final String token;
 
 }

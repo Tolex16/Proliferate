@@ -211,33 +211,23 @@ public ResponseEntity<?> completeRegistration() {
     }
 
 
-public LoginResponse login(LoginRequest loginRequest) {
+public LoginResponse login(LoginStudentRequest loginStudentRequest) {
     try {
         // Authenticate the user
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginStudentRequest.getUserName(), loginStudentRequest.getPassword()));
     } catch (BadCredentialsException e) {
         throw new IllegalArgumentException("Invalid username and password", e);
     }
 
     // Try to find the user as a student first
-    var studentOpt = studentRepository.findByUserName(loginRequest.getUserName());
+    var studentOpt = studentRepository.findByUserName(loginStudentRequest.getUserName());
     if (studentOpt.isPresent()) {
         var student = studentOpt.get();
         UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
         var jwt = jwtService.genToken(userDetails, student);
         StudentDto loggedInStudent = studentMapper.mapTo(student);
         return new LoginResponse(loggedInStudent, null, jwt);
-    }
-
-    // Try to find the user as a tutor
-    var tutorOpt = tutorRepository.findByUserName(loginRequest.getUserName());
-    if (tutorOpt.isPresent()) {
-        var tutor = tutorOpt.get();
-        UserDetails userDetails = userService.userDetailsService().loadUserByUsername(tutor.getUsername());
-        var jwt = jwtService.genToken(userDetails, tutor);
-        TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
-        return new LoginResponse(null, loggedInTutor, jwt);
     }
 
     // If neither student nor tutor is found, throw an exception

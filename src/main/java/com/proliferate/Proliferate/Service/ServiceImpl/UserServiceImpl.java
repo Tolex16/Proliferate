@@ -35,7 +35,7 @@ public UserDetailsService userDetailsService() {
             }
 
             // If not found as a student, try to find the user as a tutor
-            var tutorOpt = tutorRepository.findByUserName(username);
+            var tutorOpt = tutorRepository.findByEmail(username);
             if (tutorOpt.isPresent()) {
                 return tutorOpt.get();
             }
