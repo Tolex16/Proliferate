@@ -34,8 +34,10 @@ public class TutorDto {
 	private String highestEducationLevelAttained;
 
     private String majorFieldOfStudy;
+
+    private String yearsOfTeachingExperience;
 	
-    private String teachingGuide;
+    private String teachingGrade;
 	
     private String currentSchool;
 	
@@ -53,9 +55,7 @@ public class TutorDto {
 
     private String availableForAdditionalSupport;
 
-    private LocalDate availableDate;
-
-    private LocalTime availableTime;
+    private List<String> availableDateTime;
 
 	private String educationalCertificates;
 

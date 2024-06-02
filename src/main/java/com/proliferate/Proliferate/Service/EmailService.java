@@ -167,15 +167,15 @@ public class EmailService {
 
 	public void tutorRegistrationConfirmationEmail(
             String to, String tutorFirstName, String tutorLastName, String email, Gender gender,
-            String contactNumber, int age, String highestEducationLevelAttained, String majorFieldOfStudy,
-            String teachingGuide, String currentSchool, String teachingStyle, String studentAssessmentApproach, String availableForAdditionalSupport,
-            LocalDate availableDate, LocalTime availableTime , String attendanceType, List<String> preferredSubjects) {
+            String contactNumber, int age, String highestEducationLevelAttained, String majorFieldOfStudy,String yearsOfTeachingExperience,
+            String teachingGrade, String currentSchool, String teachingStyle, String studentAssessmentApproach, String availableForAdditionalSupport,
+            List<String> availableDateTime , String attendanceType, List<String> preferredSubjects) {
 
         String subject = "Welcome to Proliferate!";
         String body = tutorEmailBody(tutorFirstName,tutorLastName, email, gender,
-                contactNumber, age, highestEducationLevelAttained, majorFieldOfStudy,
-                teachingGuide, currentSchool,teachingStyle, studentAssessmentApproach, availableForAdditionalSupport,
-                availableDate, availableTime , attendanceType, preferredSubjects);
+                contactNumber, age, highestEducationLevelAttained, majorFieldOfStudy, yearsOfTeachingExperience,
+                teachingGrade, currentSchool,teachingStyle, studentAssessmentApproach, availableForAdditionalSupport,
+                availableDateTime, attendanceType, preferredSubjects);
 
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
@@ -194,9 +194,9 @@ public class EmailService {
 
     private String tutorEmailBody(
             String tutorFirstName, String tutorLastName, String email, Gender gender,
-            String contactNumber, int age, String highestEducationLevelAttained, String majorFieldOfStudy,
-            String teachingGuide, String currentSchool, String teachingStyle, String studentAssessmentApproach, String availableForAdditionalSupport,
-            LocalDate availableDate, LocalTime availableTime , String attendanceType, List<String> preferredSubjects) {
+            String contactNumber, int age, String highestEducationLevelAttained, String majorFieldOfStudy,String yearsOfTeachingExperience,
+            String teachingGrade, String currentSchool, String teachingStyle, String studentAssessmentApproach, String availableForAdditionalSupport,
+            List<String> availableDateTime , String attendanceType, List<String> preferredSubjects) {
 
         StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append("<html>");
@@ -218,8 +218,8 @@ public class EmailService {
         bodyBuilder.append("<ul>");
         bodyBuilder.append("<li>Higher Education Level Attained: ").append(highestEducationLevelAttained).append("</li>");
         bodyBuilder.append("<li>Major/Field of Study: ").append(majorFieldOfStudy).append("</li>");
-        //bodyBuilder.append("<li>Years of Experience: ").append(subjects).append("</li>");
-		bodyBuilder.append("<li>Teaching Guide: ").append(teachingGuide).append("</li>");
+        bodyBuilder.append("<li>Years of Experience: ").append(yearsOfTeachingExperience).append("</li>");
+		bodyBuilder.append("<li>Teaching Grade: ").append(teachingGrade).append("</li>");
 		bodyBuilder.append("<li>Current School: ").append(currentSchool).append("</li>");
 		bodyBuilder.append("</ul>");
 
@@ -228,7 +228,7 @@ public class EmailService {
         bodyBuilder.append("<li>Teaching Style: ").append(teachingStyle).append("</li>");
         bodyBuilder.append("<li>student Assessment Approach: ").append(studentAssessmentApproach).append("</li>");
         bodyBuilder.append("<li>Availability for Additional Approach: ").append(availableForAdditionalSupport).append("</li>");
-        bodyBuilder.append("<li>Availability: ").append(availableDate).append(" " + availableTime).append("</li>");
+        bodyBuilder.append("<li>Availability: ").append(availableDateTime).append("</li>");
         bodyBuilder.append("<li>Attendance Type: ").append(attendanceType).append("</li>");
         bodyBuilder.append("<li>Preferred Subjects: ").append(preferredSubjects).append("</li>");
         bodyBuilder.append("</ul>");

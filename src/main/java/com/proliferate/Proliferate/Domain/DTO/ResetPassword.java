@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.DTO;
 
+import com.proliferate.Proliferate.config.StrongPassword;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,7 @@ public class ResetPassword {
     private String token;
 
     @NotBlank(message = "New password required")
+    @StrongPassword
     private String newPassword;
 
 }

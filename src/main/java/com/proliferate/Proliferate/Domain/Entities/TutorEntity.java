@@ -74,8 +74,11 @@ public class TutorEntity implements UserDetails {
     @Column(name = "major_field_of_study")
     private String majorFieldOfStudy;
 
-	@Column(name = "teaching_guide")
-    private String teachingGuide;
+	@Column(name = "teaching_grade")
+    private String teachingGrade;
+
+    @Column(name = "years_of_teaching_experience")
+    private String yearsOfTeachingExperience;
 	
 	@Column(name = "current_school")
     private String currentSchool;
@@ -102,11 +105,8 @@ public class TutorEntity implements UserDetails {
 	@Column(name = "availability_additional_support")
     private String availableForAdditionalSupport;
 	
-	@Column(name = "available_Date")
-    private LocalDate availableDate;
-	
-	@Column(name = "available_Time")
-    private LocalTime availableTime;
+	@Column(name = "available_Date_Time")
+    private List<String> availableDateTime;
 	
 	@Column(name = "educational_certificates")
 	@Lob

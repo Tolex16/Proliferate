@@ -13,7 +13,9 @@ public class EducationExperience {
 
     private String majorFieldOfStudy;
 
-    private String teachingGuide;
+    private String yearsOfTeachingExperience;
+
+    private String teachingGrade;
 
     private String currentSchool;
 

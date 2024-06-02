@@ -19,7 +19,6 @@ public class AvailabilityPreference {
     
 	private String availableForAdditionalSupport;
     
-	private LocalDate availableDate;
-    
-	private LocalTime availableTime;
+	private List<String> availableDateTime;
+
 }

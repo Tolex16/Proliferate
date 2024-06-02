@@ -86,7 +86,8 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
                         existingUser -> {
                             Optional.ofNullable(educationExperience.getHighestEducationLevelAttained()).ifPresent(existingUser::setHighestEducationLevelAttained);
                             Optional.ofNullable(educationExperience.getMajorFieldOfStudy()).ifPresent(existingUser::setMajorFieldOfStudy);
-                            Optional.ofNullable(educationExperience.getTeachingGuide()).ifPresent(existingUser::setTeachingGuide);
+                            Optional.ofNullable(educationExperience.getTeachingGrade()).ifPresent(existingUser::setTeachingGrade);
+                            Optional.ofNullable(educationExperience.getYearsOfTeachingExperience()).ifPresent(existingUser::setYearsOfTeachingExperience);
                             Optional.ofNullable(educationExperience.getCurrentSchool()).ifPresent(existingUser::setCurrentSchool);
 							Optional.ofNullable(educationExperience.getLocation()).ifPresent(existingUser::setLocation);
 //                            existingUser = academicDetailMapper.mapFrom(academicDetail);
@@ -139,8 +140,7 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
                             Optional.ofNullable(availabilityPreference.getPreferredSubjects()).ifPresent(existingUser::setPreferredSubjects);
                             Optional.ofNullable(availabilityPreference.getStudentAssessmentApproach()).ifPresent(existingUser::setStudentAssessmentApproach);
 							Optional.ofNullable(availabilityPreference.getAvailableForAdditionalSupport()).ifPresent(existingUser::setAvailableForAdditionalSupport);
-							Optional.ofNullable(availabilityPreference.getAvailableDate()).ifPresent(existingUser::setAvailableDate);
-							Optional.ofNullable(availabilityPreference.getAvailableTime()).ifPresent(existingUser::setAvailableTime);
+							Optional.ofNullable(availabilityPreference.getAvailableDateTime()).ifPresent(existingUser::setAvailableDateTime);
 							
                             AvailabilityPreference updatedUser = availabilityPreferenceMapper.mapTo(tutorRepository.save(existingUser));
 
@@ -211,7 +211,7 @@ public ResponseEntity<?> completeRegistration() {
         if (!tutorEntity.isTermsAndConditionsApproved()) {
             // If terms and conditions are not approved, update the field to true
             tutorEntity.setTermsAndConditionsApproved(true);
-            emailService.tutorRegistrationConfirmationEmail(tutorEntity.getEmail(), tutorEntity.getFirstName(), tutorEntity.getLastName(), tutorEntity.getEmail(), tutorEntity.getGender(), tutorEntity.getContactNumber(), tutorEntity.getAge(),tutorEntity.getHighestEducationLevelAttained(), tutorEntity.getMajorFieldOfStudy(), tutorEntity.getTeachingGuide() ,tutorEntity.getCurrentSchool(),tutorEntity.getTeachingStyle(),tutorEntity.getStudentAssessmentApproach(),tutorEntity.getAvailableForAdditionalSupport(),tutorEntity.getAvailableDate(),tutorEntity.getAvailableTime(),tutorEntity.getAttendanceType(),tutorEntity.getPreferredSubjects());
+            emailService.tutorRegistrationConfirmationEmail(tutorEntity.getEmail(), tutorEntity.getFirstName(), tutorEntity.getLastName(), tutorEntity.getEmail(), tutorEntity.getGender(), tutorEntity.getContactNumber(), tutorEntity.getAge(),tutorEntity.getHighestEducationLevelAttained(), tutorEntity.getMajorFieldOfStudy(),tutorEntity.getYearsOfTeachingExperience(), tutorEntity.getTeachingGrade() ,tutorEntity.getCurrentSchool(),tutorEntity.getTeachingStyle(),tutorEntity.getStudentAssessmentApproach(),tutorEntity.getAvailableForAdditionalSupport(),tutorEntity.getAvailableDateTime(),tutorEntity.getAttendanceType(),tutorEntity.getPreferredSubjects());
             tutorRepository.save(tutorEntity);
 
             // Optionally, you can update the user entity to mark registration as completed
