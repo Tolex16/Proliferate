@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Controller;
 
+import com.proliferate.Proliferate.Domain.DTO.Chat.MessageType;
 import jakarta.websocket.server.ServerEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.proliferate.Proliferate.Domain.DTO.Chat.ChatMessage;
@@ -32,6 +33,7 @@ public class ChatController {
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
         chatMessage.setTimestamp(LocalDateTime.now().toString());
+		chatMessage.setType(MessageType.CHAT);
         messageService.sendMessage(chatMessage);
         return chatMessage;
     }
@@ -43,6 +45,7 @@ public class ChatController {
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         chatMessage.setContent("User joined");
         chatMessage.setTimestamp(LocalDateTime.now().toString());
+		chatMessage.setType(MessageType.JOIN);
         return chatMessage;
     }
 

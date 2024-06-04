@@ -41,7 +41,7 @@ public UserDetailsService userDetailsService() {
             }
 
             // If neither student nor tutor is found, throw an exception
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("User not found: " + username);
         }
     };
 }

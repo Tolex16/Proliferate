@@ -76,4 +76,16 @@ public class TutorAuthController {
 
         return ResponseEntity.ok(authenticationService.login(loginRequest));
     }
+
+    @GetMapping(path="/check-mail/{email}")
+    public ResponseEntity<?> findUser (@PathVariable String email){
+
+        String mail = authenticationService.checkMail(email);
+
+        if(mail == null){
+            return new ResponseEntity<>(HttpStatus.FOUND);
+        }else{
+            return new ResponseEntity<>(mail,HttpStatus.FOUND);
+        }
+    }
 }

@@ -11,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public class ChatMessage {
 	
+    private Long senderId;
+	
+    private Long receiverId;
+	
     private String sender;
 	
     private String receiver;

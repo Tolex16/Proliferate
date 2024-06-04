@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
+import com.proliferate.Proliferate.Domain.DTO.Chat.MessageType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,5 +33,8 @@ public class Message {
 	
 	@Column(name = "timestamp")
     private LocalDateTime timestamp;
-
+	
+	@Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private MessageType type;
 }

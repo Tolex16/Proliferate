@@ -7,6 +7,7 @@ import com.proliferate.Proliferate.Domain.DTO.Gender;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.config.StrongPassword;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -45,6 +46,7 @@ public class StudentEntity implements UserDetails {
     @Column(name = "email", unique = true)
     @NotNull(message = "email can't be null")
     @NotBlank(message = " email cannot be blank")
+    @Email(message = "Input a real email address")
     private String email;
 
     @Column(name = "contact_number", unique = true)

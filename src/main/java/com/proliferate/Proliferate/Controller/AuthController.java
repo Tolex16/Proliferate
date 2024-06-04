@@ -103,6 +103,18 @@ public class AuthController {
                 .body("Logged out successfully");
     }
 
+    @GetMapping(path="/check-mail/{username}")
+    public ResponseEntity<?> findUser (@PathVariable String username){
+
+        String checkUsername = authenticationService.checkUsername(username);
+
+        if(checkUsername == null){
+            return new ResponseEntity<>(HttpStatus.FOUND);
+        }else{
+            return new ResponseEntity<>(checkUsername,HttpStatus.FOUND);
+        }
+    }
+
     @PostMapping("/friend-invite")
     public ResponseEntity<?> sendFriendInvite(@Valid @RequestBody FriendInvite friendInvite, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());

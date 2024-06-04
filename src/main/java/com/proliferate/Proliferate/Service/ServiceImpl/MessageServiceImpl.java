@@ -34,6 +34,7 @@ public class MessageServiceImpl implements MessageService {
         message.setReceiverType(chatMessage.getReceiverType());
         message.setContent(chatMessage.getContent());
         message.setTimestamp(LocalDateTime.now());
+		message.setTimestamp(LocalDateTime.parse(chatMessage.getTimestamp()));
         return messageRepository.save(message);
     }
 

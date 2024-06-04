@@ -20,7 +20,7 @@ public interface StudentAuthenticationService {
 
     String getTermsAndConditions();
 
-    String checkMail(String email);
+    String checkUsername(String username);
 
     LoginResponse login(LoginStudentRequest loginStudentRequest);
 }

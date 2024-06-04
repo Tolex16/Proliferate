@@ -6,7 +6,6 @@ import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
-import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

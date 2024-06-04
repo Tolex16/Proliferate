@@ -10,6 +10,7 @@ import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
@@ -237,13 +238,13 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
 
 
     @Override
-    public String checkMail(String email) {
-        return studentRepository.findByEmail(email).map(
+    public String checkUsername(String username) {
+        return studentRepository.findByUserName(username).map(
                 existingUser -> {
-                    String foundEmail = Optional.ofNullable(existingUser.getEmail()).orElse(null);
-                    return foundEmail;
+                    String foundUsername = Optional.ofNullable(existingUser.getUsername()).orElse(null);
+                    return foundUsername;
                 }).orElseThrow(
-                () -> new EmailNotFoundException("Email Not Found!!!")
+                () -> new UsernameNotFoundException("Username Not Found!!!")
         );
     }
 
