@@ -103,7 +103,7 @@ public class AuthController {
                 .body("Logged out successfully");
     }
 
-    @GetMapping(path="/check-mail/{username}")
+    @GetMapping(path="/check-username/{username}")
     public ResponseEntity<?> findUser (@PathVariable String username){
 
         String checkUsername = authenticationService.checkUsername(username);
