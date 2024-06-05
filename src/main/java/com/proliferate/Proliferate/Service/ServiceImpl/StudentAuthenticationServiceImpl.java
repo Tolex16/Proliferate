@@ -95,6 +95,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
                             Optional.ofNullable(academicDetail.getGradeYear()).ifPresent(existingUser::setGradeYear);
                             Optional.ofNullable(academicDetail.getSubjectsNeedingTutoring()).ifPresent(existingUser::setSubjectsNeedingTutoring);
                             Optional.ofNullable(academicDetail.getAttendanceType()).ifPresent(existingUser::setAttendanceType);
+							Optional.ofNullable(academicDetail.getPreferredTime()).ifPresent(existingUser::setPreferredTime);
                             Optional.ofNullable(academicDetail.getCurrentLocation()).ifPresent(existingUser::setCurrentLocation);
 //                            existingUser = academicDetailMapper.mapFrom(academicDetail);
 
@@ -238,8 +239,8 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
 
 
     @Override
-    public String checkUsername(String username) {
-        return studentRepository.findByUserName(username).map(
+    public String checkUsername(UsernameVerification usernameVerification) {
+        return studentRepository.findByUserName(usernameVerification.getUserName()).map(
                 existingUser -> {
                     String foundUsername = Optional.ofNullable(existingUser.getUsername()).orElse(null);
                     return foundUsername;

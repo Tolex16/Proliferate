@@ -77,15 +77,23 @@ public class TutorAuthController {
         return ResponseEntity.ok(authenticationService.login(loginRequest));
     }
 
-    @GetMapping(path="/check-mail/{email}")
-    public ResponseEntity<?> findUser (@PathVariable String email){
+    @GetMapping(path="/check-email")
+    public ResponseEntity<?> findUser (@Valid @RequestBody EmailVerification emailVerification){
 
-        String mail = authenticationService.checkMail(email);
+        String mail = authenticationService.checkMail(emailVerification);
 
         if(mail == null){
             return new ResponseEntity<>(HttpStatus.FOUND);
         }else{
             return new ResponseEntity<>(mail,HttpStatus.FOUND);
         }
+    }
+
+    @PostMapping("/update-tutor")
+    public ResponseEntity<?> updateTutor(@Valid @RequestBody UpdateTutor updateTutor, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return authenticationService.updateTutor(updateTutor);
     }
 }

@@ -45,7 +45,7 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
 
     private final Mapper<TutorEntity, AvailabilityPreference> availabilityPreferenceMapper;
 
-    private final Mapper<TutorEntity, UploadDocuments> uploadDocumentsMapper;
+    private final Mapper<TutorEntity, UpdateTutor> updateTutorMapper;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
     private final EmailService emailService;
@@ -252,14 +252,50 @@ public ResponseEntity<?> completeRegistration() {
     }
 
     @Override
-    public String checkMail(String email) {
-        return tutorRepository.findByEmail(email).map(
+    public String checkMail(EmailVerification emailVerification) {
+        return tutorRepository.findByEmail(emailVerification.getEmail()).map(
                 existingUser -> {
                     String foundEmail = Optional.ofNullable(existingUser.getEmail()).orElse(null);
                     return foundEmail;
                 }).orElseThrow(
                 () -> new EmailNotFoundException("Email Not Found!!!")
         );
+    }
+    @Transactional
+    public ResponseEntity<?> updateTutor (UpdateTutor updateTutor){
+        try {
+            Long userId = jwtService.getUserId();
+            if (tutorRepository.existsById(userId)) {
+                return tutorRepository.findById(userId).map(
+                        existingUser -> {
+                                if (!validateFileSize(updateTutor.getStudentImage())) {
+                                    return new ResponseEntity<>("One or more files exceed the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
+                                }
+                            Optional.ofNullable(updateTutor.getFirstName()).ifPresent(existingUser::setFirstName);
+                            Optional.ofNullable(updateTutor.getLastName()).ifPresent(existingUser::setLastName);
+                            Optional.ofNullable(updateTutor.getEmail()).ifPresent(existingUser::setEmail);
+                            Optional.ofNullable(updateTutor.getPhoneNumber()).ifPresent(existingUser::setContactNumber);
+                            Optional.ofNullable(updateTutor.getBio()).ifPresent(existingUser::setBio);
+
+                            if (!updateTutor.getStudentImage().isEmpty()) {
+                                try {
+                                    existingUser.setEducationalCertificates(updateTutor.getStudentImage().getBytes());
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+
+                            UpdateTutor updatedTutor = updateTutorMapper.mapTo(tutorRepository.save(existingUser));
+
+                            return new ResponseEntity<>(HttpStatus.CREATED);
+                        }
+                ).orElseThrow(() -> new UserNotFoundException("User not found"));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception error) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

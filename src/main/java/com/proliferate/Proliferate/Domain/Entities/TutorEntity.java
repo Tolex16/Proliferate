@@ -136,6 +136,12 @@ public class TutorEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+	@Column(name = "student_image")
+    @Lob
+    private byte[] studentImage;
+	
+	@Column(name = "bio")
+    private String bio;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

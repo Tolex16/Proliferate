@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.proliferate.Proliferate.Domain.DTO.Gender;
+import com.proliferate.Proliferate.Domain.DTO.PreferredTime;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.config.StrongPassword;
 import jakarta.persistence.*;
@@ -76,6 +77,10 @@ public class StudentEntity implements UserDetails {
 
     @Column(name = "attendance_type")
     private String attendanceType;
+	
+	@Column(name = "preferred_time")
+    @Enumerated(EnumType.STRING)
+    private PreferredTime preferredTime;
 
     @Column(name = "current_location")
     private String currentLocation;

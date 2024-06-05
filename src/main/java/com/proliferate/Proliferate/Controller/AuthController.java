@@ -103,10 +103,10 @@ public class AuthController {
                 .body("Logged out successfully");
     }
 
-    @GetMapping(path="/check-username/{username}")
-    public ResponseEntity<?> findUser (@PathVariable String username){
+    @GetMapping(path="/check-username")
+    public ResponseEntity<?> findStudent (@RequestBody UsernameVerification usernameVerification){
 
-        String checkUsername = authenticationService.checkUsername(username);
+        String checkUsername = authenticationService.checkUsername(usernameVerification);
 
         if(checkUsername == null){
             return new ResponseEntity<>(HttpStatus.FOUND);

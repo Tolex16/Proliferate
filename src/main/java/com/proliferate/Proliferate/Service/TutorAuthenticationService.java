@@ -21,6 +21,7 @@ public interface TutorAuthenticationService {
 
     LoginResponse login(LoginTutorRequest loginTutorRequest);
 
-    String checkMail(String email);
+    String checkMail(EmailVerification emailVerification);
 
+    ResponseEntity updateTutor (UpdateTutor updateTutor);
 }
