@@ -105,7 +105,8 @@ public class StudentEntity implements UserDetails {
 	
 	@Column(name = "terms_and_conditions_approved")
     private boolean termsAndConditionsApproved;
-	
+
+
 	@Column(name = "registration_completed")
 	private boolean registrationCompleted;
 

@@ -248,13 +248,14 @@ public ResponseEntity<?> completeRegistration() {
         }
 
         // If neither student nor tutor is found, throw an exception
-        throw new IllegalArgumentException("Error in username and password");
+        throw new IllegalArgumentException("Error in email and password");
     }
 
     @Override
     public String checkMail(EmailVerification emailVerification) {
         return tutorRepository.findByEmail(emailVerification.getEmail()).map(
                 existingUser -> {
+
                     String foundEmail = Optional.ofNullable(existingUser.getEmail()).orElse(null);
                     return foundEmail;
                 }).orElseThrow(
@@ -269,7 +270,7 @@ public ResponseEntity<?> completeRegistration() {
                 return tutorRepository.findById(userId).map(
                         existingUser -> {
                                 if (!validateFileSize(updateTutor.getStudentImage())) {
-                                    return new ResponseEntity<>("One or more files exceed the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
+                                    return new ResponseEntity<>("Student Image exceed the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
                                 }
                             Optional.ofNullable(updateTutor.getFirstName()).ifPresent(existingUser::setFirstName);
                             Optional.ofNullable(updateTutor.getLastName()).ifPresent(existingUser::setLastName);
@@ -287,7 +288,7 @@ public ResponseEntity<?> completeRegistration() {
 
                             UpdateTutor updatedTutor = updateTutorMapper.mapTo(tutorRepository.save(existingUser));
 
-                            return new ResponseEntity<>(HttpStatus.CREATED);
+                            return new ResponseEntity<>(updatedTutor,HttpStatus.CREATED);
                         }
                 ).orElseThrow(() -> new UserNotFoundException("User not found"));
             } else {

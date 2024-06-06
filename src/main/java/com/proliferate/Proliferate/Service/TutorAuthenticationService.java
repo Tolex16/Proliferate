@@ -14,9 +14,11 @@ public interface TutorAuthenticationService {
     ResponseEntity teachingStyleApproach(TeachingStyleApproach teachingStyleApproach);
 
     ResponseEntity availabilityPreference(AvailabilityPreference availabilityPreference);
-	
+
+
 	ResponseEntity uploadDocuments(MultipartFile educationalCertificates, MultipartFile resumeCurriculumVitae, MultipartFile professionalDevelopmentCert, MultipartFile identificationDocuments);
-	
+
+
 	ResponseEntity completeRegistration();
 
     LoginResponse login(LoginTutorRequest loginTutorRequest);

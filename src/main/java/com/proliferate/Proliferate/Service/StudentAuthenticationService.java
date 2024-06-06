@@ -18,6 +18,7 @@ public interface StudentAuthenticationService {
 	
 	ResponseEntity completeRegistration();
 
+
     String getTermsAndConditions();
 
     String checkUsername(UsernameVerification usernameVerification);

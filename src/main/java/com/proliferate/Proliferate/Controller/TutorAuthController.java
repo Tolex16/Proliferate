@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -93,7 +94,16 @@ public class TutorAuthController {
     public ResponseEntity<?> updateTutor(@Valid @RequestBody UpdateTutor updateTutor, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
         return authenticationService.updateTutor(updateTutor);
     }
+
+//    @PostMapping(path = " e", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity addRecipe(@ModelAttribute RecipeOperationsDto recipeDto, @RequestPart("file") MultipartFile file) {
+//        // handle the file attachment
+//        if (file != null) {
+//            recipeDto.setFeaturedImage(file);
+//        }
+//        return new ResponseEntity(recipeService.addRecipe(recipeDto), HttpStatus.CREATED);
+//    }
+
 }

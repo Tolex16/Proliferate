@@ -110,7 +110,7 @@ public class AuthController {
 
         if(checkUsername == null){
             return new ResponseEntity<>(HttpStatus.FOUND);
-        }else{
+        } else{
             return new ResponseEntity<>(checkUsername,HttpStatus.FOUND);
         }
     }
