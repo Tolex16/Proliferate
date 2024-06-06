@@ -15,9 +15,7 @@ public interface TutorAuthenticationService {
 
     ResponseEntity availabilityPreference(AvailabilityPreference availabilityPreference);
 
-
 	ResponseEntity uploadDocuments(MultipartFile educationalCertificates, MultipartFile resumeCurriculumVitae, MultipartFile professionalDevelopmentCert, MultipartFile identificationDocuments);
-
 
 	ResponseEntity completeRegistration();
 

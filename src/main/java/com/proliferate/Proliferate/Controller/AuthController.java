@@ -46,6 +46,12 @@ public class AuthController {
                      .collect(Collectors.toList());
     }
 
+    @GetMapping("/api/preferredTime")
+    public List<String> getPreferredTime() {
+        return Arrays.stream(PreferredTime.values())
+                .map(PreferredTime::getDisplayName)
+                .collect(Collectors.toList());
+    }
     @PostMapping("/academicDetail")
     public ResponseEntity<?> academicDetail(@Valid @RequestBody AcademicDetail academicDetail, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
@@ -110,7 +116,7 @@ public class AuthController {
 
         if(checkUsername == null){
             return new ResponseEntity<>(HttpStatus.FOUND);
-        } else{
+        }else{
             return new ResponseEntity<>(checkUsername,HttpStatus.FOUND);
         }
     }
