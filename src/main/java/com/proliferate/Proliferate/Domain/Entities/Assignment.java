@@ -31,7 +31,7 @@ public class Assignment {
 	@Column(name = "grade_level")
     private String gradeLevel;
 	
-	@Column(name = "student_image")
+	@Column(name = "assignment_file")
     @Lob
     private byte[] assignmentFile;
 }

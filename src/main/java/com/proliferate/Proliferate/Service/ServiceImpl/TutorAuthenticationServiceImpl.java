@@ -57,10 +57,10 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
 
     public ResponseEntity<?> tutorRegister(TutorRegister tutorRegister){
         if(tutorRepository.existsByUserName(tutorRegister.getUserName())){
-            throw new UserAlreadyExistsException("There is an account with this username.");
+            throw new UserAlreadyExistsException("There is a tutor account with this username.");
         }
         if(tutorRepository.existsByEmail(tutorRegister.getEmail())){
-            throw new UserAlreadyExistsException("There is an account associated with this email already");
+            throw new UserAlreadyExistsException("There is a tutor account associated with this email already");
         }
         try {
             tutorRegister.setPassword(passwordEncoder.encode(tutorRegister.getPassword()));
@@ -262,15 +262,16 @@ public ResponseEntity<?> completeRegistration() {
                 () -> new EmailNotFoundException("Email Not Found!!!")
         );
     }
+	
     @Transactional
-    public ResponseEntity<?> updateTutor (UpdateTutor updateTutor){
+    public ResponseEntity<?> updateTutor (UpdateTutor updateTutor, MultipartFile tutorImage){
         try {
             Long userId = jwtService.getUserId();
             if (tutorRepository.existsById(userId)) {
                 return tutorRepository.findById(userId).map(
                         existingUser -> {
-                                if (!validateFileSize(updateTutor.getStudentImage())) {
-                                    return new ResponseEntity<>("Student Image exceed the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
+                                if (!validateFileSize(tutorImage)) {
+                                    return new ResponseEntity<>("Tutor Image exceed the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
                                 }
                             Optional.ofNullable(updateTutor.getFirstName()).ifPresent(existingUser::setFirstName);
                             Optional.ofNullable(updateTutor.getLastName()).ifPresent(existingUser::setLastName);
@@ -278,9 +279,9 @@ public ResponseEntity<?> completeRegistration() {
                             Optional.ofNullable(updateTutor.getPhoneNumber()).ifPresent(existingUser::setContactNumber);
                             Optional.ofNullable(updateTutor.getBio()).ifPresent(existingUser::setBio);
 
-                            if (!updateTutor.getStudentImage().isEmpty()) {
+                            if (!tutorImage.isEmpty()) {
                                 try {
-                                    existingUser.setEducationalCertificates(updateTutor.getStudentImage().getBytes());
+                                    existingUser.setStudentImage(tutorImage.getBytes());
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }

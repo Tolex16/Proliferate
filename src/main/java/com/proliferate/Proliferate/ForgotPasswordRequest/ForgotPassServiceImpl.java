@@ -4,6 +4,7 @@ package com.proliferate.Proliferate.ForgotPasswordRequest;
 import com.proliferate.Proliferate.Domain.DTO.ResetPassword;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.EmailService;
@@ -59,7 +60,7 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
             }
 
             if (existingUser == null) {
-                throw new RuntimeException("User with email " + email + " not found");
+                throw new EmailNotFoundException("User with email " + email + " not found");
             }
 
             ForgotPassToken forgotPassToken = new ForgotPassToken();

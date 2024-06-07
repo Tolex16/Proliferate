@@ -15,7 +15,7 @@ public class Feedback {
 
     private String sessionDate;
 
-    private String rating;
+    private int rating;
 
     private String comments;
 }

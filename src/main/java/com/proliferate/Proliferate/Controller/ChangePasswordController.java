@@ -3,6 +3,9 @@ package com.proliferate.Proliferate.Controller;
 import com.proliferate.Proliferate.Domain.DTO.ChangePasswordRequest;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.ExeceptionHandler.InvalidPasswordException;
+import com.proliferate.Proliferate.ExeceptionHandler.SamePasswordException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.ChangePasswordService;
@@ -27,9 +30,6 @@ public class ChangePasswordController {
 
     @Autowired
     private final JwtService jwtService;
-    @Autowired
-    private final PasswordEncoder passwordEncoder;
-
     private final TutorRepository tutorRepository;
 
     private final StudentRepository studentRepository;
@@ -54,9 +54,10 @@ public class ChangePasswordController {
             }
 
             // If neither found, throw an exception
-            throw new RuntimeException("User Not Found");
-
-        } catch (IllegalArgumentException e) {
+            throw new UserNotFoundException("User Not Found");
+        } catch (InvalidPasswordException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (SamePasswordException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

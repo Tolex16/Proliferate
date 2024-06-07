@@ -65,10 +65,10 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
     public ResponseEntity<?> studentRegister(StudentRegisterPersDeets studentRegisterPersDeets){
         if(studentRepository.existsByUserName(studentRegisterPersDeets.getUserName())){
-            throw new UserAlreadyExistsException("There is an account with this username.");
+            throw new UserAlreadyExistsException("There is an student account with this username.");
         }
         if(studentRepository.existsByEmail(studentRegisterPersDeets.getEmail())){
-            throw new UserAlreadyExistsException("There is an account associated with this email already");
+            throw new UserAlreadyExistsException("There is an student account associated with this email already");
         }
         try {
             studentRegisterPersDeets.setPassword(passwordEncoder.encode(studentRegisterPersDeets.getPassword()));
@@ -103,7 +103,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
                             return new ResponseEntity<>(HttpStatus.CREATED);
                         }
-                        ).orElseThrow(() -> new UserNotFoundException("User not found"));
+                        ).orElseThrow(() -> new UserNotFoundException("Student account not found"));
 
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -130,7 +130,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
                             return new ResponseEntity<>(HttpStatus.CREATED);
                         }
-                ).orElseThrow(() -> new UserNotFoundException("User not found"));
+                ).orElseThrow(() -> new UserNotFoundException("Student account not found"));
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -152,7 +152,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
                             return new ResponseEntity<>(HttpStatus.CREATED);
                         }
-                ).orElseThrow(() -> new UserNotFoundException("User not found"));
+                ).orElseThrow(() -> new UserNotFoundException("Student account not found"));
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -171,7 +171,7 @@ public ResponseEntity<?> completeRegistration() {
         if (!studentEntity.isTermsAndConditionsApproved()) {
             // If terms and conditions are not approved, update the field to true
             studentEntity.setTermsAndConditionsApproved(true);
-            emailService.studentRegistrationConfirmationEmail(studentEntity.getEmail(), studentEntity.getFirstName(),studentEntity.getLastName(), studentEntity.getEmail(), studentEntity.getGender(), studentEntity.getContactNumber(), studentEntity.getAge(),studentEntity.getGradeYear(), studentEntity.getSubjectsNeedingTutoring(),studentEntity.getAvailability(), studentEntity.getAdditionalPreferences(),studentEntity.getShortTermGoals(),studentEntity.getLongTermGoals());
+            emailService.studentRegistrationConfirmationEmail(studentEntity.getEmail(), studentEntity.getFirstName(),studentEntity.getLastName(), studentEntity.getEmail(), studentEntity.getGender(), studentEntity.getContactNumber(), studentEntity.getAge(),studentEntity.getGradeYear(), studentEntity.getSubjectsNeedingTutoring(),studentEntity.getAttendanceType(),studentEntity.getAvailability(), studentEntity.getAdditionalPreferences(),studentEntity.getShortTermGoals(),studentEntity.getLongTermGoals());
             studentRepository.save(studentEntity);
 
             // Optionally, you can update the user entity to mark registration as completed
@@ -219,7 +219,7 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginStudentRequest.getUserName(), loginStudentRequest.getPassword()));
     } catch (BadCredentialsException e) {
-        throw new IllegalArgumentException("Invalid username and password", e);
+        throw new IllegalArgumentException("Invalid student username and password", e);
     }
 
     // Try to find the user as a student first
@@ -233,7 +233,7 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
     }
 
     // If neither student nor tutor is found, throw an exception
-    throw new IllegalArgumentException("Error in username and password");
+    throw new UsernameNotFoundException("Error in username and password");
 }
 
 

@@ -2,6 +2,9 @@ package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.*;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
+import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.InviteService;
 import com.proliferate.Proliferate.Service.StudentAuthenticationService;
@@ -35,8 +38,13 @@ public class AuthController {
     public ResponseEntity<?> registerPersonalDetails(@Valid @RequestBody StudentRegisterPersDeets studentRegisterPersDeets, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+        try {
+            authenticationService.studentRegister(studentRegisterPersDeets);
+            return new ResponseEntity<>("Welcome To Proliferate, " + studentRegisterPersDeets.getFirstName(), HttpStatus.CREATED);
+        } catch (UserAlreadyExistsException ex){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
 
-        return authenticationService.studentRegister(studentRegisterPersDeets);
     }
 	
 	@GetMapping("/api/genders")
@@ -56,24 +64,37 @@ public class AuthController {
     public ResponseEntity<?> academicDetail(@Valid @RequestBody AcademicDetail academicDetail, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return authenticationService.academicDetails(academicDetail);
+        try {
+            authenticationService.academicDetails(academicDetail);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
 
     @PostMapping("/preferences")
     public ResponseEntity<?> preferences(@Valid @RequestBody Preferences preferences, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return authenticationService.preference(preferences);
+        try {
+            authenticationService.preference(preferences);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
 
     @PostMapping("/learningGoals")
     public ResponseEntity<?> learningGoals(@Valid @RequestBody LearningGoals learningGoals, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+        try {
+            authenticationService.learningGoals(learningGoals);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
 
-        return authenticationService.learningGoals(learningGoals);
     }
 
 
@@ -112,13 +133,18 @@ public class AuthController {
     @GetMapping(path="/check-username")
     public ResponseEntity<?> findStudent (@RequestBody UsernameVerification usernameVerification){
 
-        String checkUsername = authenticationService.checkUsername(usernameVerification);
 
-        if(checkUsername == null){
-            return new ResponseEntity<>(HttpStatus.FOUND);
-        }else{
-            return new ResponseEntity<>(checkUsername,HttpStatus.FOUND);
+        try {
+            String checkUsername = authenticationService.checkUsername(usernameVerification);
+            if(checkUsername == null){
+                return new ResponseEntity<>(HttpStatus.FOUND);
+            }else{
+                return new ResponseEntity<>(true,HttpStatus.FOUND);
+            }
+        } catch (UsernameNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
+
     }
 
     @PostMapping("/friend-invite")

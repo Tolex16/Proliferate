@@ -7,9 +7,7 @@ import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.*;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
@@ -41,15 +39,15 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
 
     public ResponseEntity<?> changeStudentPassword(StudentEntity student, ChangePasswordRequest request) {
         if (request.getCurrentPassword() == null || request.getNewPassword() == null || request.getConfirmNewPassword() == null) {
-            throw new IllegalArgumentException("Passwords cannot be null");
+            throw new InvalidPasswordException("Passwords cannot be null");
         }
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), student.getPassword())) {
-            throw new IllegalArgumentException("Current password is incorrect");
+            throw new InvalidPasswordException("Current password is incorrect");
         }
 
         if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
-            throw new IllegalArgumentException("New password and confirm new password do not match");
+            throw new SamePasswordException("New password and confirm new password do not match");
         }
 
         student.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -59,15 +57,15 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
 
     public ResponseEntity<?> changeTutorPassword(TutorEntity tutor, ChangePasswordRequest request) {
         if (request.getCurrentPassword() == null || request.getNewPassword() == null || request.getConfirmNewPassword() == null) {
-            throw new IllegalArgumentException("Passwords cannot be null");
+            throw new InvalidPasswordException("Passwords cannot be null");
         }
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), tutor.getPassword())) {
-            throw new IllegalArgumentException("Current password is incorrect");
+            throw new InvalidPasswordException("Current password is incorrect");
         }
 
         if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
-            throw new IllegalArgumentException("New password and confirm new password do not match");
+            throw new SamePasswordException("New password and confirm new password do not match");
         }
 
         tutor.setPassword(passwordEncoder.encode(request.getNewPassword()));

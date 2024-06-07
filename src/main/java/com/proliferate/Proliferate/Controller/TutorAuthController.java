@@ -1,6 +1,9 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
+import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.TutorAuthenticationService;
 import jakarta.validation.Valid;
@@ -27,8 +30,12 @@ public class TutorAuthController {
     public ResponseEntity<?> tutorPersonalDetails(@Valid @RequestBody TutorRegister tutorRegister, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return authenticationService.tutorRegister(tutorRegister);
+        try {
+            authenticationService.tutorRegister(tutorRegister);
+            return new ResponseEntity<>("Welcome To Proliferate, " + tutorRegister.getFirstName(), HttpStatus.CREATED);
+        } catch (UserAlreadyExistsException ex){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
 	
 	
@@ -37,24 +44,37 @@ public class TutorAuthController {
     public ResponseEntity<?> educationExperience(@Valid @RequestBody EducationExperience educationExperience, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+        try {
+            authenticationService.educationExperience(educationExperience);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
 
-        return authenticationService.educationExperience(educationExperience);
     }
 
     @PostMapping("/teachingStyleApproach")
     public ResponseEntity<?> teachingStyleApproach(@Valid @RequestBody TeachingStyleApproach teachingStyleApproach, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return authenticationService.teachingStyleApproach(teachingStyleApproach);
+        try {
+            authenticationService.teachingStyleApproach(teachingStyleApproach);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
 
     @PostMapping("/availabilityPreference")
     public ResponseEntity<?> availabilityPreference(@Valid @RequestBody AvailabilityPreference availabilityPreference, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return authenticationService.availabilityPreference(availabilityPreference);
+        try {
+            authenticationService.availabilityPreference(availabilityPreference);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
 	
 	@PostMapping("/upload-documents")
@@ -62,7 +82,13 @@ public class TutorAuthController {
                                          @RequestParam("resumeCurriculumVitae") MultipartFile resumeCurriculumVitae,
                                          @RequestParam("professionalDevelopmentCert") MultipartFile professionalDevelopmentCert,
                                          @RequestParam("identificationDocuments") MultipartFile identificationDocuments) throws IOException {
-	return authenticationService.uploadDocuments(educationalCertificates, resumeCurriculumVitae, professionalDevelopmentCert,identificationDocuments);
+
+        try {
+            authenticationService.uploadDocuments(educationalCertificates, resumeCurriculumVitae, professionalDevelopmentCert,identificationDocuments);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
 	
 	@PostMapping("/tutorCompleteRegistration")
@@ -81,22 +107,34 @@ public class TutorAuthController {
     @GetMapping(path="/check-email")
     public ResponseEntity<?> findUser (@Valid @RequestBody EmailVerification emailVerification){
 
-        String mail = authenticationService.checkMail(emailVerification);
 
-        if(mail == null){
-            return new ResponseEntity<>(HttpStatus.FOUND);
-        }else{
-            return new ResponseEntity<>(mail,HttpStatus.FOUND);
+        try {
+            String email = authenticationService.checkMail(emailVerification);
+
+            if(email == null){
+                return new ResponseEntity<>(HttpStatus.FOUND);
+            }else{
+                return new ResponseEntity<>(true,HttpStatus.FOUND);
+            }
+        } catch (UsernameNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
     @PostMapping("/update-tutor")
-    public ResponseEntity<?> updateTutor(@Valid @RequestBody UpdateTutor updateTutor, BindingResult result){
+    public ResponseEntity<?> updateTutor(@RequestPart("updateTutor") UpdateTutor updateTutor,
+                                         @RequestPart("studentImage") MultipartFile studentImage, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-        return authenticationService.updateTutor(updateTutor);
+        try {
+            authenticationService.updateTutor(updateTutor,studentImage);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
 
+		
 //    @PostMapping(path = " e", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 //    public ResponseEntity addRecipe(@ModelAttribute RecipeOperationsDto recipeDto, @RequestPart("file") MultipartFile file) {
 //        // handle the file attachment

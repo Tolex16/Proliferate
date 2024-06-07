@@ -23,5 +23,5 @@ public interface TutorAuthenticationService {
 
     String checkMail(EmailVerification emailVerification);
 
-    ResponseEntity updateTutor (UpdateTutor updateTutor);
+    ResponseEntity updateTutor (UpdateTutor updateTutor, MultipartFile studentImage);
 }

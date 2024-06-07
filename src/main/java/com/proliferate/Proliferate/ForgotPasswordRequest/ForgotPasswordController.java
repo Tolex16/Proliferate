@@ -1,9 +1,14 @@
 package com.proliferate.Proliferate.ForgotPasswordRequest;
 
 import com.proliferate.Proliferate.Domain.DTO.ResetPassword;
+import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.InvalidPasswordException;
+import com.proliferate.Proliferate.ExeceptionHandler.InvalidTokenException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,14 +22,27 @@ public class ForgotPasswordController {
 
     @PostMapping("/initiate")
     public ResponseEntity<String> initiateForgotPass(@RequestBody String email){
-        forgotPassTokenService.initiateForgotPass(email);
-        return ResponseEntity.ok("Forgot Password sequence initiated. Check your email for instructions.");
+
+        try {
+            forgotPassTokenService.initiateForgotPass(email);
+            return ResponseEntity.ok("Forgot Password sequence initiated. Check your email for instructions.");
+        } catch (EmailNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+
     }
 
 
    @PostMapping("/reset")
-    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPassword resetPassword) {
-    return forgotPassTokenService.resetPassword(resetPassword);
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPassword resetPassword) {
+
+       try {
+           return forgotPassTokenService.resetPassword(resetPassword);
+       } catch (InvalidTokenException ex){
+           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+       } catch (InvalidPasswordException ex){
+           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+       }
 }
 
 }

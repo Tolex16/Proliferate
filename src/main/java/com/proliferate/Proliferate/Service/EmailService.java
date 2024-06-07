@@ -23,9 +23,9 @@ public class EmailService {
     @Autowired
     private final JavaMailSender javaMailSender;
 
-  public void studentRegistrationConfirmationEmail(String to, String studentFirstName, String studentLastName, String email, Gender gender, String contactNumber, int age, String grade, String subjects, String availability, String additionalPreferences, String shortTermGoals, String longTermGoals) {
+  public void studentRegistrationConfirmationEmail(String to, String studentFirstName, String studentLastName, String email, Gender gender, String contactNumber, int age, String grade, String subjects, String tutoringFormat, String availability, String additionalPreferences, String shortTermGoals, String longTermGoals) {
         String subject = "Welcome to Proliferate!";
-        String body = buildEmailBody(studentFirstName, studentLastName, email, gender, contactNumber, age, grade, subjects, availability, additionalPreferences, shortTermGoals, longTermGoals);
+        String body = buildEmailBody(studentFirstName, studentLastName, email, gender, contactNumber, age, grade, subjects,tutoringFormat, availability, additionalPreferences, shortTermGoals, longTermGoals);
 
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
@@ -42,7 +42,7 @@ public class EmailService {
         }
     }
 
-    private String buildEmailBody(String studentFirstName, String studentLastName, String email, Gender gender, String contactNumber, int age, String grade, String subjects, String availability, String additionalPreferences, String shortTermGoals, String longTermGoals) {
+    private String buildEmailBody(String studentFirstName, String studentLastName, String email, Gender gender, String contactNumber, int age, String grade, String subjects, String tutoringFormat, String availability, String additionalPreferences, String shortTermGoals, String longTermGoals) {
         StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append("<html>");
         bodyBuilder.append("<body>");
@@ -64,7 +64,7 @@ public class EmailService {
         bodyBuilder.append("</ul>");
         bodyBuilder.append("<h3>Tutoring Preferences:</h3>");
         bodyBuilder.append("<ul>");
-        //bodyBuilder.append("<li>Preferred Tutoring Format: ").append(tutoringFormat).append("</li>");
+        bodyBuilder.append("<li>Preferred Tutoring Format: ").append(tutoringFormat).append("</li>");
         bodyBuilder.append("<li>Availability: ").append(availability).append("</li>");
         bodyBuilder.append("<li>Additional Preferences/Requirements: ").append(additionalPreferences).append("</li>");
         bodyBuilder.append("</ul>");
