@@ -2,9 +2,13 @@ package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentProfile;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.UpdateTutor;
 import com.proliferate.Proliferate.Domain.Entities.AttendanceEntity;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
+import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.AttendanceRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
@@ -13,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +39,19 @@ public class StudentManagementController {
     private final Mapper<StudentEntity, StudentTable> studentMapper;
 
     private final Mapper<StudentEntity, StudentProfile> studentProfileMapper;
+
+    @PostMapping("/update-tutor")
+    public ResponseEntity<?> updateTutor(@RequestPart("assignment") AssignmentDto assignmentDto,
+                                         @RequestPart("studentImage") MultipartFile assignmentFile, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+        try {
+            authenticationService.createAssignment(assignmentDto,assignmentFile);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        } catch (AssignmentNotCreatedException ex){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(ex.getMessage());
+        }
+    }
 
     @GetMapping("/get-students")
     public ResponseEntity<Iterable<StudentTable>> getAllStudents() {

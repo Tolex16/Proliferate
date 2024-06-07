@@ -40,8 +40,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
     private final PasswordEncoder passwordEncoder;
 
     private final StudentRepository studentRepository;
-	
-	private final TutorRepository tutorRepository;
+
 
     @Autowired
     private final UserService userService;

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proliferate.Proliferate.Domain.DTO.Chat.CallRequest;
 import com.proliferate.Proliferate.Domain.DTO.Chat.SignalRequest;
 
+import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
+import com.proliferate.Proliferate.Repository.StudentRepository;
+import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.UserService;
 import com.proliferate.Proliferate.config.VideoCallWebSocketHandler;
@@ -23,12 +26,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class VideoCallController {
 
-    @Autowired
-    private final JwtService jwtService;
-
-    @Autowired
-    private final UserService userService;
-
+    private final TutorRepository tutorRepository;
+    private final StudentRepository studentRepository;
     private final VideoCallWebSocketHandler videoCallWebSocketHandler;
 
     private Map<String, CallRequest> ongoingCalls = new HashMap<>();
@@ -39,6 +38,9 @@ public class VideoCallController {
     // Validate the caller and callee
         if (request.getCaller() == null || request.getCallee() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Caller and Callee must be specified");
+        }
+        if(studentRepository.existsByUserName(request.getCaller()) || tutorRepository.existsByUserName(request.getCaller())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
         }
 
         // Notify the callee of the incoming call
@@ -67,6 +69,9 @@ public class VideoCallController {
          // Validate the caller and callee
         if (request.getCaller() == null || request.getCallee() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Caller and Callee must be specified");
+        }
+        if(studentRepository.existsByUserName(request.getCaller()) || tutorRepository.existsByUserName(request.getCaller())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
         }
 
         // Notify both parties that the call has ended
