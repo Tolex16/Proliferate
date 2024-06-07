@@ -6,6 +6,8 @@ import com.proliferate.Proliferate.Domain.Entities.Assignment;
 import com.proliferate.Proliferate.Domain.Entities.AttendanceEntity;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
+import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.Repository.AssignmentRepository;
 import com.proliferate.Proliferate.Repository.AttendanceRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,8 +48,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             }
 			assignmentRepository.save(assignment);
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (Exception error) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AssignmentNotCreatedException | IOException error) {
+            throw new AssignmentNotCreatedException("Assignment could not be created");
         }
     }
 
