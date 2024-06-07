@@ -130,7 +130,7 @@ public class AuthController {
                 .body("Logged out successfully");
     }
 
-    @GetMapping(path="/check-username")
+    @GetMapping("/check-username")
     public ResponseEntity<?> findStudent (@RequestBody UsernameVerification usernameVerification){
 
 
@@ -139,7 +139,7 @@ public class AuthController {
             if(checkUsername == null){
                 return new ResponseEntity<>(HttpStatus.FOUND);
             }else{
-                return new ResponseEntity<>(true,HttpStatus.FOUND);
+                return new ResponseEntity<>(checkUsername,HttpStatus.FOUND);
             }
         } catch (UsernameNotFoundException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());

@@ -11,10 +11,12 @@ import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.StudentManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -30,6 +32,8 @@ public class StudentManagementController {
     private final StudentRepository studentRepository;
     private final Mapper<StudentEntity, StudentTable> studentMapper;
 
+    private final Mapper<StudentEntity, StudentProfile> studentProfileMapper;
+
     @GetMapping("/get-students")
     public ResponseEntity<Iterable<StudentTable>> getAllStudents() {
         List<StudentEntity> students = authenticationService.getAllStudents();
@@ -37,21 +41,16 @@ public class StudentManagementController {
         return ResponseEntity.ok(allStudent);
     }
 
-//    @GetMapping("/get-studentProfile")
-//    public ResponseEntity<List<>> getAllStudentProfile() {
-//        List<StudentEntity> students = authenticationService.getAllStudents();
-//        List<StudentDto> studentDtos = studentMapper.mapListTo(students);
-//        return ResponseEntity.ok(studentDtos);
-//    }
-//
-
-	
-//	@GetMapping("/{id}")
-//    public ResponseEntity<StudentProfile> getStudentProfile(@PathVariable Long id) {
-//        StudentProfile studentProfile = authenticationService.getStudentProfile(id);
-//
-//        return ResponseEntity.ok(studentProfile);
-//    }
+    @GetMapping("/get-studentProfile/{studentId}")
+    public ResponseEntity<StudentProfile> getStudentProfile(@PathVariable Long studentId) {
+        Optional<StudentEntity> studentEntityOptional = authenticationService.getStudentProfile(studentId);
+        if (studentEntityOptional.isPresent()) {
+            StudentProfile studentProfile = studentProfileMapper.mapTo(studentEntityOptional.get());
+            return ResponseEntity.ok(studentProfile);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
 
     @GetMapping("get-attendance-records")

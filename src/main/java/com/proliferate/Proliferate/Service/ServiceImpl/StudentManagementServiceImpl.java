@@ -55,20 +55,6 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return file.getSize() <= MAX_FILE_SIZE;
     }
 
-//	   public StudentDto getStudentProfile(Long id) {
-//        return studentRepository.findById(id)
-//                .map(student -> new StudentDto(
-//                        student.getFirstName() + " " + student.getLastName(),
-//                        student.getAge(),
-//                        student.getGradeYear(),
-//                        student.getAttendanceType(),
-//                        student.getAvailability(),
-//                        student.getAdditionalPreferences(),
-//                        student.getShortTermGoals(),
-//                        student.getLongTermGoals()
-//                ))
-//                .orElseThrow(() -> new UserNotFoundException("User not found"));
-//    }
     public List<StudentEntity> getAllStudents() {
         return studentRepository.findAll();
     }

@@ -104,9 +104,8 @@ public class TutorAuthController {
         return ResponseEntity.ok(authenticationService.login(loginRequest));
     }
 
-    @GetMapping(path="/check-email")
+    @GetMapping("/check-email")
     public ResponseEntity<?> findUser (@Valid @RequestBody EmailVerification emailVerification){
-
 
         try {
             String email = authenticationService.checkMail(emailVerification);
@@ -114,7 +113,7 @@ public class TutorAuthController {
             if(email == null){
                 return new ResponseEntity<>(HttpStatus.FOUND);
             }else{
-                return new ResponseEntity<>(true,HttpStatus.FOUND);
+                return new ResponseEntity<>(email,HttpStatus.FOUND);
             }
         } catch (UsernameNotFoundException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
