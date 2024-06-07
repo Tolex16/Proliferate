@@ -39,8 +39,8 @@ public class AuthController {
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
         try {
-            authenticationService.studentRegister(studentRegisterPersDeets);
-            return new ResponseEntity<>("Welcome To Proliferate, " + studentRegisterPersDeets.getFirstName(), HttpStatus.CREATED);
+            var studentRegister = authenticationService.studentRegister(studentRegisterPersDeets);
+            return new ResponseEntity<>(studentRegister, HttpStatus.CREATED);
         } catch (UserAlreadyExistsException ex){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }

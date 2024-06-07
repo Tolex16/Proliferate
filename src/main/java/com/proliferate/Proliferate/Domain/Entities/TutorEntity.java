@@ -32,7 +32,7 @@ public class TutorEntity implements UserDetails {
     @Id
     @Column(name = "tutor_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userId;
+    private long tutorId;
 
     @Column(name = "first_name")
     private String firstName;
@@ -51,7 +51,7 @@ public class TutorEntity implements UserDetails {
     @Email(message = "Input a real email address")
     private String email;
 
-    @Column(name = "contact_number", unique = true)
+    @Column(name = "contact_number")
     @NotNull(message = "contact number can't be null")
     @NotBlank(message = "contact number cannot be blank")
     private String contactNumber;

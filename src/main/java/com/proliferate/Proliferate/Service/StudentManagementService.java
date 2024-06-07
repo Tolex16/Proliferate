@@ -9,14 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StudentManagementService {
     ResponseEntity createAssignment(AssignmentDto assignmentDto, MultipartFile assignmentFile);
 
-	ResponseEntity<Iterable<StudentDto>> getAllStudents();
-	
-//	StudentDto getStudentProfile(Long id);
-//
+	List<StudentEntity> getAllStudents();
+
+	Optional<StudentEntity> getStudentProfile(Long studentId);
+
 	List<AttendanceEntity> getAllAttendanceRecords();
 	
 	 AttendanceEntity addAttendanceRecord(AttendanceEntity attendanceEntity);

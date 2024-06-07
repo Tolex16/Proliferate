@@ -1,27 +1,23 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentDto;
+import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.UpdateTutor;
 import com.proliferate.Proliferate.Domain.Entities.Assignment;
 import com.proliferate.Proliferate.Domain.Entities.AttendanceEntity;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
-import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.AssignmentRepository;
 import com.proliferate.Proliferate.Repository.AttendanceRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Service.StudentManagementService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +28,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private final AttendanceRepository attendanceRepository;
     private final StudentRepository studentRepository;
 
-    private final Mapper<StudentEntity, StudentDto> studentMapper;
+    private final Mapper<StudentEntity, StudentTable> studentMapper;
     private final Mapper<Assignment, AssignmentDto> assignmentMapper;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -73,15 +69,15 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 //                ))
 //                .orElseThrow(() -> new UserNotFoundException("User not found"));
 //    }
-    public ResponseEntity<Iterable<StudentDto>> getAllStudents() {
-    try{
-        Iterable<StudentEntity> allStudentList = studentRepository.findAll(PageRequest.of(0,2));
-        return new ResponseEntity<>(studentMapper.mapListTo(allStudentList),HttpStatus.OK);
-    }catch (Exception err) {
-        throw new RuntimeException("Failed to fetch Recipes");
+    public List<StudentEntity> getAllStudents() {
+        return studentRepository.findAll();
+    }
+	
+	public Optional<StudentEntity> getStudentProfile(Long studentId) {
+        return studentRepository.findById(studentId);
     }
 
-}
+
 	public List<AttendanceEntity> getAllAttendanceRecords() {
         return attendanceRepository.findAll();
     }

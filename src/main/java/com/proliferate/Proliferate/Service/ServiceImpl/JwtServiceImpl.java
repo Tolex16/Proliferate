@@ -74,10 +74,10 @@ public Long getUserId() {
 
     if (principal instanceof StudentEntity) {
         StudentEntity student = (StudentEntity) principal;
-        return student.getUserId();
+        return student.getStudentId();
     } else if (principal instanceof TutorEntity) {
         TutorEntity tutor = (TutorEntity) principal;
-        return tutor.getUserId();
+        return tutor.getTutorId();
     } else {
         throw new IllegalArgumentException("Unknown principal type");
     }

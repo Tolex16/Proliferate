@@ -31,8 +31,8 @@ public class TutorAuthController {
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
         try {
-            authenticationService.tutorRegister(tutorRegister);
-            return new ResponseEntity<>("Welcome To Proliferate, " + tutorRegister.getFirstName(), HttpStatus.CREATED);
+            var tutorStore = authenticationService.tutorRegister(tutorRegister);
+            return new ResponseEntity<>(tutorStore, HttpStatus.CREATED);
         } catch (UserAlreadyExistsException ex){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }
