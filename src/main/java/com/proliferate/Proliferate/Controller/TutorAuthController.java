@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
+import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
@@ -114,12 +115,12 @@ public class TutorAuthController {
             String email = authenticationService.checkMail(emailVerification);
 
             if(email == null){
-                return new ResponseEntity<>(HttpStatus.FOUND);
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }else{
-                return new ResponseEntity<>(email,HttpStatus.FOUND);
+                return new ResponseEntity<>(true,HttpStatus.FOUND);
             }
-        } catch (UsernameNotFoundException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (EmailNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.OK).body(false);
         }
     }
 

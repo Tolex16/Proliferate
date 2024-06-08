@@ -258,7 +258,7 @@ public ResponseEntity<?> completeRegistration() {
                     String foundEmail = Optional.ofNullable(existingUser.getEmail()).orElse(null);
                     return foundEmail;
                 }).orElseThrow(
-                () -> new EmailNotFoundException("Email Not Found!!!")
+                () -> new EmailNotFoundException("false")
         );
     }
 	

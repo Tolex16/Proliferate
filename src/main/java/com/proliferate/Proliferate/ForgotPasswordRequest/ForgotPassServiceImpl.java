@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.ForgotPasswordRequest;
 
 
 import com.proliferate.Proliferate.Domain.DTO.ResetPassword;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorVerification;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
@@ -46,21 +47,21 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
 
     @Transactional
     @Override
-    public void initiateForgotPass(String email) {
+    public void initiateForgotPass(TutorVerification tutorVerification) {
         try {
             UserDetails existingUser = null;
-            Optional<StudentEntity> studentOpt = studentRepository.findByEmail(email);
+            Optional<StudentEntity> studentOpt = studentRepository.findByEmail(tutorVerification.getEmail());
             if (studentOpt.isPresent()) {
                 existingUser = studentOpt.get();
             } else {
-                Optional<TutorEntity> tutorOpt = tutorRepository.findByEmail(email);
+                Optional<TutorEntity> tutorOpt = tutorRepository.findByEmail(tutorVerification.getEmail());
                 if (tutorOpt.isPresent()) {
                     existingUser = tutorOpt.get();
                 }
             }
 
             if (existingUser == null) {
-                throw new EmailNotFoundException("User with email " + email + " not found");
+                throw new EmailNotFoundException("User with email " + tutorVerification.getEmail() + " not found");
             }
 
             ForgotPassToken forgotPassToken = new ForgotPassToken();

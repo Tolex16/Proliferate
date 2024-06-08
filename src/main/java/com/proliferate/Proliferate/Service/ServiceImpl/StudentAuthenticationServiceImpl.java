@@ -238,17 +238,17 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
         // Try to find the user as a student
         var studentUsername = studentRepository.findByUserName(usernameVerification.getUserName());
         if (studentUsername.isPresent()) {
-            return String.valueOf(studentUsername.get().getUsername());
+            return String.valueOf(true);
         }
 
         // If not found as a student, try to find the user as a tutor
         var studentEmail = studentRepository.findByEmail(usernameVerification.getEmail());
         if (studentEmail.isPresent()) {
-            return String.valueOf(studentEmail.get().getEmail());
+            return String.valueOf(true);
         }
 
         // If neither student nor tutor is found, throw an exception
-        throw new UsernameNotFoundException("Student not found: " + usernameVerification.getUserName() +usernameVerification.getEmail());
+        throw new UsernameNotFoundException("false");
     }
 
 }

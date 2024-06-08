@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.ForgotPasswordRequest;
 
 import com.proliferate.Proliferate.Domain.DTO.ResetPassword;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorVerification;
 import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.InvalidPasswordException;
 import com.proliferate.Proliferate.ExeceptionHandler.InvalidTokenException;
@@ -21,10 +22,10 @@ public class ForgotPasswordController {
     private final ForgotPassTokenService forgotPassTokenService;
 
     @PostMapping("/initiate")
-    public ResponseEntity<String> initiateForgotPass(@RequestBody String email){
+    public ResponseEntity<String> initiateForgotPass(@Valid @RequestBody TutorVerification tutorVerification){
 
         try {
-            forgotPassTokenService.initiateForgotPass(email);
+            forgotPassTokenService.initiateForgotPass(tutorVerification);
             return ResponseEntity.ok("Forgot Password sequence initiated. Check your email for instructions.");
         } catch (EmailNotFoundException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
