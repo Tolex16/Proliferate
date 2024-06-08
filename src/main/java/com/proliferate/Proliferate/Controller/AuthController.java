@@ -131,15 +131,15 @@ public class AuthController {
     }
 
     @GetMapping("/check-username")
-    public ResponseEntity<?> findStudent (@RequestBody UsernameVerification usernameVerification){
+    public ResponseEntity<?> findStudent (@RequestBody StudentVerification usernameVerification){
 
 
         try {
-            String checkUsername = authenticationService.checkUsername(usernameVerification);
-            if(checkUsername == null){
+            String checkStudent = authenticationService.checkStudent(usernameVerification);
+            if(checkStudent == null){
                 return new ResponseEntity<>(HttpStatus.FOUND);
             }else{
-                return new ResponseEntity<>(checkUsername,HttpStatus.FOUND);
+                return new ResponseEntity<>(checkStudent,HttpStatus.FOUND);
             }
         } catch (UsernameNotFoundException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());

@@ -1,6 +1,5 @@
 package com.proliferate.Proliferate.Service;
 
-import com.proliferate.Proliferate.Domain.DTO.*;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +20,7 @@ public interface StudentAuthenticationService {
 
     String getTermsAndConditions();
 
-    String checkUsername(UsernameVerification usernameVerification);
+    String checkStudent(StudentVerification usernameVerification);
 
     LoginResponse login(LoginStudentRequest loginStudentRequest);
 }

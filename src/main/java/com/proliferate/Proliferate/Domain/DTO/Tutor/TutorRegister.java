@@ -16,8 +16,6 @@ public class TutorRegister {
 
     private String lastName;
 
-    private String userName;
-
     private String email;
 
     private String contactNumber;

@@ -9,6 +9,7 @@ import com.proliferate.Proliferate.Service.TutorAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/authorize")
@@ -105,7 +108,7 @@ public class TutorAuthController {
     }
 
     @GetMapping("/check-email")
-    public ResponseEntity<?> findUser (@Valid @RequestBody EmailVerification emailVerification){
+    public ResponseEntity<?> findUser (@Valid @RequestBody TutorVerification emailVerification){
 
         try {
             String email = authenticationService.checkMail(emailVerification);
@@ -142,5 +145,29 @@ public class TutorAuthController {
 //        }
 //        return new ResponseEntity(recipeService.addRecipe(recipeDto), HttpStatus.CREATED);
 //    }
+
+@GetMapping("/documents")
+    public ResponseEntity<Map<String, byte[]>> getDocuments(
+        @RequestParam Long tutorId,
+        @RequestParam String documentType) {
+        try {
+            Map<String, byte[]> documents = authenticationService.getDocuments(tutorId, documentType);
+
+            if (documents.values().stream().allMatch(Objects::isNull)) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            return new ResponseEntity<>(documents, headers, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception error) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

@@ -5,12 +5,11 @@ import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmailVerification {
+public class TutorVerification {
 	
 	@Email(message = "Input a real email address")
     @JsonProperty("email")

@@ -1,18 +1,15 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
-import com.proliferate.Proliferate.Domain.DTO.*;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDto;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
 import com.proliferate.Proliferate.Repository.StudentRepository;
-import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
 import com.proliferate.Proliferate.Service.EmailService;
@@ -27,7 +24,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -238,15 +234,21 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
 
 
     @Override
-    public String checkUsername(UsernameVerification usernameVerification) {
-        return studentRepository.findByUserName(usernameVerification.getUserName()).map(
-                existingUser -> {
+    public String checkStudent(StudentVerification usernameVerification) {
+        // Try to find the user as a student
+        var studentUsername = studentRepository.findByUserName(usernameVerification.getUserName());
+        if (studentUsername.isPresent()) {
+            return String.valueOf(studentUsername.get().getUsername());
+        }
 
-                    String foundUsername = Optional.ofNullable(existingUser.getUsername()).orElse(null);
-                    return foundUsername;
-                }).orElseThrow(
-                () -> new UsernameNotFoundException("Username Not Found!!!")
-        );
+        // If not found as a student, try to find the user as a tutor
+        var studentEmail = studentRepository.findByEmail(usernameVerification.getEmail());
+        if (studentEmail.isPresent()) {
+            return String.valueOf(studentEmail.get().getEmail());
+        }
+
+        // If neither student nor tutor is found, throw an exception
+        throw new UsernameNotFoundException("Student not found: " + usernameVerification.getUserName() +usernameVerification.getEmail());
     }
 
 }

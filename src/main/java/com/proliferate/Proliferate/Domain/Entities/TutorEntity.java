@@ -40,11 +40,6 @@ public class TutorEntity implements UserDetails {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "user_name", unique = true)
-    @NotNull(message = "UserName cannot be empty")
-    @NotBlank(message = "UserName cannot be Blank")
-    private String userName;
-
     @Column(name = "email", unique = true)
     @NotNull(message = "email can't be null")
     @NotBlank(message = " email cannot be blank")
@@ -136,9 +131,9 @@ public class TutorEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-	@Column(name = "student_image")
+	@Column(name = "tutor_image")
     @Lob
-    private byte[] studentImage;
+    private byte[] tutorImage;
 	
 	@Column(name = "bio")
     private String bio;

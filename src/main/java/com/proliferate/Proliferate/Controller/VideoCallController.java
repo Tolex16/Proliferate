@@ -39,7 +39,7 @@ public class VideoCallController {
         if (request.getCaller() == null || request.getCallee() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Caller and Callee must be specified");
         }
-        if(studentRepository.existsByUserName(request.getCaller()) || tutorRepository.existsByUserName(request.getCaller())){
+        if(studentRepository.existsByUserName(request.getCaller()) || tutorRepository.existsByEmail(request.getCaller())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
         }
 
@@ -70,7 +70,7 @@ public class VideoCallController {
         if (request.getCaller() == null || request.getCallee() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Caller and Callee must be specified");
         }
-        if(studentRepository.existsByUserName(request.getCaller()) || tutorRepository.existsByUserName(request.getCaller())){
+        if(studentRepository.existsByUserName(request.getCaller()) || tutorRepository.existsByEmail(request.getCaller())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
         }
 

@@ -5,6 +5,8 @@ import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 public interface TutorAuthenticationService {
 
     ResponseEntity tutorRegister(TutorRegister tutorRegister);
@@ -21,7 +23,9 @@ public interface TutorAuthenticationService {
 
     LoginResponse login(LoginTutorRequest loginTutorRequest);
 
-    String checkMail(EmailVerification emailVerification);
+    String checkMail(TutorVerification emailVerification);
 
-    ResponseEntity updateTutor (UpdateTutor updateTutor, MultipartFile studentImage);
+    ResponseEntity updateTutor (UpdateTutor updateTutor, MultipartFile tutorImage);
+	
+	Map<String, byte[]> getDocuments(Long tutorId, String documentType);
 }

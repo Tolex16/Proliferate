@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -56,9 +58,6 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
     private final AuthenticationManager authenticationManager;
 
     public ResponseEntity<?> tutorRegister(TutorRegister tutorRegister){
-        if(tutorRepository.existsByUserName(tutorRegister.getUserName())){
-            throw new UserAlreadyExistsException("There is a tutor account with this username.");
-        }
         if(tutorRepository.existsByEmail(tutorRegister.getEmail())){
             throw new UserAlreadyExistsException("There is a tutor account associated with this email already");
         }
@@ -68,7 +67,7 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
             tutorEntity.setRole(Role.TUTOR);
             tutorRepository.save(tutorEntity);
 
-            var tutor = tutorRepository.findByUserName(tutorRegister.getUserName()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
+            var tutor = tutorRepository.findByEmail(tutorRegister.getEmail()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
             var jwt = jwtService.genToken(tutor, null);
 
             PersonDetailsResponse response = new PersonDetailsResponse(jwt);
@@ -252,7 +251,7 @@ public ResponseEntity<?> completeRegistration() {
     }
 
     @Override
-    public String checkMail(EmailVerification emailVerification) {
+    public String checkMail(TutorVerification emailVerification) {
         return tutorRepository.findByEmail(emailVerification.getEmail()).map(
                 existingUser -> {
 
@@ -281,7 +280,7 @@ public ResponseEntity<?> completeRegistration() {
 
                             if (!tutorImage.isEmpty()) {
                                 try {
-                                    existingUser.setStudentImage(tutorImage.getBytes());
+                                    existingUser.setTutorImage(tutorImage.getBytes());
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -291,7 +290,7 @@ public ResponseEntity<?> completeRegistration() {
 
                             return new ResponseEntity<>(updatedTutor,HttpStatus.CREATED);
                         }
-                ).orElseThrow(() -> new UserNotFoundException("User not found"));
+                ).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -299,5 +298,37 @@ public ResponseEntity<?> completeRegistration() {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+	
+public Map<String, byte[]> getDocuments(Long tutorId, String documentType) {
+        TutorEntity tutor = tutorRepository.findById(tutorId)
+            .orElseThrow(() -> new UserNotFoundException("Tutor not found"));
 
+        Map<String, byte[]> documents = new HashMap<>();
+
+        if ("all".equals(documentType)) {
+            documents.put("educationalCertificates", tutor.getEducationalCertificates());
+            documents.put("resumeCurriculumVitae", tutor.getResumeCurriculumVitae());
+            documents.put("professionalDevelopmentCert", tutor.getProfessionalDevelopmentCert());
+            documents.put("identificationDocuments", tutor.getIdentificationDocuments());
+        } else {
+            switch (documentType) {
+                case "educationalCertificates":
+                    documents.put("educationalCertificates", tutor.getEducationalCertificates());
+                    break;
+                case "resumeCurriculumVitae":
+                    documents.put("resumeCurriculumVitae", tutor.getResumeCurriculumVitae());
+                    break;
+                case "professionalDevelopmentCert":
+                    documents.put("professionalDevelopmentCert", tutor.getProfessionalDevelopmentCert());
+                    break;
+                case "identificationDocuments":
+                    documents.put("identificationDocuments", tutor.getIdentificationDocuments());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid document type");
+            }
+        }
+
+        return documents;
+    }
 }
