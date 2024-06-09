@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -129,22 +130,18 @@ public class AuthController {
                 .header("Location", "/login")
                 .body("Logged out successfully");
     }
-
-    @GetMapping("/check-username")
-    public ResponseEntity<?> findStudent (@Valid @RequestBody StudentVerification usernameVerification){
-
-        try {
-            String checkStudent = authenticationService.checkStudent(usernameVerification);
-            if(checkStudent == null){
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }else{
-                return new ResponseEntity<>(true,HttpStatus.FOUND);
-            }
-        } catch (UsernameNotFoundException ex){
-            return ResponseEntity.status(HttpStatus.OK).body(ex.getMessage());
-        }
-
+	
+	@GetMapping("/check-username")
+	public ResponseEntity<Map<String, Boolean>> findStudent(@Valid @RequestBody StudentVerification usernameVerification) {
+    try {
+        Map<String, Boolean> checkStudent = authenticationService.checkStudent(usernameVerification);
+        return new ResponseEntity<>(checkStudent, HttpStatus.OK);
+    } catch (Exception ex) {
+        // In case of any unexpected exceptions, return an internal server error
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
+}
+
 
     @PostMapping("/friend-invite")
     public ResponseEntity<?> sendFriendInvite(@Valid @RequestBody FriendInvite friendInvite, BindingResult result){

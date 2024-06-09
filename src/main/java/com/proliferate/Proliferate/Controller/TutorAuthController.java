@@ -7,6 +7,7 @@ import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.TutorAuthenticationService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -94,7 +96,7 @@ public class TutorAuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
-	
+//	@Transactional
 	@PostMapping("/tutorCompleteRegistration")
 	public ResponseEntity<?> completeRegistration() {
 		return authenticationService.completeRegistration();
@@ -109,28 +111,22 @@ public class TutorAuthController {
     }
 
     @GetMapping("/check-email")
-    public ResponseEntity<?> findUser (@Valid @RequestBody TutorVerification emailVerification){
-
+    public ResponseEntity<Map<String, Boolean>> findUser(@Valid @RequestBody TutorVerification emailVerification) {
         try {
-            String email = authenticationService.checkMail(emailVerification);
-
-            if(email == null){
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }else{
-                return new ResponseEntity<>(true,HttpStatus.FOUND);
-            }
-        } catch (EmailNotFoundException ex){
-            return ResponseEntity.status(HttpStatus.OK).body(false);
+            Map<String, Boolean> emailExists = authenticationService.checkMail(emailVerification);
+            return new ResponseEntity<>(emailExists, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/update-tutor")
     public ResponseEntity<?> updateTutor(@RequestPart("updateTutor") UpdateTutor updateTutor,
-                                         @RequestPart("studentImage") MultipartFile studentImage, BindingResult result){
+                                         @RequestPart("tutorImage") MultipartFile tutorImage, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
         try {
-            authenticationService.updateTutor(updateTutor,studentImage);
+            authenticationService.updateTutor(updateTutor,tutorImage);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } catch (UserNotFoundException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());

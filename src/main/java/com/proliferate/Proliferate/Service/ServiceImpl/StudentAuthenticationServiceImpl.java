@@ -27,6 +27,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -230,25 +232,22 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
     // If neither student nor tutor is found, throw an exception
     throw new UsernameNotFoundException("Error in username and password");
 }
-
-
-
+ 
+ 
     @Override
-    public String checkStudent(StudentVerification usernameVerification) {
-        // Try to find the user as a student
-        var studentUsername = studentRepository.findByUserName(usernameVerification.getUserName());
-        if (studentUsername.isPresent()) {
-            return String.valueOf(true);
-        }
+    public Map<String, Boolean> checkStudent(StudentVerification usernameVerification) {
+    Map<String, Boolean> result = new HashMap<>();
 
-        // If not found as a student, try to find the user as a tutor
-        var studentEmail = studentRepository.findByEmail(usernameVerification.getEmail());
-        if (studentEmail.isPresent()) {
-            return String.valueOf(true);
-        }
+    // Check if the userName is present in the student repository
+    boolean isUserNamePresent = studentRepository.findByUserName(usernameVerification.getUserName()).isPresent();
+    result.put("userName", isUserNamePresent);
 
-        // If neither student nor tutor is found, throw an exception
-        throw new UsernameNotFoundException("false");
-    }
+    // Check if the email is present in the student repository
+    boolean isEmailPresent = studentRepository.findByEmail(usernameVerification.getEmail()).isPresent();
+    result.put("email", isEmailPresent);
+
+    return result;
+	}
+
 
 }

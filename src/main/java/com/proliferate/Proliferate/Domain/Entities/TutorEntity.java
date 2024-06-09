@@ -91,8 +91,7 @@ public class TutorEntity implements UserDetails {
 	
 	@Column(name = "attendance_type")
     private String attendanceType;
-	
-	@ElementCollection
+
 	@Column(name = "preferred_subjects")
 	private List<String> preferredSubjects;
 	
@@ -104,21 +103,25 @@ public class TutorEntity implements UserDetails {
 	
 	@Column(name = "available_Date_Time")
     private List<String> availableDateTime;
-	
+
+    @Lob
+	@Basic(fetch = FetchType.LAZY)
 	@Column(name = "educational_certificates")
-	@Lob
     private byte[] educationalCertificates;
-	
+
+    @Lob
+	@Basic(fetch = FetchType.LAZY)
 	@Column(name = "resume_curriculum_vitae")
-    @Lob
     private byte[] resumeCurriculumVitae;
-	
-	@Column(name = "professional_development_cert")
+
     @Lob
+	@Basic(fetch = FetchType.LAZY)
+	@Column(name = "professional_development_cert")
     private byte[] professionalDevelopmentCert;
 
-	@Column(name = "identification_documents")
     @Lob
+	@Basic(fetch = FetchType.LAZY)
+	@Column(name = "identification_documents")
     private byte[] identificationDocuments;
 
 	@Column(name = "terms_and_conditions_approved")
@@ -131,8 +134,9 @@ public class TutorEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-	@Column(name = "tutor_image")
     @Lob
+	@Basic(fetch = FetchType.LAZY)
+	@Column(name = "tutor_image")
     private byte[] tutorImage;
 	
 	@Column(name = "bio")

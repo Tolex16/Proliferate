@@ -11,8 +11,9 @@ import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
 import com.proliferate.Proliferate.Service.*;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -36,6 +38,9 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
     private final PasswordEncoder passwordEncoder;
 
     private final TutorRepository tutorRepository;
+
+    @Autowired
+    private final EntityManager entityManager;
 
     @Autowired
     private final UserService tutorService;
@@ -153,7 +158,7 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-	@Transactional
+	
     public ResponseEntity<?> uploadDocuments(MultipartFile educationalCertificates, MultipartFile resumeCurriculumVitae, MultipartFile professionalDevelopmentCert, MultipartFile identificationDocuments){
          try {
         Long userId = jwtService.getUserId();
@@ -187,7 +192,7 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
                         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                     }
                 }
-            ).orElseThrow(() -> new UserNotFoundException("User not found"));
+            ).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -200,35 +205,58 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
         return file.getSize() <= MAX_FILE_SIZE;
     }
 
+@Transactional
 public ResponseEntity<?> completeRegistration() {
     try {
-        // Fetch the user entity by ID
         Long userId = jwtService.getUserId();
-        TutorEntity tutorEntity = tutorRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
-        
-        // Check if terms and conditions are approved
-        if (!tutorEntity.isTermsAndConditionsApproved()) {
-            // If terms and conditions are not approved, update the field to true
-            tutorEntity.setTermsAndConditionsApproved(true);
-            emailService.tutorRegistrationConfirmationEmail(tutorEntity.getEmail(), tutorEntity.getFirstName(), tutorEntity.getLastName(), tutorEntity.getEmail(), tutorEntity.getGender(), tutorEntity.getContactNumber(), tutorEntity.getAge(),tutorEntity.getHighestEducationLevelAttained(), tutorEntity.getMajorFieldOfStudy(),tutorEntity.getYearsOfTeachingExperience(), tutorEntity.getTeachingGrade() ,tutorEntity.getCurrentSchool(),tutorEntity.getTeachingStyle(),tutorEntity.getStudentAssessmentApproach(),tutorEntity.getAvailableForAdditionalSupport(),tutorEntity.getAvailableDateTime(),tutorEntity.getAttendanceType(),tutorEntity.getPreferredSubjects());
-            tutorRepository.save(tutorEntity);
+        TutorEntity tutorEntity = tutorRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-            // Optionally, you can update the user entity to mark registration as completed
+        if (!tutorEntity.isTermsAndConditionsApproved()) {
+            tutorEntity  = getTutorWithLob(userId);
+            emailService.tutorRegistrationConfirmationEmail(
+                    tutorEntity.getEmail(),
+                    tutorEntity.getFirstName(),
+                    tutorEntity.getLastName(),
+                    tutorEntity.getEmail(),
+                    tutorEntity.getGender(),
+                    tutorEntity.getContactNumber(),
+                    tutorEntity.getAge(),
+                    tutorEntity.getHighestEducationLevelAttained(),
+                    tutorEntity.getMajorFieldOfStudy(),
+                    tutorEntity.getYearsOfTeachingExperience(),
+                    tutorEntity.getTeachingGrade(),
+                    tutorEntity.getCurrentSchool(),
+                    tutorEntity.getTeachingStyle(),
+                    tutorEntity.getStudentAssessmentApproach(),
+                    tutorEntity.getAvailableForAdditionalSupport(),
+                    tutorEntity.getAvailableDateTime(),
+                    tutorEntity.getAttendanceType(),
+                    tutorEntity.getPreferredSubjects()
+            );
+            tutorEntity.setTermsAndConditionsApproved(true);
+			// Persist changes to termsAndConditionsApproved
+           // entityManager.merge(tutorEntity);
+			
+			// Persist changes to registrationCompleted
             tutorEntity.setRegistrationCompleted(true);
-            tutorRepository.save(tutorEntity);
-            
+            entityManager.merge(tutorEntity);
+
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            // If terms and conditions are already approved, return a response indicating so
             return new ResponseEntity<>("Terms and conditions already approved", HttpStatus.BAD_REQUEST);
         }
     } catch (UserNotFoundException error) {
         return new ResponseEntity<>(error.getMessage(), HttpStatus.NOT_FOUND);
     } catch (Exception error) {
+        // Log full stack trace for debugging
+        error.printStackTrace();
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
+
+    @Transactional
     public LoginResponse login(LoginTutorRequest loginTutorRequest)
     {
         try {
@@ -249,20 +277,18 @@ public ResponseEntity<?> completeRegistration() {
         // If neither student nor tutor is found, throw an exception
         throw new IllegalArgumentException("Error in email and password");
     }
+	@Transactional
+	@Override
+    public Map<String, Boolean> checkMail(TutorVerification emailVerification) {
+        Map<String, Boolean> result = new HashMap<>();
 
-    @Override
-    public String checkMail(TutorVerification emailVerification) {
-        return tutorRepository.findByEmail(emailVerification.getEmail()).map(
-                existingUser -> {
+        boolean isEmailPresent = tutorRepository.findByEmail(emailVerification.getEmail()).isPresent();
+        result.put("email", isEmailPresent);
 
-                    String foundEmail = Optional.ofNullable(existingUser.getEmail()).orElse(null);
-                    return foundEmail;
-                }).orElseThrow(
-                () -> new EmailNotFoundException("false")
-        );
-    }
+    return result;
+	}
+
 	
-    @Transactional
     public ResponseEntity<?> updateTutor (UpdateTutor updateTutor, MultipartFile tutorImage){
         try {
             Long userId = jwtService.getUserId();
@@ -298,37 +324,63 @@ public ResponseEntity<?> completeRegistration() {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-	
-public Map<String, byte[]> getDocuments(Long tutorId, String documentType) {
-        TutorEntity tutor = tutorRepository.findById(tutorId)
-            .orElseThrow(() -> new UserNotFoundException("Tutor not found"));
 
-        Map<String, byte[]> documents = new HashMap<>();
+    @Transactional
+    public Map<String, byte[]> getDocuments(Long tutorId, String documentType) {
+    TutorEntity tutor = tutorRepository.findById(tutorId)
+        .orElseThrow(() -> new UserNotFoundException("Tutor not found"));
 
-        if ("all".equals(documentType)) {
+    Map<String, byte[]> documents = new HashMap<>();
+
+    if ("all".equals(documentType)) {
+        if (tutor.getEducationalCertificates() != null) {
             documents.put("educationalCertificates", tutor.getEducationalCertificates());
-            documents.put("resumeCurriculumVitae", tutor.getResumeCurriculumVitae());
-            documents.put("professionalDevelopmentCert", tutor.getProfessionalDevelopmentCert());
-            documents.put("identificationDocuments", tutor.getIdentificationDocuments());
-        } else {
-            switch (documentType) {
-                case "educationalCertificates":
-                    documents.put("educationalCertificates", tutor.getEducationalCertificates());
-                    break;
-                case "resumeCurriculumVitae":
-                    documents.put("resumeCurriculumVitae", tutor.getResumeCurriculumVitae());
-                    break;
-                case "professionalDevelopmentCert":
-                    documents.put("professionalDevelopmentCert", tutor.getProfessionalDevelopmentCert());
-                    break;
-                case "identificationDocuments":
-                    documents.put("identificationDocuments", tutor.getIdentificationDocuments());
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid document type");
-            }
         }
-
-        return documents;
+        if (tutor.getResumeCurriculumVitae() != null) {
+            documents.put("resumeCurriculumVitae", tutor.getResumeCurriculumVitae());
+        }
+        if (tutor.getProfessionalDevelopmentCert() != null) {
+            documents.put("professionalDevelopmentCert", tutor.getProfessionalDevelopmentCert());
+        }
+        if (tutor.getIdentificationDocuments() != null) {
+            documents.put("identificationDocuments", tutor.getIdentificationDocuments());
+        }
+    } else {
+        switch (documentType) {
+            case "educationalCertificates":
+                if (tutor.getEducationalCertificates() != null) {
+                    documents.put("educationalCertificates", tutor.getEducationalCertificates());
+                }
+                break;
+            case "resumeCurriculumVitae":
+                if (tutor.getResumeCurriculumVitae() != null) {
+                    documents.put("resumeCurriculumVitae", tutor.getResumeCurriculumVitae());
+                }
+                break;
+            case "professionalDevelopmentCert":
+                if (tutor.getProfessionalDevelopmentCert() != null) {
+                    documents.put("professionalDevelopmentCert", tutor.getProfessionalDevelopmentCert());
+                }
+                break;
+            case "identificationDocuments":
+                if (tutor.getIdentificationDocuments() != null) {
+                    documents.put("identificationDocuments", tutor.getIdentificationDocuments());
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid document type");
+        }
     }
+
+    return documents;
+}
+
+ @Transactional
+    public TutorEntity getTutorWithLob(Long userId){
+        return entityManager.createQuery(
+                "SELECT t FROM TutorEntity t WHERE t.id = :userId",
+                TutorEntity.class)
+                .setParameter("userId", userId)
+                .getSingleResult();
+ }
 }

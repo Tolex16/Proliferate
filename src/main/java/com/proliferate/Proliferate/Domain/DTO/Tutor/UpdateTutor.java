@@ -19,5 +19,5 @@ public class UpdateTutor {
 
     private String bio;
 
-    private MultipartFile studentImage;
+    private MultipartFile tutorImage;
 }

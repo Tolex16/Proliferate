@@ -4,6 +4,8 @@ import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Map;
+
 public interface StudentAuthenticationService {
 	
     ResponseEntity studentRegister(StudentRegisterPersDeets studentRegisterPersDeets);
@@ -16,11 +18,10 @@ public interface StudentAuthenticationService {
     ResponseEntity learningGoals(LearningGoals learningGoals);
 	
 	ResponseEntity completeRegistration();
-
-
+    
     String getTermsAndConditions();
 
-    String checkStudent(StudentVerification usernameVerification);
+    Map<String, Boolean> checkStudent(StudentVerification usernameVerification);
 
     LoginResponse login(LoginStudentRequest loginStudentRequest);
 }

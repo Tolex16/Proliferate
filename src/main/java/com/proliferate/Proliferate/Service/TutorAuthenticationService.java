@@ -3,6 +3,7 @@ package com.proliferate.Proliferate.Service;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
@@ -19,13 +20,15 @@ public interface TutorAuthenticationService {
 
 	ResponseEntity uploadDocuments(MultipartFile educationalCertificates, MultipartFile resumeCurriculumVitae, MultipartFile professionalDevelopmentCert, MultipartFile identificationDocuments);
 
+    @Transactional
 	ResponseEntity completeRegistration();
 
     LoginResponse login(LoginTutorRequest loginTutorRequest);
 
-    String checkMail(TutorVerification emailVerification);
+    Map<String, Boolean> checkMail(TutorVerification emailVerification);
 
     ResponseEntity updateTutor (UpdateTutor updateTutor, MultipartFile tutorImage);
 	
+	@Transactional
 	Map<String, byte[]> getDocuments(Long tutorId, String documentType);
 }

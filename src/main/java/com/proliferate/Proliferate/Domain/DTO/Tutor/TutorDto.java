@@ -19,8 +19,6 @@ public class TutorDto {
 
     private String lastName;
 
-    private String userName;
-
     private String email;
 
     private String contactNumber;
@@ -56,14 +54,6 @@ public class TutorDto {
     private String availableForAdditionalSupport;
 
     private List<String> availableDateTime;
-
-	private String educationalCertificates;
-
-    private String resumeCurriculumVitae;
-
-    private String professionalDevelopmentCert;
-	
-    private String identificationDocuments;
 
     private boolean termsAndConditionsApproved;
 
