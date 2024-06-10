@@ -383,16 +383,23 @@ public ResponseEntity<?> completeRegistration() {
 }
 
     @Transactional
-    public TutorEntity getTutorWithLob(Long userId) {
+    public TutorEntity getTutorWithoutLob(Long userId) {
         return entityManager.createQuery(
-            "SELECT t FROM TutorEntity t " +
-            "LEFT JOIN FETCH t.educationalCertificates " +
-            "LEFT JOIN FETCH t.resumeCurriculumVitae " +
-            "LEFT JOIN FETCH t.professionalDevelopmentCert " +
-            "LEFT JOIN FETCH t.identificationDocuments " +
-            "LEFT JOIN FETCH t.tutorImage " +
-            "WHERE t.tutorId = :userId", TutorEntity.class)
+            "SELECT t FROM TutorEntity t WHERE t.tutorId = :userId", TutorEntity.class)
             .setParameter("userId", userId)
             .getSingleResult();
     }
+
+    @Transactional
+    public TutorEntity getTutorWithLob(Long userId) {
+        TutorEntity tutor = getTutorWithoutLob(userId);
+        // Access the LOB fields to trigger their lazy loading
+        tutor.getEducationalCertificates();
+        tutor.getResumeCurriculumVitae();
+        tutor.getProfessionalDevelopmentCert();
+        tutor.getIdentificationDocuments();
+        tutor.getTutorImage();
+        return tutor;
+    }
+	
 }
