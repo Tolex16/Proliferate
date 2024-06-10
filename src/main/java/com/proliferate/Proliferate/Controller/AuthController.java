@@ -2,9 +2,7 @@ package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.*;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
-import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.InviteService;
 import com.proliferate.Proliferate.Service.StudentAuthenticationService;
@@ -42,7 +40,7 @@ public class AuthController {
         try {
             var studentRegister = authenticationService.studentRegister(studentRegisterPersDeets);
             return new ResponseEntity<>(studentRegister, HttpStatus.CREATED);
-        } catch (UserAlreadyExistsException ex){
+        } catch (UserAlreadyExistsException | TutorEmailPresentException ex){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }
 

@@ -53,8 +53,6 @@ public class TutorDto {
 
     private String availableForAdditionalSupport;
 
-    private List<String> availableDateTime;
-
     private boolean termsAndConditionsApproved;
 
     private boolean registrationCompleted;
