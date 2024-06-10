@@ -6,10 +6,12 @@ import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
+import com.proliferate.Proliferate.ExeceptionHandler.TutorEmailPresentException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
 import com.proliferate.Proliferate.Repository.StudentRepository;
+import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
 import com.proliferate.Proliferate.Service.EmailService;
@@ -39,7 +41,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
     private final StudentRepository studentRepository;
 
-
+    private final TutorRepository tutorRepository;
     @Autowired
     private final UserService userService;
     private final Mapper<StudentEntity, StudentRegisterPersDeets> studentRegisterPersDeetsMapper;
@@ -66,6 +68,9 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
         }
         if(studentRepository.existsByEmail(studentRegisterPersDeets.getEmail())){
             throw new UserAlreadyExistsException("There is an student account associated with this email already");
+        }
+        if(tutorRepository.existsByEmail(studentRegisterPersDeets.getEmail())){
+            throw new TutorEmailPresentException("There is a tutor account associated with this email already");
         }
         try {
             studentRegisterPersDeets.setPassword(passwordEncoder.encode(studentRegisterPersDeets.getPassword()));

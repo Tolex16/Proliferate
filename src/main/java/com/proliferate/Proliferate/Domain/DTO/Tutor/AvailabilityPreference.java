@@ -18,7 +18,5 @@ public class AvailabilityPreference {
     private String studentAssessmentApproach;
     
 	private String availableForAdditionalSupport;
-    
-	private List<String> availableDateTime;
 
 }

@@ -4,14 +4,16 @@ import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.StudentEmailPresentException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
 import com.proliferate.Proliferate.Service.*;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +39,8 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
 
     private final TutorRepository tutorRepository;
 
-    @Autowired
+    private final StudentRepository studentRepository;
+    @PersistenceContext
     private final EntityManager entityManager;
 
     @Autowired
@@ -65,6 +66,9 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
     public ResponseEntity<?> tutorRegister(TutorRegister tutorRegister){
         if(tutorRepository.existsByEmail(tutorRegister.getEmail())){
             throw new UserAlreadyExistsException("There is a tutor account associated with this email already");
+        }
+        if(studentRepository.existsByEmail(tutorRegister.getEmail())){
+            throw new StudentEmailPresentException("There is an student account associated with this email already");
         }
         try {
             tutorRegister.setPassword(passwordEncoder.encode(tutorRegister.getPassword()));
@@ -144,7 +148,6 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
                             Optional.ofNullable(availabilityPreference.getPreferredSubjects()).ifPresent(existingUser::setPreferredSubjects);
                             Optional.ofNullable(availabilityPreference.getStudentAssessmentApproach()).ifPresent(existingUser::setStudentAssessmentApproach);
 							Optional.ofNullable(availabilityPreference.getAvailableForAdditionalSupport()).ifPresent(existingUser::setAvailableForAdditionalSupport);
-							Optional.ofNullable(availabilityPreference.getAvailableDateTime()).ifPresent(existingUser::setAvailableDateTime);
 							
                             AvailabilityPreference updatedUser = availabilityPreferenceMapper.mapTo(tutorRepository.save(existingUser));
 
@@ -170,7 +173,7 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
                             !validateFileSize(resumeCurriculumVitae) ||
                             !validateFileSize(professionalDevelopmentCert) ||
                             !validateFileSize(identificationDocuments)){
-                            return new ResponseEntity<>("One or more files exceed the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
+                            return new ResponseEntity<>("One or more files exceed the maximum allowed size of 5MB or Invalid fi", HttpStatus.UNSUPPORTED_MEDIA_TYPE);
                         }
 
                         if (!educationalCertificates.isEmpty()) {
@@ -202,7 +205,12 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
     }
 
     private boolean validateFileSize(MultipartFile file) {
-        return file.getSize() <= MAX_FILE_SIZE;
+        List<String> allowedFileExtensions = new ArrayList<>
+                (Arrays.asList("pdf","png", "jpg", "jpeg"));
+        if (allowedFileExtensions.contains(file.getContentType())) {
+            return file.getSize() <= MAX_FILE_SIZE;
+        }
+        return true;
     }
 
 @Transactional
@@ -230,7 +238,6 @@ public ResponseEntity<?> completeRegistration() {
                     tutorEntity.getTeachingStyle(),
                     tutorEntity.getStudentAssessmentApproach(),
                     tutorEntity.getAvailableForAdditionalSupport(),
-                    tutorEntity.getAvailableDateTime(),
                     tutorEntity.getAttendanceType(),
                     tutorEntity.getPreferredSubjects()
             );
@@ -375,12 +382,17 @@ public ResponseEntity<?> completeRegistration() {
     return documents;
 }
 
- @Transactional
-    public TutorEntity getTutorWithLob(Long userId){
+    @Transactional
+    public TutorEntity getTutorWithLob(Long userId) {
         return entityManager.createQuery(
-                "SELECT t FROM TutorEntity t WHERE t.id = :userId",
-                TutorEntity.class)
-                .setParameter("userId", userId)
-                .getSingleResult();
- }
+            "SELECT t FROM TutorEntity t " +
+            "LEFT JOIN FETCH t.educationalCertificates " +
+            "LEFT JOIN FETCH t.resumeCurriculumVitae " +
+            "LEFT JOIN FETCH t.professionalDevelopmentCert " +
+            "LEFT JOIN FETCH t.identificationDocuments " +
+            "LEFT JOIN FETCH t.tutorImage " +
+            "WHERE t.tutorId = :userId", TutorEntity.class)
+            .setParameter("userId", userId)
+            .getSingleResult();
+    }
 }

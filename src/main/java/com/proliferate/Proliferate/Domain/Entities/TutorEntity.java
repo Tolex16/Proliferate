@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -100,9 +101,6 @@ public class TutorEntity implements UserDetails {
 	
 	@Column(name = "availability_additional_support")
     private String availableForAdditionalSupport;
-	
-	@Column(name = "available_Date_Time")
-    private List<String> availableDateTime;
 
     @Lob
 	@Basic(fetch = FetchType.LAZY)

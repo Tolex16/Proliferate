@@ -1,13 +1,9 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
-import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.TutorAuthenticationService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +11,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/authorize")
@@ -39,7 +34,7 @@ public class TutorAuthController {
         try {
             var tutorStore = authenticationService.tutorRegister(tutorRegister);
             return new ResponseEntity<>(tutorStore, HttpStatus.CREATED);
-        } catch (UserAlreadyExistsException ex){
+        } catch (UserAlreadyExistsException | StudentEmailPresentException ex){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }
     }
@@ -96,7 +91,8 @@ public class TutorAuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
-//	@Transactional
+
+	@Transactional
 	@PostMapping("/tutorCompleteRegistration")
 	public ResponseEntity<?> completeRegistration() {
 		return authenticationService.completeRegistration();
@@ -166,5 +162,9 @@ public class TutorAuthController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
+//    private boolean validateFileType(MultipartFile file) {
+//        List<String> allowedFileExtensions = new ArrayList<>
+//                (Arrays.asList("pdf", "png", "jpg", "jpeg"));
+//        return allowedFileExtensions.contains(file.getContentType());
+//    }
 }

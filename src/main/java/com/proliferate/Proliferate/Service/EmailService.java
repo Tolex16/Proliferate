@@ -169,13 +169,13 @@ public class EmailService {
             String to, String tutorFirstName, String tutorLastName, String email, Gender gender,
             String contactNumber, int age, String highestEducationLevelAttained, String majorFieldOfStudy,String yearsOfTeachingExperience,
             String teachingGrade, String currentSchool, String teachingStyle, String studentAssessmentApproach, String availableForAdditionalSupport,
-            List<String> availableDateTime , String attendanceType, List<String> preferredSubjects) {
+            String attendanceType, List<String> preferredSubjects) {
 
         String subject = "Welcome to Proliferate!";
         String body = tutorEmailBody(tutorFirstName,tutorLastName, email, gender,
                 contactNumber, age, highestEducationLevelAttained, majorFieldOfStudy, yearsOfTeachingExperience,
                 teachingGrade, currentSchool,teachingStyle, studentAssessmentApproach, availableForAdditionalSupport,
-                availableDateTime, attendanceType, preferredSubjects);
+                attendanceType, preferredSubjects);
 
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
@@ -196,7 +196,7 @@ public class EmailService {
             String tutorFirstName, String tutorLastName, String email, Gender gender,
             String contactNumber, int age, String highestEducationLevelAttained, String majorFieldOfStudy,String yearsOfTeachingExperience,
             String teachingGrade, String currentSchool, String teachingStyle, String studentAssessmentApproach, String availableForAdditionalSupport,
-            List<String> availableDateTime , String attendanceType, List<String> preferredSubjects) {
+            String attendanceType, List<String> preferredSubjects) {
 
         StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append("<html>");
@@ -228,7 +228,6 @@ public class EmailService {
         bodyBuilder.append("<li>Teaching Style: ").append(teachingStyle).append("</li>");
         bodyBuilder.append("<li>student Assessment Approach: ").append(studentAssessmentApproach).append("</li>");
         bodyBuilder.append("<li>Availability for Additional Approach: ").append(availableForAdditionalSupport).append("</li>");
-        bodyBuilder.append("<li>Availability: ").append(availableDateTime).append("</li>");
         bodyBuilder.append("<li>Attendance Type: ").append(attendanceType).append("</li>");
         bodyBuilder.append("<li>Preferred Subjects: ").append(preferredSubjects).append("</li>");
         bodyBuilder.append("</ul>");
