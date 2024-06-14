@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.UpdateTutor;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
@@ -28,10 +29,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,8 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
     private final PasswordEncoder passwordEncoder;
 
     private final StudentRepository studentRepository;
+
+    private final Mapper<StudentEntity, UpdateStudent> updateStudentMapper;
 
     private final TutorRepository tutorRepository;
     @Autowired
@@ -55,8 +58,9 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 	private final EmailService emailService;
 
     private final Mapper<StudentEntity, StudentDto> studentMapper;
-	
-	private final Mapper<TutorEntity, TutorDto> tutorMapper;
+
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
 	
     @Autowired
     private final JwtService jwtService;
@@ -254,5 +258,51 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
     return result;
 	}
 
+    public ResponseEntity<?> updateStudent(UpdateStudent updateStudent) {
+        try {
+            Long userId = jwtService.getUserId();
+            if (studentRepository.existsById(userId)) {
+                return studentRepository.findById(userId).map(
+                        existingUser -> {
+                            if (updateStudent.getStudentImage() != null && !updateStudent.getStudentImage().isEmpty()) {
+                                if (!validateFileSize(updateStudent.getStudentImage())) {
+                                    return new ResponseEntity<>("Student Image exceeds the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
+                                }
+                                if (!updateStudent.getStudentImage().isEmpty()) {
+                                    try {
+                                        existingUser.setStudentImage(updateStudent.getStudentImage().getBytes());
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            }
+                            Optional.ofNullable(updateStudent.getFirstName()).ifPresent(existingUser::setFirstName);
+                            Optional.ofNullable(updateStudent.getLastName()).ifPresent(existingUser::setLastName);
+                            Optional.ofNullable(updateStudent.getEmail()).ifPresent(existingUser::setEmail);
+                            Optional.ofNullable(updateStudent.getPhoneNumber()).ifPresent(existingUser::setContactNumber);
+                            Optional.ofNullable(updateStudent.getBio()).ifPresent(existingUser::setBio);
 
+
+                            UpdateStudent updatedStudent = updateStudentMapper.mapTo(studentRepository.save(existingUser));
+
+                            return new ResponseEntity<>(updatedStudent,HttpStatus.CREATED);
+                        }
+                ).orElseThrow(() -> new UserNotFoundException("Student not found"));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception error) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+    private boolean validateFileSize(MultipartFile file) {
+        List<String> allowedContentTypes = Arrays.asList("application/pdf", "image/png", "image/jpeg");
+
+        String contentType = file.getContentType();
+        if (contentType == null || !allowedContentTypes.contains(contentType)) {
+            return false;
+        }
+
+        return file.getSize() <= MAX_FILE_SIZE;
+    }
 }

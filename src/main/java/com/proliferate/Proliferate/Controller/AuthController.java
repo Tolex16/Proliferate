@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.*;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.UpdateTutor;
 import com.proliferate.Proliferate.ExeceptionHandler.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.InviteService;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
@@ -131,14 +133,14 @@ public class AuthController {
 	
 	@GetMapping("/check-username")
 	public ResponseEntity<Map<String, Boolean>> findStudent(@Valid @RequestBody StudentVerification usernameVerification) {
-    try {
+       try {
         Map<String, Boolean> checkStudent = authenticationService.checkStudent(usernameVerification);
         return new ResponseEntity<>(checkStudent, HttpStatus.OK);
-    } catch (Exception ex) {
+       } catch (Exception ex) {
         // In case of any unexpected exceptions, return an internal server error
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+       }
     }
-}
 
 
     @PostMapping("/friend-invite")
@@ -147,5 +149,18 @@ public class AuthController {
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
 
         return inviteService.friendInvite(friendInvite);
+    }
+
+    @PostMapping(path = "/update-student", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateStudent(@ModelAttribute UpdateStudent updateStudent, BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            authenticationService.updateStudent(updateStudent);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
 }

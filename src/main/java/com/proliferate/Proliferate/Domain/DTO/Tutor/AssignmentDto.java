@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssignmentDto {
 	
-    private List<String> assignedStudent;
+    private String assignedStudent;
 	
     private String dueDate;
 	
@@ -23,4 +23,6 @@ public class AssignmentDto {
     private String gradeLevel;
 	
     private MultipartFile assignmentFile;
+	
+	private String assignmentFileBase64; // Add this field to hold the base64 string
 }

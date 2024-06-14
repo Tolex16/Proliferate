@@ -30,8 +30,9 @@ public class Assignment {
 	
 	@Column(name = "grade_level")
     private String gradeLevel;
-	
-	@Column(name = "assignment_file")
+
     @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "assignment_file")
     private byte[] assignmentFile;
 }

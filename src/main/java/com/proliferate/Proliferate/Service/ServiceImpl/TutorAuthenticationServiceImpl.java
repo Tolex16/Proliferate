@@ -146,9 +146,11 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
                 return tutorRepository.findById(userId).map(
                         existingUser -> {
                             Optional.ofNullable(availabilityPreference.getPreferredSubjects()).ifPresent(existingUser::setPreferredSubjects);
-                            Optional.ofNullable(availabilityPreference.getStudentAssessmentApproach()).ifPresent(existingUser::setStudentAssessmentApproach);
-							Optional.ofNullable(availabilityPreference.getAvailableForAdditionalSupport()).ifPresent(existingUser::setAvailableForAdditionalSupport);
-							
+                            Optional.ofNullable(availabilityPreference.getWeeklyAvailability()).ifPresent(existingUser::setWeeklyAvailability);
+							Optional.ofNullable(availabilityPreference.getTimeslotAvailability()).ifPresent(existingUser::setTimeslotAvailability);
+                            Optional.ofNullable(availabilityPreference.getSelectTimezone()).ifPresent(existingUser::setSelectTimezone);
+                            Optional.ofNullable(availabilityPreference.getCommunicationLanguage()).ifPresent(existingUser::setCommunicationLanguage);
+
                             AvailabilityPreference updatedUser = availabilityPreferenceMapper.mapTo(tutorRepository.save(existingUser));
 
                             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -203,15 +205,18 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
     }
+	
+	
+	private boolean validateFileSize(MultipartFile file) {
+    List<String> allowedContentTypes = Arrays.asList("application/pdf", "image/png", "image/jpeg");
 
-    private boolean validateFileSize(MultipartFile file) {
-        List<String> allowedFileExtensions = new ArrayList<>
-                (Arrays.asList("pdf","png", "jpg", "jpeg"));
-        if (allowedFileExtensions.contains(file.getContentType())) {
-            return file.getSize() <= MAX_FILE_SIZE;
-        }
-        return true;
+    String contentType = file.getContentType();
+    if (contentType == null || !allowedContentTypes.contains(contentType)) {
+        return false;
     }
+    
+    return file.getSize() <= MAX_FILE_SIZE;
+}
 
 @Transactional
 public ResponseEntity<?> completeRegistration() {
@@ -236,8 +241,8 @@ public ResponseEntity<?> completeRegistration() {
                     tutorEntity.getTeachingGrade(),
                     tutorEntity.getCurrentSchool(),
                     tutorEntity.getTeachingStyle(),
-                    tutorEntity.getStudentAssessmentApproach(),
-                    tutorEntity.getAvailableForAdditionalSupport(),
+                    tutorEntity.getWeeklyAvailability(),
+                    tutorEntity.getTimeslotAvailability(),
                     tutorEntity.getAttendanceType(),
                     tutorEntity.getPreferredSubjects()
             );
@@ -296,28 +301,30 @@ public ResponseEntity<?> completeRegistration() {
 	}
 
 	
-    public ResponseEntity<?> updateTutor (UpdateTutor updateTutor, MultipartFile tutorImage){
+    public ResponseEntity<?> updateTutor(UpdateTutor updateTutor) {
         try {
             Long userId = jwtService.getUserId();
             if (tutorRepository.existsById(userId)) {
                 return tutorRepository.findById(userId).map(
                         existingUser -> {
-                                if (!validateFileSize(tutorImage)) {
-                                    return new ResponseEntity<>("Tutor Image exceed the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
+                            if (updateTutor.getTutorImage() != null && !updateTutor.getTutorImage().isEmpty()) {
+                                if (!validateFileSize(updateTutor.getTutorImage())) {
+                                    return new ResponseEntity<>("Tutor Image exceeds the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
                                 }
+								if (!updateTutor.getTutorImage().isEmpty()) {
+                                try {
+                                    existingUser.setTutorImage(updateTutor.getTutorImage().getBytes());
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+								  }
+                            }
                             Optional.ofNullable(updateTutor.getFirstName()).ifPresent(existingUser::setFirstName);
                             Optional.ofNullable(updateTutor.getLastName()).ifPresent(existingUser::setLastName);
                             Optional.ofNullable(updateTutor.getEmail()).ifPresent(existingUser::setEmail);
                             Optional.ofNullable(updateTutor.getPhoneNumber()).ifPresent(existingUser::setContactNumber);
                             Optional.ofNullable(updateTutor.getBio()).ifPresent(existingUser::setBio);
 
-                            if (!tutorImage.isEmpty()) {
-                                try {
-                                    existingUser.setTutorImage(tutorImage.getBytes());
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
 
                             UpdateTutor updatedTutor = updateTutorMapper.mapTo(tutorRepository.save(existingUser));
 

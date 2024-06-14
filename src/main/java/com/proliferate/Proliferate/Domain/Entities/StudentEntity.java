@@ -31,7 +31,7 @@ public class StudentEntity implements UserDetails {
     @Id
     @Column(name = "student_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long StudentId;
+    private long studentId;
 
     @Column(name = "first_name")
     private String firstName;
@@ -114,6 +114,13 @@ public class StudentEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "student_image")
+    private byte[] studentImage;
+
+    @Column(name = "bio")
+    private String bio;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

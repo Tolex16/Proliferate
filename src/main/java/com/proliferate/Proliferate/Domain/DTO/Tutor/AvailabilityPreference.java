@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.DTO.Tutor;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,11 @@ public class AvailabilityPreference {
     
 	private List<String> preferredSubjects;
 	
-    private String studentAssessmentApproach;
+    private String weeklyAvailability;
     
-	private String availableForAdditionalSupport;
+	private String timeslotAvailability;
 
+	private String selectTimezone;
+
+	private String communicationLanguage;
 }

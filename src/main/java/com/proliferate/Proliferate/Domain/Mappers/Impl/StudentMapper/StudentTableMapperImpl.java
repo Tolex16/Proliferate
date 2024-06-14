@@ -34,12 +34,12 @@ public class StudentTableMapperImpl implements Mapper<StudentEntity, StudentTabl
     }
 
     @Override
-    public List<StudentTable> mapListTo(Iterable<StudentEntity> studentEntities) {
+    public Iterable<StudentTable> mapListTo(Iterable<StudentEntity> studentEntities) {
         return StreamSupport.stream(studentEntities.spliterator(), false)
-                .map(studentEntity -> modelMapper.map(
-                        studentEntity, StudentTable.class
-                )).collect(Collectors.toList());
+                .map(this::mapTo)
+                .collect(Collectors.toList());
     }
+
 
 
 }

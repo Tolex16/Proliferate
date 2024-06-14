@@ -49,9 +49,13 @@ public class TutorDto {
 	
 	private List<String> preferredSubjects;
 
-    private String studentAssessmentApproach;
+    private String weeklyAvailability;
 
-    private String availableForAdditionalSupport;
+    private String timeslotAvailability;
+
+    private String selectTimezone;
+
+    private String communicationLanguage;
 
     private boolean termsAndConditionsApproved;
 

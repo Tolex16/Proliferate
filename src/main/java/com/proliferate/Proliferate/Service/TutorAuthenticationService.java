@@ -26,8 +26,9 @@ public interface TutorAuthenticationService {
     LoginResponse login(LoginTutorRequest loginTutorRequest);
 
     Map<String, Boolean> checkMail(TutorVerification emailVerification);
-
-    ResponseEntity updateTutor (UpdateTutor updateTutor, MultipartFile tutorImage);
+    
+	@Transactional
+    ResponseEntity updateTutor (UpdateTutor updateTutor);
 	
 	@Transactional
 	Map<String, byte[]> getDocuments(Long tutorId, String documentType);

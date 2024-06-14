@@ -226,8 +226,8 @@ public class EmailService {
         bodyBuilder.append("<p><strong>Teaching Style and Approach:</strong></p>");
         bodyBuilder.append("<ul>");
         bodyBuilder.append("<li>Teaching Style: ").append(teachingStyle).append("</li>");
-        bodyBuilder.append("<li>student Assessment Approach: ").append(studentAssessmentApproach).append("</li>");
-        bodyBuilder.append("<li>Availability for Additional Approach: ").append(availableForAdditionalSupport).append("</li>");
+        bodyBuilder.append("<li>Weekly Availability: ").append(studentAssessmentApproach).append("</li>");
+        bodyBuilder.append("<li>Timeslot Availability: ").append(availableForAdditionalSupport).append("</li>");
         bodyBuilder.append("<li>Attendance Type: ").append(attendanceType).append("</li>");
         bodyBuilder.append("<li>Preferred Subjects: ").append(preferredSubjects).append("</li>");
         bodyBuilder.append("</ul>");

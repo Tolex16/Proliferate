@@ -95,12 +95,18 @@ public class TutorEntity implements UserDetails {
 
 	@Column(name = "preferred_subjects")
 	private List<String> preferredSubjects;
-	
-	@Column(name = "student_assessment_approach")
-    private String studentAssessmentApproach;
-	
-	@Column(name = "availability_additional_support")
-    private String availableForAdditionalSupport;
+
+    @Column(name = "weekly_availability")
+    private String weeklyAvailability;
+
+    @Column(name = "timeslot_availability")
+    private String timeslotAvailability;
+
+    @Column(name = "selected_timezone")
+    private String selectTimezone;
+
+    @Column(name = "communication_language")
+    private String communicationLanguage;
 
     @Lob
 	@Basic(fetch = FetchType.LAZY)

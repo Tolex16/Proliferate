@@ -71,7 +71,10 @@ public class VideoCallController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Caller and Callee must be specified");
         }
         if(studentRepository.existsByUserName(request.getCaller()) || tutorRepository.existsByEmail(request.getCaller())){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"There is no account with this detail.");
+        }
+        if(studentRepository.existsByUserName(request.getCallee()) || tutorRepository.existsByEmail(request.getCallee())){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"There is no account with this detail.");
         }
 
         // Notify both parties that the call has ended

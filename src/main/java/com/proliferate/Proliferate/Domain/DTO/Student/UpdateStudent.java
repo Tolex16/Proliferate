@@ -1,4 +1,4 @@
-package com.proliferate.Proliferate.Domain.DTO.Tutor;
+package com.proliferate.Proliferate.Domain.DTO.Student;
 
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UpdateTutor {
+public class UpdateStudent {
     private String firstName;
 
     private String lastName;
@@ -21,5 +21,5 @@ public class UpdateTutor {
 
     private String bio;
 
-    private MultipartFile tutorImage;
+    private MultipartFile studentImage;
 }

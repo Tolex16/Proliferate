@@ -24,4 +24,6 @@ public interface StudentAuthenticationService {
     Map<String, Boolean> checkStudent(StudentVerification usernameVerification);
 
     LoginResponse login(LoginStudentRequest loginStudentRequest);
+
+    ResponseEntity<?> updateStudent(UpdateStudent updateStudent);
 }

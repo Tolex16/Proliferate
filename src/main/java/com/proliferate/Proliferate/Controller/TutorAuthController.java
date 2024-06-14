@@ -116,30 +116,20 @@ public class TutorAuthController {
         }
     }
 
-    @PostMapping("/update-tutor")
-    public ResponseEntity<?> updateTutor(@RequestPart("updateTutor") UpdateTutor updateTutor,
-                                         @RequestPart("tutorImage") MultipartFile tutorImage, BindingResult result){
-        System.out.println("Has errors?" + result.hasErrors());
-        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+    @PostMapping(path = "/update-tutor", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateTutor(@ModelAttribute UpdateTutor updateTutor, BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try {
-            authenticationService.updateTutor(updateTutor,tutorImage);
+            authenticationService.updateTutor(updateTutor);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } catch (UserNotFoundException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
-		
-//    @PostMapping(path = " e", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity addRecipe(@ModelAttribute RecipeOperationsDto recipeDto, @RequestPart("file") MultipartFile file) {
-//        // handle the file attachment
-//        if (file != null) {
-//            recipeDto.setFeaturedImage(file);
-//        }
-//        return new ResponseEntity(recipeService.addRecipe(recipeDto), HttpStatus.CREATED);
-//    }
-
-@GetMapping("/documents")
+    @GetMapping("/documents")
     public ResponseEntity<Map<String, byte[]>> getDocuments(
         @RequestParam Long tutorId,
         @RequestParam String documentType) {
@@ -162,9 +152,5 @@ public class TutorAuthController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-//    private boolean validateFileType(MultipartFile file) {
-//        List<String> allowedFileExtensions = new ArrayList<>
-//                (Arrays.asList("pdf", "png", "jpg", "jpeg"));
-//        return allowedFileExtensions.contains(file.getContentType());
-//    }
+
 }
