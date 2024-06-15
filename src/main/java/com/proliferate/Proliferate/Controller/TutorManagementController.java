@@ -43,7 +43,7 @@ public class TutorManagementController {
     }
 
     @GetMapping("/get-tutorProfile/{tutorId}")
-    public ResponseEntity<TutorProfile> getStudentProfile(@PathVariable Long tutorId) {
+    public ResponseEntity<TutorProfile> getTutorProfile(@PathVariable Long tutorId) {
         Optional<TutorEntity> tutorEntityOptional = feedbackService.getTutorProfile(tutorId);
         if (tutorEntityOptional.isPresent()) {
             TutorProfile tutorProfile = tutorProfileMapper.mapTo(tutorEntityOptional.get());
