@@ -1,15 +1,13 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentProfile;
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
+import com.proliferate.Proliferate.Domain.DTO.Schedule;
+import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
-import com.proliferate.Proliferate.Domain.Entities.AttendanceEntity;
-import com.proliferate.Proliferate.Domain.Entities.ClassSchedule;
-import com.proliferate.Proliferate.Domain.Entities.Feedback;
-import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
+import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
+import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
 import com.proliferate.Proliferate.Service.StudentManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +52,15 @@ public class StudentManagementController {
         }
         return new ResponseEntity<>(assignments, HttpStatus.OK);
     }
-
+    @DeleteMapping("/assignment/delete/{id}")
+    public ResponseEntity<?> deleteAssignment(@PathVariable Long id) {
+        try {
+            authenticationService.deleteAssignment(id);
+            return ResponseEntity.ok("Assignment deleted successfully.");
+        } catch (AssignmentNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
     @GetMapping("/get-students")
     public ResponseEntity<Iterable<StudentTable>> getAllStudents() {
@@ -85,17 +91,23 @@ public class StudentManagementController {
         AttendanceEntity newAttendanceRecord = authenticationService.addAttendanceRecord(attendanceEntity);
         return ResponseEntity.ok(newAttendanceRecord);
     }
-
-    @PostMapping("/add-class-schedule")
-    public ResponseEntity<ClassSchedule> addClassSchedule(@RequestBody ClassSchedule classSchedule) {
-        ClassSchedule newClassSchedule = authenticationService.saveClassSchedule(classSchedule);
-        return ResponseEntity.ok(newClassSchedule);
+	
+	@GetMapping("/schedule/{tutorId}")
+    public List<ClassSchedule> getTutorSchedule(@PathVariable Long tutorId) {
+        return authenticationService.getTutorSchedule(tutorId);
+    }
+	
+	@PostMapping("/create-class-schedule")
+    public ClassSchedule createClassSchedule(@RequestBody Schedule schedule) {
+        return authenticationService.createClassSchedule(schedule);
     }
 
-    @GetMapping("/get-class-schedule")
-    public ResponseEntity<List<ClassSchedule>> getAllClassSchedule() {
-        List<ClassSchedule> classSchedules = authenticationService.getAllClassSchedule();
-        return ResponseEntity.ok(classSchedules);
+    @PostMapping("/add-test")
+    public ResponseEntity<Test> addTest(@RequestBody TestDto testDto){
+        return new ResponseEntity<>(authenticationService.addTest(testDto), HttpStatus.OK);
     }
-
+    @PostMapping("/add-score")
+    public ResponseEntity<Score> addScore(@RequestBody ScoreDto scoreDto){
+        return new ResponseEntity<>(authenticationService.addScore(scoreDto), HttpStatus.OK);
+    }
 }

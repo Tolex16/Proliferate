@@ -38,8 +38,6 @@ public class TutorAuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }
     }
-	
-	
 
     @PostMapping("/educationExperience")
     public ResponseEntity<?> educationExperience(@Valid @RequestBody EducationExperience educationExperience, BindingResult result){
@@ -99,7 +97,7 @@ public class TutorAuthController {
 	}
 
     @PostMapping("/login-tutor")
-    public ResponseEntity <LoginResponse> login(@RequestBody LoginTutorRequest loginRequest, BindingResult result){
+    public ResponseEntity <LoginResponse> login(@Valid @RequestBody LoginTutorRequest loginRequest, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
 
@@ -117,7 +115,7 @@ public class TutorAuthController {
     }
 
     @PostMapping(path = "/update-tutor", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateTutor(@ModelAttribute UpdateTutor updateTutor, BindingResult result) {
+    public ResponseEntity<?> updateTutor(@Valid @ModelAttribute UpdateTutor updateTutor, BindingResult result) {
         if (result.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

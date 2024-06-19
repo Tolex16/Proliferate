@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ClassScheduleRepository extends JpaRepository<ClassSchedule, Long> {
-    List<ClassSchedule> findByStudentName(String studentName);
+    List<ClassSchedule> findByStudentStudentId(Long studentId);
+	
+    List<ClassSchedule> findByTutorTutorId(Long tutorId);
 }

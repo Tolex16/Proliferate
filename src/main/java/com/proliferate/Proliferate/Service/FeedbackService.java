@@ -1,8 +1,9 @@
 package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.FriendInvite;
-import com.proliferate.Proliferate.Domain.Entities.Feedback;
-import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
+import com.proliferate.Proliferate.Domain.Entities.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -16,4 +17,17 @@ public interface FeedbackService {
     double getAverageRating(String tutorName);
 
     Optional<TutorEntity> getTutorProfile(Long tutorId);
+	
+	List<Score> getStudentScores(Long studentId);
+
+    List<ClassSchedule> getStudentSchedule(Long studentId);
+
+    List<AssignmentDto> getStudentAssignments(String studentName);
+
+    Subject createSubject(SubjectDto subjectDto);
+    List<SubjectDto> getAllSubjects();
+
+    SubjectDto getSubjectById(Long subjectId);
+
+    void deleteSubject(Long subjectId);
 }

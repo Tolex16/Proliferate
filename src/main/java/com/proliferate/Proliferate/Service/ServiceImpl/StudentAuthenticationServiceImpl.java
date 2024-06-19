@@ -175,11 +175,10 @@ public ResponseEntity<?> completeRegistration() {
         
         // Check if terms and conditions are approved
         if (!studentEntity.isTermsAndConditionsApproved()) {
+            emailService.studentRegistrationConfirmationEmail(studentEntity.getEmail(), studentEntity.getFirstName(),studentEntity.getLastName(), studentEntity.getEmail(), studentEntity.getGender(), studentEntity.getContactNumber(), studentEntity.getAge(),studentEntity.getGradeYear(), studentEntity.getSubjectsNeedingTutoring(),studentEntity.getAttendanceType(),studentEntity.getAvailability(), studentEntity.getAdditionalPreferences(),studentEntity.getShortTermGoals(),studentEntity.getLongTermGoals());
+            
             // If terms and conditions are not approved, update the field to true
             studentEntity.setTermsAndConditionsApproved(true);
-            emailService.studentRegistrationConfirmationEmail(studentEntity.getEmail(), studentEntity.getFirstName(),studentEntity.getLastName(), studentEntity.getEmail(), studentEntity.getGender(), studentEntity.getContactNumber(), studentEntity.getAge(),studentEntity.getGradeYear(), studentEntity.getSubjectsNeedingTutoring(),studentEntity.getAttendanceType(),studentEntity.getAvailability(), studentEntity.getAdditionalPreferences(),studentEntity.getShortTermGoals(),studentEntity.getLongTermGoals());
-            studentRepository.save(studentEntity);
-
             // Optionally, you can update the user entity to mark registration as completed
             studentEntity.setRegistrationCompleted(true);
             studentRepository.save(studentEntity);
@@ -232,13 +231,16 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
     var studentOpt = studentRepository.findByUserName(loginStudentRequest.getUserName());
     if (studentOpt.isPresent()) {
         var student = studentOpt.get();
-        UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
-        var jwt = jwtService.genToken(userDetails, student);
-        StudentDto loggedInStudent = studentMapper.mapTo(student);
-        return new LoginResponse(loggedInStudent, null, jwt);
-    }
+        if (student.isRegistrationCompleted()){
+            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
+            var jwt = jwtService.genToken(userDetails, student);
+            StudentDto loggedInStudent = studentMapper.mapTo(student);
+            return new LoginResponse(loggedInStudent, null, jwt);
+        }else {
+            return new LoginResponse(null, null,"Registration is not completed for this student");
+        }
+   }
 
-    // If neither student nor tutor is found, throw an exception
     throw new UsernameNotFoundException("Error in username and password");
 }
  

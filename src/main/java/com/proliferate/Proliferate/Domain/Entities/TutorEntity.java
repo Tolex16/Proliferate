@@ -94,6 +94,7 @@ public class TutorEntity implements UserDetails {
     private String attendanceType;
 
 	@Column(name = "preferred_subjects")
+	@ElementCollection
 	private List<String> preferredSubjects;
 
     @Column(name = "weekly_availability")
@@ -145,7 +146,13 @@ public class TutorEntity implements UserDetails {
 	
 	@Column(name = "bio")
     private String bio;
+	
+	@OneToMany(mappedBy = "tutor")
+    private Set<Subject> subjects;
 
+    @OneToMany(mappedBy = "tutor")
+    private Set<ClassSchedule> classSchedules;
+	
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

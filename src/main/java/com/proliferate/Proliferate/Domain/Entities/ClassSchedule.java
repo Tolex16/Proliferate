@@ -11,13 +11,21 @@ import lombok.NoArgsConstructor;
 public class ClassSchedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long classScheduleId;
 
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private StudentEntity student;
+
+    @ManyToOne
+    @JoinColumn(name = "tutor_id")
+    private TutorEntity tutor;
+	
     private String date;
 
-    private String studentName;
-
-    private String subject;
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
 
     private String time;
 

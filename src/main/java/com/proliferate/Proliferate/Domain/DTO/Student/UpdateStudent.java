@@ -14,7 +14,7 @@ public class UpdateStudent {
 
     private String lastName;
 
-    @Email
+    @Email(message = "Email should be valid")
     private String email;
 
     private String phoneNumber;

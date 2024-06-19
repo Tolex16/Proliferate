@@ -277,13 +277,19 @@ public ResponseEntity<?> completeRegistration() {
             throw new IllegalArgumentException("Invalid email and Password", e);
         }
         // Try to find the user as a tutor
+
         var tutorOpt = tutorRepository.findByEmail(loginTutorRequest.getEmail());
+
         if (tutorOpt.isPresent()) {
             var tutor = tutorOpt.get();
-            UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
-            var jwt = jwtService.genToken(userDetails, tutor);
-            TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
-            return new LoginResponse(null, loggedInTutor, jwt);
+            if (tutor.isRegistrationCompleted()){
+                UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
+                var jwt = jwtService.genToken(userDetails, tutor);
+                TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
+                return new LoginResponse(null, loggedInTutor, jwt);
+            } else {
+                return new LoginResponse(null, null,"Registration is not completed for this tutor");
+            }
         }
 
         // If neither student nor tutor is found, throw an exception

@@ -6,6 +6,7 @@ import com.proliferate.Proliferate.Domain.Entities.Feedback;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
+import com.proliferate.Proliferate.Repository.FeedbackRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -19,16 +20,21 @@ import java.util.stream.StreamSupport;
 public class TutorProfileMapperImpl implements Mapper<TutorEntity, TutorProfile> {
 
     private final ModelMapper modelMapper;
+	
+	private final FeedbackRepository feedbackRepository;
 
  @Override
     public TutorProfile mapTo(TutorEntity tutorEntity) {
         TutorProfile tutorProfile = new TutorProfile();
-        Feedback feedback = new Feedback();
         tutorProfile.setFullName(tutorEntity.getFirstName() + " " + tutorEntity.getLastName());
         tutorProfile.setSubjectExpertise(tutorEntity.getPreferredSubjects().toString());
         tutorProfile.setQualification(tutorEntity.getHighestEducationLevelAttained());
-		tutorProfile.setTeachingStyle(tutorEntity.getTeachingStyle());
-		tutorProfile.setRating(feedback.getRating());
+        tutorProfile.setTeachingStyle(tutorEntity.getTeachingStyle());
+
+        List<Feedback> feedbacks = feedbackRepository.findByTutorName(tutorEntity.getFirstName() + " " + tutorEntity.getLastName());
+        double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
+        tutorProfile.setRating(averageRating);
+
 		tutorProfile.setBio(tutorEntity.getBio());
 		return tutorProfile;
     }
@@ -41,9 +47,8 @@ public class TutorProfileMapperImpl implements Mapper<TutorEntity, TutorProfile>
     @Override
     public List<TutorProfile> mapListTo(Iterable<TutorEntity> tutorEntities) {
         return StreamSupport.stream(tutorEntities.spliterator(), false)
-                .map(tutorEntity -> modelMapper.map(
-                        tutorEntity, TutorProfile.class
-                )).collect(Collectors.toList());
+                .map(this::mapTo)
+                .collect(Collectors.toList());
     }
 
 

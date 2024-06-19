@@ -14,19 +14,21 @@ import java.time.LocalDateTime;
 public class Assignment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long assignmentId;
 	
-    @Column(name = "assigned_student")
-    private String assignedStudent;
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private StudentEntity assignedStudent;
 	
 	@Column(name = "due_date")
     private String dueDate;
 	
 	@Column(name = "title")
     private String title;
-	
-	@Column(name = "subject")
-    private String subject;
+
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
 	
 	@Column(name = "grade_level")
     private String gradeLevel;

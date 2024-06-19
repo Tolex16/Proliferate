@@ -18,7 +18,7 @@ public class TutorProfile {
 	
 	private String teachingStyle;
 	
-    private int rating;
+    private double rating;
 
     private String bio;
 

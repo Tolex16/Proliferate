@@ -1,6 +1,8 @@
 package com.proliferate.Proliferate.Domain.DTO.Student;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proliferate.Proliferate.Domain.DTO.Gender;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +19,12 @@ public class StudentDto {
 
     private String userName;
 
+    @Email(message = "Email should be valid")
     private String email;
 
     private String contactNumber;
 
+    @JsonIgnore
     private String password;
 
     private Gender gender;

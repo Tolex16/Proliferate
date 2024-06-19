@@ -2,7 +2,6 @@ package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.*;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.UpdateTutor;
 import com.proliferate.Proliferate.ExeceptionHandler.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.InviteService;
@@ -98,7 +97,6 @@ public class AuthController {
 
     }
 
-
     @GetMapping("/terms-and-conditions")
     public ResponseEntity<String> getTermsAndConditions() {
         String termsAndConditions = authenticationService.getTermsAndConditions();
@@ -136,7 +134,7 @@ public class AuthController {
        try {
         Map<String, Boolean> checkStudent = authenticationService.checkStudent(usernameVerification);
         return new ResponseEntity<>(checkStudent, HttpStatus.OK);
-       } catch (Exception ex) {
+       } catch (UserNotFoundException ex) {
         // In case of any unexpected exceptions, return an internal server error
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
@@ -152,7 +150,7 @@ public class AuthController {
     }
 
     @PostMapping(path = "/update-student", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateStudent(@ModelAttribute UpdateStudent updateStudent, BindingResult result) {
+    public ResponseEntity<?> updateStudent(@Valid @ModelAttribute UpdateStudent updateStudent, BindingResult result) {
         if (result.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

@@ -11,14 +11,15 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class AssignmentDto {
+	private Long id;
 	
-    private String assignedStudent;
+    private String assignedStudentName;
 	
     private String dueDate;
 	
     private String title;
 	
-    private String subject;
+    private String subjectName;
 	
     private String gradeLevel;
 	

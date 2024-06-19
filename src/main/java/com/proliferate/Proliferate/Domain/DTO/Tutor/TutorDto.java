@@ -1,6 +1,9 @@
 package com.proliferate.Proliferate.Domain.DTO.Tutor;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proliferate.Proliferate.Domain.DTO.Gender;
+import com.proliferate.Proliferate.config.StrongPassword;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +22,13 @@ public class TutorDto {
 
     private String lastName;
 
+    @Email(message = "Email should be valid")
     private String email;
 
     private String contactNumber;
 
+    @StrongPassword
+    @JsonIgnore
     private String password;
 
     private Gender gender;
