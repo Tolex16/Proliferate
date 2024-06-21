@@ -29,5 +29,7 @@ public class Score {
     
 	private int wrongAnswers;
 	
+//	@Column(name = "result")
+//    @Enumerated(EnumType.STRING)
     private Result result;  // "Pass", "Fail", or "Upcoming"
 }

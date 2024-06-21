@@ -129,16 +129,16 @@ public class AuthController {
                 .body("Logged out successfully");
     }
 	
-	@GetMapping("/check-username")
-	public ResponseEntity<Map<String, Boolean>> findStudent(@Valid @RequestBody StudentVerification usernameVerification) {
-       try {
-        Map<String, Boolean> checkStudent = authenticationService.checkStudent(usernameVerification);
+    @GetMapping("/check-student/{username}/{email}")
+   public ResponseEntity<Map<String, Boolean>> findStudent(@PathVariable String username, @PathVariable String email) {
+    try {
+        Map<String, Boolean> checkStudent = authenticationService.checkStudent(username, email);
         return new ResponseEntity<>(checkStudent, HttpStatus.OK);
-       } catch (UserNotFoundException ex) {
+    } catch (UserNotFoundException ex) {
         // In case of any unexpected exceptions, return an internal server error
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-       }
     }
+}
 
 
     @PostMapping("/friend-invite")

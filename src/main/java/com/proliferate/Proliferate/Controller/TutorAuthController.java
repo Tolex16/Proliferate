@@ -104,10 +104,10 @@ public class TutorAuthController {
         return ResponseEntity.ok(authenticationService.login(loginRequest));
     }
 
-    @GetMapping("/check-email")
-    public ResponseEntity<Map<String, Boolean>> findUser(@Valid @RequestBody TutorVerification emailVerification) {
+    @GetMapping("/check-email/{email}")
+    public ResponseEntity<Map<String, Boolean>> findUser(@PathVariable String email) {
         try {
-            Map<String, Boolean> emailExists = authenticationService.checkMail(emailVerification);
+            Map<String, Boolean> emailExists = authenticationService.checkMail(email);
             return new ResponseEntity<>(emailExists, HttpStatus.OK);
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

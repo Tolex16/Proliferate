@@ -19,12 +19,14 @@ public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long subjectId;
-
-    @Column(name = "title")
+	
+    @Column(name = "title", unique = true)
+    @NotNull(message = "Title cannot be null")
+    @NotBlank(message = "Title cannot be blank")
     private String title;
 
     @ManyToOne
-    @JoinColumn(name = "tutor_id")
+    @JoinColumn(name = "tutor_id", nullable = false)
     private TutorEntity tutor;
 	
 	@OneToMany(mappedBy = "subject")

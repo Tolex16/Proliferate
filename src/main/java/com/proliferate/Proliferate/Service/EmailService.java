@@ -6,6 +6,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -243,6 +244,26 @@ public class EmailService {
 
         return bodyBuilder.toString();
     }
+	
+	public void sendEnrollmentConfirmation(String to, String subjectTitle) {
+		SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Enrollment Confirmation");
+        message.setText("Dear Student,\n\nYou have been successfully enrolled in the subject: " + subjectTitle + ".\n\nThank you!");
+        javaMailSender.send(message);
+        //logger.info("Enrollment confirmation sent to student: {}", to);
+    }
+
+    public void notifyTutor(String tutorEmail, String studentEmail, String subjectTitle) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(tutorEmail);
+		message.setSubject("New Enrollment Notification");
+        message.setText( "Dear Tutor,\n\nA new student (" + studentEmail + ") has enrolled in your subject: " + subjectTitle + ".\n\nThank you!");
+        javaMailSender.send(message);
+
+       // logger.info("Tutor notified: {} about student: {} for course: {}", tutorEmail, studentEmail, courseTitle);
+    }
+
 }
 
 

@@ -246,19 +246,20 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
  
  
     @Override
-    public Map<String, Boolean> checkStudent(StudentVerification usernameVerification) {
+    public Map<String, Boolean> checkStudent(String username, String email) {
     Map<String, Boolean> result = new HashMap<>();
 
     // Check if the userName is present in the student repository
-    boolean isUserNamePresent = studentRepository.findByUserName(usernameVerification.getUserName()).isPresent();
+    boolean isUserNamePresent = studentRepository.findByUserName(username).isPresent();
     result.put("userName", isUserNamePresent);
 
     // Check if the email is present in the student repository
-    boolean isEmailPresent = studentRepository.findByEmail(usernameVerification.getEmail()).isPresent();
+    boolean isEmailPresent = studentRepository.findByEmail(email).isPresent();
     result.put("email", isEmailPresent);
 
     return result;
-	}
+}
+
 
     public ResponseEntity<?> updateStudent(UpdateStudent updateStudent) {
         try {

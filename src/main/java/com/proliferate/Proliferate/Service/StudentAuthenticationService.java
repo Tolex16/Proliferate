@@ -21,7 +21,7 @@ public interface StudentAuthenticationService {
     
     String getTermsAndConditions();
 
-    Map<String, Boolean> checkStudent(StudentVerification usernameVerification);
+    Map<String, Boolean> checkStudent(String username, String email);
 
     LoginResponse login(LoginStudentRequest loginStudentRequest);
 

@@ -127,7 +127,9 @@ public class StudentEntity implements UserDetails {
 	
 	@OneToMany(mappedBy = "student")
     private Set<ClassSchedule> classSchedules;
-
+	
+	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Payment> payments;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

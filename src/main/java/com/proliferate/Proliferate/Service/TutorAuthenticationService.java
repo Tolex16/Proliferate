@@ -25,7 +25,7 @@ public interface TutorAuthenticationService {
 
     LoginResponse login(LoginTutorRequest loginTutorRequest);
 
-    Map<String, Boolean> checkMail(TutorVerification emailVerification);
+    Map<String, Boolean> checkMail(String email);
     
 	@Transactional
     ResponseEntity updateTutor (UpdateTutor updateTutor);

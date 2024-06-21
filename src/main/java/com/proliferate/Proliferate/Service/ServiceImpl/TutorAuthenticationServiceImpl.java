@@ -297,10 +297,10 @@ public ResponseEntity<?> completeRegistration() {
     }
 	@Transactional
 	@Override
-    public Map<String, Boolean> checkMail(TutorVerification emailVerification) {
+    public Map<String, Boolean> checkMail(String email) {
         Map<String, Boolean> result = new HashMap<>();
 
-        boolean isEmailPresent = tutorRepository.findByEmail(emailVerification.getEmail()).isPresent();
+        boolean isEmailPresent = tutorRepository.findByEmail(email).isPresent();
         result.put("email", isEmailPresent);
 
     return result;
