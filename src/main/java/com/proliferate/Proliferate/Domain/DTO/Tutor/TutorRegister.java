@@ -27,7 +27,6 @@ public class TutorRegister {
     private String contactNumber;
 
     @StrongPassword
-    @JsonIgnore
     private String password;
 
     private Gender gender;

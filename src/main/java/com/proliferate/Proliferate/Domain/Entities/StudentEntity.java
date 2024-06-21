@@ -121,16 +121,15 @@ public class StudentEntity implements UserDetails {
 
     @Column(name = "bio")
     private String bio;
-	
+
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Score> scores;
-	
+
 	@OneToMany(mappedBy = "student")
     private Set<ClassSchedule> classSchedules;
-	
+
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Payment> payments;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

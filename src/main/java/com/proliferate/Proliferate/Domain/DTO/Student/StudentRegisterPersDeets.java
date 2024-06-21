@@ -29,7 +29,6 @@ public class StudentRegisterPersDeets {
     private String contactNumber;
 
     @StrongPassword
-    @JsonIgnore
     private String password;
 
     private Gender gender;
