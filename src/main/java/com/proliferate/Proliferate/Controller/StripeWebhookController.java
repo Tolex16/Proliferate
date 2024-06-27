@@ -4,6 +4,7 @@ package com.proliferate.Proliferate.Controller;
 import com.proliferate.Proliferate.Service.PaymentService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
+import com.stripe.model.PaymentMethod;
 import com.stripe.net.Webhook;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,9 +40,11 @@ public class StripeWebhookController {
             case "payment_intent.payment_failed":
                 handlePaymentIntentFailed(event);
                 break;
-            // Add more event types as needed
+				case "payment_method.attached":
+                handlePaymentMethodAttached(event);
+                break;
             default:
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unhandled event type");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unhandled event type" + event.getType());
         }
 
         return ResponseEntity.ok("Event processed");
@@ -57,6 +60,13 @@ public class StripeWebhookController {
         // Handle payment failure
         String paymentIntentId = event.getDataObjectDeserializer().getObject().get().toJson();
         paymentService.handleFailedPayment(paymentIntentId);
+    }
+	
+	private void handlePaymentMethodAttached(Event event) {
+        PaymentMethod paymentMethod = (PaymentMethod) event.getData().getPreviousAttributes();
+        // Handle the event
+		String paymentIntentId = paymentMethod.getId();
+        paymentService.fulfillOrder(paymentIntentId);
     }
 }
 

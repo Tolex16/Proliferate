@@ -1,14 +1,14 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
+import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorProfile;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
-import com.proliferate.Proliferate.Service.FeedbackService;
+import com.proliferate.Proliferate.Service.TutorManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TutorManagementController {
     @Autowired
-    private final FeedbackService feedbackService;
+    private final TutorManagementService feedbackService;
 
     private final Mapper<TutorEntity, TutorProfile> tutorProfileMapper;
 
@@ -58,8 +58,13 @@ public class TutorManagementController {
         List<Score> scores = feedbackService.getStudentScores(studentId);
         return ResponseEntity.ok(scores);
     }
-	
-	@GetMapping("/schedule/{studentId}")
+
+    @PostMapping("/create-class-schedule")
+    public ClassSchedule createClassSchedule(@RequestBody Schedule schedule) {
+        return feedbackService.createClassSchedule(schedule);
+    }
+
+    @GetMapping("/schedule/{studentId}")
     public List<ClassSchedule> getStudentSchedule(@PathVariable Long studentId) {
         return feedbackService.getStudentSchedule(studentId);
     }
@@ -87,7 +92,7 @@ public class TutorManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-    @GetMapping("/assignments/{studentId}")
+    @GetMapping("/assignments/{studentName}")
     public ResponseEntity<List<AssignmentDto>> getStudentAssignments(@PathVariable String studentName) {
             List<AssignmentDto> assignments = feedbackService.getStudentAssignments(studentName);
             if (CollectionUtils.isEmpty(assignments)) {

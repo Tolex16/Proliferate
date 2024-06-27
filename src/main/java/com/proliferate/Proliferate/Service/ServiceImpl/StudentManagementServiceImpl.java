@@ -10,6 +10,7 @@ import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.*;
 import com.proliferate.Proliferate.Service.StudentManagementService;
@@ -20,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +37,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private final ScoreRepository scoreRepository;
     private final SubjectRepository subjectRepository;
     private final TestRepository testRepository;
+
     private final TutorRepository tutorRepository;
 
     private final Mapper<StudentEntity, StudentTable> studentMapper;
@@ -51,11 +50,13 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             if (!validateFileSize(assignmentDto.getAssignmentFile())) {
                 throw new AssignmentNotCreatedException("Assignment attachment exceeds the maximum allowed size of 5MB");
             }
+            Subject subject = subjectRepository.findByTitle(assignmentDto.getSubjectName()).orElseThrow(() -> new SubjectNotFoundException("Subject not present"));
             StudentEntity student = studentRepository.findByFirstName(assignmentDto.getAssignedStudentName()).orElseThrow(() -> new UserNotFoundException("Student not present"));
             Assignment assignment = assignmentMapper.mapFrom(assignmentDto);
             if (!assignmentDto.getAssignmentFile().isEmpty() && assignmentDto.getAssignmentFile() != null) {
                 assignment.setAssignmentFile(assignmentDto.getAssignmentFile().getBytes());
             }
+            assignment.setSubject(subject);
             assignment.setAssignedStudent(student);
             assignmentRepository.save(assignment);
             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -71,27 +72,27 @@ public class StudentManagementServiceImpl implements StudentManagementService {
                     dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName());
                     if (assignment.getAssignmentFile() != null) {
                         String base64File = Base64.getEncoder().encodeToString(assignment.getAssignmentFile());
-                        String fileType = determineFileType(base64File);
-                        dto.setAssignmentFileBase64("data:" + fileType + ";base64," + base64File);
+                        //String fileType = determineFileType(base64File);
+                        dto.setAssignmentFileBase64(base64File);
                     }
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
 
-    private String determineFileType(String base64File) {
-        // This is a simplified method to determine the file type based on its content
-        // You may want to use a more robust method in a real-world application
-        if (base64File.startsWith("JVBERi0")) {
-            return "application/pdf";
-        } else if (base64File.startsWith("/9j/")) {
-            return "image/jpeg";
-        } else if (base64File.startsWith("iVBORw0KGgo")) {
-            return "image/png";
-        } else {
-            return "application/octet-stream"; // Default fallback
-        }
-    }
+//    private String determineFileType(String base64File) {
+//        // This is a simplified method to determine the file type based on its content
+//        // You may want to use a more robust method in a real-world application
+//        if (base64File.startsWith("JVBERi0")) {
+//            return "application/pdf";
+//        } else if (base64File.startsWith("/9j/")) {
+//            return "image/jpeg";
+//        } else if (base64File.startsWith("iVBORw0KGgo")) {
+//            return "image/png";
+//        } else {
+//            return "application/octet-stream"; // Default fallback
+//        }
+//    }
 
     public void deleteAssignment(Long assignmentId) {
         Optional<Assignment> assignment = assignmentRepository.findById(assignmentId);
@@ -103,6 +104,13 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     }
 
     private boolean validateFileSize(MultipartFile file) {
+        List<String> allowedContentTypes = Arrays.asList("application/pdf", "image/png", "image/jpeg");
+
+        String contentType = file.getContentType();
+        if (contentType == null || !allowedContentTypes.contains(contentType)) {
+            return false;
+        }
+
         return file.getSize() <= MAX_FILE_SIZE;
     }
 
@@ -122,21 +130,6 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return attendanceRepository.save(attendanceEntity);
     }
 
-    public ClassSchedule createClassSchedule(Schedule schedule) {
-        ClassSchedule classSchedule = new ClassSchedule();
-        classSchedule.setStudent(studentRepository.findById(schedule.getStudentId()).orElseThrow(() -> new UserNotFoundException("Student not found")));
-        classSchedule.setTutor(tutorRepository.findById(schedule.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
-        classSchedule.setSubject(subjectRepository.findById(schedule.getSubjectId()).orElseThrow(() -> new RuntimeException("Subject not found")));
-
-        // classSchedule.setStudent(new StudentEntity());
-        // classSchedule.getStudent().setStudentId(schedule.getStudentId);
-        // classSchedule.setTutor(new TutorEntity());
-        // classSchedule.getTutor().setTutorId(schedule.getTutorId);
-        classSchedule.setDate(schedule.getDate());
-        classSchedule.setTime(schedule.getTime());
-        classSchedule.setLocation(schedule.getLocation());
-        return classScheduleRepository.save(classSchedule);
-    }
 
     public List<ClassSchedule> getTutorSchedule(Long tutorId) {
         return classScheduleRepository.findByTutorTutorId(tutorId);

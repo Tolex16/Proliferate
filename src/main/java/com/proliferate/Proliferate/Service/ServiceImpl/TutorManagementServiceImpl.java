@@ -1,23 +1,15 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
-import com.proliferate.Proliferate.Domain.DTO.Student.FriendInvite;
+import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.*;
-import com.proliferate.Proliferate.Service.EmailService;
-import com.proliferate.Proliferate.Service.FeedbackService;
-import com.proliferate.Proliferate.Service.InviteService;
-import com.proliferate.Proliferate.Service.JwtService;
+import com.proliferate.Proliferate.Service.TutorManagementService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -27,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FeedbackServiceImpl implements FeedbackService {
+public class TutorManagementServiceImpl implements TutorManagementService {
 
     private final FeedbackRepository feedbackRepository;
 
@@ -74,11 +66,20 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .collect(Collectors.toList());
     }
 
-
     public Optional<TutorEntity> getTutorProfile(Long tutorId) {
         return tutorRepository.findById(tutorId);
     }
-	
+
+    public ClassSchedule createClassSchedule(Schedule schedule) {
+        ClassSchedule classSchedule = new ClassSchedule();
+        classSchedule.setStudent(studentRepository.findById(schedule.getStudentId()).orElseThrow(() -> new UserNotFoundException("Student not found")));
+        classSchedule.setTutor(tutorRepository.findById(schedule.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
+        classSchedule.setSubject(subjectRepository.findById(schedule.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found")));
+        classSchedule.setDate(schedule.getDate());
+        classSchedule.setTime(schedule.getTime());
+        classSchedule.setLocation(schedule.getLocation());
+        return classScheduleRepository.save(classSchedule);
+    }
     public List<ClassSchedule> getStudentSchedule(Long studentId) {
         return classScheduleRepository.findByStudentStudentId(studentId);
     }

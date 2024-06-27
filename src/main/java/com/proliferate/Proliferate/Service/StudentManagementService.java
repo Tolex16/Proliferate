@@ -25,8 +25,6 @@ public interface StudentManagementService {
 	
 	AttendanceEntity addAttendanceRecord(AttendanceEntity attendanceEntity);
 
-	ClassSchedule createClassSchedule(Schedule schedule);
-
 	List<ClassSchedule> getTutorSchedule(Long tutorId);
 
 	void deleteAssignment(Long assignmentId);

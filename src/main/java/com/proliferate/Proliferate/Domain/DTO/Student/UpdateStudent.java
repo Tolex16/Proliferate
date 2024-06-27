@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class UpdateStudent {
+
     private String firstName;
 
     private String lastName;

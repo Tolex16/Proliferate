@@ -96,11 +96,6 @@ public class StudentManagementController {
     public List<ClassSchedule> getTutorSchedule(@PathVariable Long tutorId) {
         return authenticationService.getTutorSchedule(tutorId);
     }
-	
-	@PostMapping("/create-class-schedule")
-    public ClassSchedule createClassSchedule(@RequestBody Schedule schedule) {
-        return authenticationService.createClassSchedule(schedule);
-    }
 
     @PostMapping("/add-test")
     public ResponseEntity<Test> addTest(@RequestBody TestDto testDto){
