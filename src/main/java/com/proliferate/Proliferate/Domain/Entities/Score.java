@@ -17,9 +17,7 @@ public class Score {
     @JoinColumn(name = "student_id", nullable = false)
     private StudentEntity student;
 
-    @ManyToOne
-    @JoinColumn(name = "test_id", nullable = false)
-    private Test test;
+    private String test;
 
     private int marks;
     

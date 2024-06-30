@@ -138,7 +138,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     public Score addScore(ScoreDto scoreDto) {
         Score score = new Score();
         score.setStudent(studentRepository.findById(scoreDto.getStudentId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
-        score.setTest(testRepository.findById(scoreDto.getTestId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
+        score.setTest(scoreDto.getTest());
         score.setMarks(scoreDto.getMarks());
         score.setQuestionsAttempted(scoreDto.getQuestionsAttempted());
         score.setCorrectAnswers(scoreDto.getCorrectAnswers());

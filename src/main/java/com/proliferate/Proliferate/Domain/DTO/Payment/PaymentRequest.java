@@ -35,6 +35,8 @@ public class PaymentRequest {
 	@NotBlank
 	private String paymentMethod;
 	
+    private String transactionId;
+
 	private String description;
 	
 	private Status status;

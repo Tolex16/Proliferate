@@ -12,7 +12,7 @@ public class ScoreDto {
 
     private Long studentId;
 
-    private Long testId;
+    private String test;
 
     private int marks;
 

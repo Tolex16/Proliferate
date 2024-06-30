@@ -24,6 +24,10 @@ public class Payment {
     @JoinColumn(name = "student_id", nullable = false)
     private StudentEntity student;
 
+    @ManyToOne
+    @JoinColumn(name = "tutor_id")
+    private TutorEntity tutor;
+
     @Column(name = "amount")
     private double amount;
 	

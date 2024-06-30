@@ -43,6 +43,10 @@ public class VideoCallController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
         }
 
+        if(studentRepository.existsByUserName(request.getCallee()) || tutorRepository.existsByEmail(request.getCallee())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
+        }
+
         // Notify the callee of the incoming call
         Map<String, WebSocketSession> sessions = videoCallWebSocketHandler.getSessions();
         WebSocketSession calleeSession = sessions.get(request.getCallee());
