@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
+import com.proliferate.Proliferate.Repository.AdminRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.UserService;
@@ -20,6 +21,7 @@ public class  UserServiceImpl implements UserService {
 
     private final StudentRepository studentRepository;
 
+    private final AdminRepository adminRepository;
     private final TutorRepository tutorRepository;
 
 
@@ -38,6 +40,12 @@ public UserDetailsService userDetailsService() {
             var tutorOpt = tutorRepository.findByEmail(username);
             if (tutorOpt.isPresent()) {
                 return tutorOpt.get();
+            }
+
+            // If not found as a student, try to find the user as a tutor
+            var adminOpt = adminRepository.findByEmail(username);
+            if (adminOpt.isPresent()) {
+                return adminOpt.get();
             }
 
             // If neither student nor tutor is found, throw an exception

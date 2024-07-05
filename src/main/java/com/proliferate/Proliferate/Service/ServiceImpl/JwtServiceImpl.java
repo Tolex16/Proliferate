@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
+import com.proliferate.Proliferate.Domain.Entities.AdminEntity;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Service.JwtService;
@@ -78,6 +79,9 @@ public Long getUserId() {
     } else if (principal instanceof TutorEntity) {
         TutorEntity tutor = (TutorEntity) principal;
         return tutor.getTutorId();
+    }  else if (principal instanceof AdminEntity) {
+        AdminEntity admin = (AdminEntity) principal;
+        return admin.getAdminId();
     } else {
         throw new IllegalArgumentException("Unknown principal type");
     }
