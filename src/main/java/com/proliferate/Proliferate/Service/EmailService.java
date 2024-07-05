@@ -79,7 +79,7 @@ public class EmailService {
         bodyBuilder.append("<p>We are excited to see you grow and excel with Proliferate.</p>");
         bodyBuilder.append("<p>Welcome aboard, and happy learning!</p>");
         bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
-        bodyBuilder.append("<a href=\"http://example.com/dashboard\" th:href=\"@{http://example.com/dashboard}\">Access Your Dashboard</a>");
+        bodyBuilder.append("<a href=\"https://proliferate-site.vercel.app/auth/student/login\" th:href=\"@{https://proliferate-site.vercel.app/auth/student/login}\">Access Your Dashboard</a>");
         bodyBuilder.append("</body>");
         bodyBuilder.append("</html>");
 
@@ -238,7 +238,7 @@ public class EmailService {
         bodyBuilder.append("<p>We are excited to support you as you help shape the futures of learners around the world. If you have any questions or need assistance, our support team is always here to help.</p>");
 		 bodyBuilder.append("<p>Welcome aboard, and we're excited to start this journey together!.</p>");
 		bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
-        bodyBuilder.append("<a href=\"http://example.com/dashboard\" th:href=\"@{http://example.com/dashboard}\">Setup Your Tutor Profile Now</a>");
+        bodyBuilder.append("<a href=\"https://proliferate-site.vercel.app/auth/tutor/login\" th:href=\"@{https://proliferate-site.vercel.app/auth/student/login}\">Setup Your Tutor Profile Now</a>");
         bodyBuilder.append("</body>");
         bodyBuilder.append("</html>");
 

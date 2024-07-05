@@ -256,7 +256,11 @@ public LoginResponse login(LoginStudentRequest loginStudentRequest) {
     boolean isEmailPresent = studentRepository.findByEmail(email).isPresent();
     result.put("email", isEmailPresent);
 
-    return result;
+    // Check if the email is present in the tutor repository
+    boolean isEmailTutorPresent = tutorRepository.findByEmail(email).isPresent();
+    result.put("email", isEmailTutorPresent);
+
+        return result;
 }
 
 
