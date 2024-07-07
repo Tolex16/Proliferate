@@ -97,11 +97,16 @@ public class TutorAuthController {
 	}
 
     @PostMapping("/login-tutor")
-    public ResponseEntity <LoginResponse> login(@Valid @RequestBody LoginTutorRequest loginRequest, BindingResult result){
+    public ResponseEntity <?> login(@Valid @RequestBody LoginTutorRequest loginRequest, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return ResponseEntity.ok(authenticationService.login(loginRequest));
+        try {
+            return new ResponseEntity<>(authenticationService.login(loginRequest), HttpStatus.ACCEPTED);
+        }catch (IllegalArgumentException | UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+        } catch (AccountNotVerifiedException ex){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+        }
     }
 
     @GetMapping("/check-email/{email}")

@@ -1,11 +1,11 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.LoginTutorRequest;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDto;
 import com.proliferate.Proliferate.Domain.Entities.AdminEntity;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Repository.AdminRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
+import com.proliferate.Proliferate.Service.AdminManagementService;
 import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.UserService;
 import jakarta.annotation.PostConstruct;
@@ -22,22 +22,24 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AdminManagementServiceImpl {
+public class AdminManagementServiceImpl implements AdminManagementService {
 
-    @Autowired
+   @Autowired
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     private final UserService userService;
+
     @Autowired
     private final JwtService jwtService;
+
     private final AuthenticationManager authenticationManager;
     private final AdminRepository adminRepository;
 
     @PostConstruct
     public void createAdminUsers() {
         Optional<AdminEntity> adminUser = adminRepository.findByEmail("techproliferate@gmail.com");
-        if (null == adminUser ){
+        if (adminUser.isEmpty()) {
             AdminEntity createAdmin = new AdminEntity();
             createAdmin.setFirstName("tech");
             createAdmin.setLastName("proliferate");
@@ -48,7 +50,7 @@ public class AdminManagementServiceImpl {
         }
 
         Optional<AdminEntity> adminUser2 = adminRepository.findByEmail("oseremio@gmail.com");
-        if (null == adminUser2 ){
+        if (adminUser2.isEmpty()) {
             AdminEntity createAdmin = new AdminEntity();
             createAdmin.setFirstName("tech");
             createAdmin.setLastName("oseremio");
@@ -58,26 +60,30 @@ public class AdminManagementServiceImpl {
             adminRepository.save(createAdmin);
         }
     }
-
-    public LoginResponse login(LoginTutorRequest loginTutorRequest)
-    {
+	
+    public LoginResponse login(LoginTutorRequest loginTutorRequest) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginTutorRequest.getEmail(), loginTutorRequest.getPassword()));
-        } catch (BadCredentialsException e){
-            throw new IllegalArgumentException("Invalid email or Password", e);
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginTutorRequest.getEmail(),
+                            loginTutorRequest.getPassword()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            throw new IllegalArgumentException("Invalid admin email or password", e);
         }
-        // Try to find the user as a admin
 
+        // Try to find the user as an admin
         var adminOpt = adminRepository.findByEmail(loginTutorRequest.getEmail());
 
         if (adminOpt.isPresent()) {
             var admin = adminOpt.get();
-                UserDetails userDetails = userService.userDetailsService().loadUserByUsername(admin.getEmail());
-                var jwt = jwtService.genToken(userDetails, admin);
-                return new LoginResponse(null, null, jwt);
-            }
+            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(admin.getEmail());
+            var jwt = jwtService.genToken(userDetails, admin);
+            return new LoginResponse(null, null, jwt);
+        }
 
-        // If neither student nor tutor is found, throw an exception
-        throw new IllegalArgumentException("Error in email and password");
+        // If no admin is found, throw an exception
+        throw new IllegalArgumentException("Invalid email or password");
     }
 }

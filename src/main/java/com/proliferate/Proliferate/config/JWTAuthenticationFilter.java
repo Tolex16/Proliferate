@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.config;
 
 import com.proliferate.Proliferate.Service.JwtService;
+import com.proliferate.Proliferate.Service.TokenService;
 import com.proliferate.Proliferate.Service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,6 +29,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private final UserService userService;
 
+	@Autowired
+	private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -40,7 +43,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = authHeader.substring(7);
-
+		
+       if (jwt != null && !tokenService.isTokenBlacklisted(jwt)) {
         username = jwtservice.extractUsername(jwt);
 
         if (StringUtils.hasLength(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -57,6 +61,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.setContext(securityContext);
             }
         }
+	}
+	
         filterChain.doFilter(request, response);
     }
 

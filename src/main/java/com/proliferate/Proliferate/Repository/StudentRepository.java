@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Repository;
 
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
+import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,9 +11,9 @@ import java.util.Optional;
 public interface StudentRepository extends JpaRepository<StudentEntity, Long>{
 
     Optional<StudentEntity> findByUserName(String userName);
-
+    Optional<StudentEntity> findByUserNameAndEmailVerifiedIsTrue(String userName);
     Optional<StudentEntity> findByFirstName(String firstName);
-
+    Optional<StudentEntity> findByVerificationToken(String token);
     Optional<StudentEntity> findByEmail(String email);
 
     Boolean existsByUserName(String userName);

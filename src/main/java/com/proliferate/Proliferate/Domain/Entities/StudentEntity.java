@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -106,10 +107,17 @@ public class StudentEntity implements UserDetails {
 	@Column(name = "terms_and_conditions_approved")
     private boolean termsAndConditionsApproved;
 
-
 	@Column(name = "registration_completed")
 	private boolean registrationCompleted;
 
+    @Column(name = "email_verified")
+    private boolean emailVerified;
+
+    @Column(name = "verification_token",length = 6)
+    private String verificationToken;
+
+    @Column(name = "token_expiration_time")
+    private LocalDateTime tokenExpirationTime;
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -126,7 +134,7 @@ public class StudentEntity implements UserDetails {
     private List<Score> scores;
 
 	@OneToMany(mappedBy = "student")
-    private Set<ClassSchedule> classSchedules;
+    private List<ClassSchedule> classSchedules;
 
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Payment> payments;

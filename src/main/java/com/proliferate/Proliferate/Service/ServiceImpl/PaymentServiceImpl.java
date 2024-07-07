@@ -3,6 +3,8 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 import com.proliferate.Proliferate.Domain.DTO.Payment.PaymentRequest;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Repository.*;
+import com.proliferate.Proliferate.Response.EarningsHistoryResponse;
+import com.proliferate.Proliferate.Response.PaymentHistoryResponse;
 import com.proliferate.Proliferate.Response.StripeResponse;
 import com.proliferate.Proliferate.Service.EmailService;
 import com.proliferate.Proliferate.Service.PaymentService;
@@ -17,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +42,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final SubjectRepository subjectRepository;
 
     private final StudentRepository studentRepository;
-	
+
+    private final TutorRepository tutorRepository;
 	private final PaymentRepository paymentRepository;
 
     @Autowired
@@ -218,27 +222,52 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RuntimeException("Failed payment handling failed: Enrollment or Payment not found");
         }
     }
-	public List<PaymentRequest> getPaymentsByStudentId(Long studentId) {
+	public List<PaymentHistoryResponse> getPaymentsByStudentId(Long studentId) {
         StudentEntity student = studentRepository.findById(studentId).orElseThrow();
         List<Payment> payments = paymentRepository.findByStudent(student);
         return payments.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    public List<PaymentRequest> getPaymentsByStudentIdAndDateRange(Long studentId, LocalDate startDate, LocalDate endDate) {
+    public List<PaymentHistoryResponse> getPaymentsByStudentIdAndDateRange(Long studentId, LocalDate startDate, LocalDate endDate) {
         List<Payment> payments = paymentRepository.findByStudent_StudentIdAndDateBetween(studentId, startDate, endDate);
         return payments.stream().map(this::convertToDto).collect(Collectors.toList());
     }
+    public List<EarningsHistoryResponse> getPaymentsByTutorId(Long tutorId) {
+        TutorEntity tutor = tutorRepository.findById(tutorId).orElseThrow();
+        List<Payment> payments = paymentRepository.findByTutor(tutor);
+        return payments.stream().map(this::earningsHistoryResponse).collect(Collectors.toList());
+    }
+
+    public List<EarningsHistoryResponse> getPaymentsByTutorIdAndDateRange(Long tutorId, LocalDate startDate, LocalDate endDate) {
+        List<Payment> payments = paymentRepository.findByTutor_TutorIdAndDateBetween(tutorId, startDate, endDate);
+        return payments.stream().map(this::earningsHistoryResponse).collect(Collectors.toList());
+    }
 	
-	private PaymentRequest convertToDto(Payment payment) {
-        PaymentRequest dto = new PaymentRequest();
-        dto.setStudentId(payment.getStudent().getStudentId());
+	private PaymentHistoryResponse convertToDto(Payment payment) {
+        PaymentHistoryResponse dto = new PaymentHistoryResponse();
+        dto.setDate(String.valueOf(LocalDate.parse(payment.getDate().toString())));
+        dto.setDescription(payment.getDescription());
         dto.setAmount(payment.getAmount());
-        dto.setCurrency(payment.getCurrency());
         dto.setPaymentMethod(payment.getPaymentMethod());
         dto.setStatus(payment.getStatus());
-        dto.setDate(payment.getDate());
-		dto.setTransactionId(payment.getTransactionId());
-        dto.setDescription(payment.getDescription());
+
         return dto;
     }
+
+    private EarningsHistoryResponse earningsHistoryResponse(Payment payment) {
+        EarningsHistoryResponse dto = new EarningsHistoryResponse();
+        StudentEntity student = payment.getStudent();
+
+        dto.setSNo(payment.getId());
+        dto.setStudentName(student.getFirstName()  + " " + student.getLastName());
+        dto.setDate(String.valueOf(LocalDate.parse(payment.getDate().toString())));
+        dto.setTransactionId(payment.getTransactionId());
+        dto.setAmount(payment.getAmount());
+        dto.setPaymentMethod(payment.getPaymentMethod());
+        dto.setStatus(payment.getStatus());
+
+        return dto;
+    }
+
+
 }

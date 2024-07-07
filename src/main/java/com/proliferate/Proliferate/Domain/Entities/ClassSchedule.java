@@ -20,14 +20,17 @@ public class ClassSchedule {
     @ManyToOne
     @JoinColumn(name = "tutor_id")
     private TutorEntity tutor;
-	
+
+    @Column(name = "date")
     private String date;
 
     @ManyToOne
     @JoinColumn(name = "subject_id")
     private Subject subject;
 
+    @Column(name = "time")
     private String time;
 
+    @Column(name = "location")
     private String location;
 }

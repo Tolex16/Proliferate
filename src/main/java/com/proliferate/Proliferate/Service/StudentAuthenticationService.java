@@ -18,8 +18,12 @@ public interface StudentAuthenticationService {
     ResponseEntity learningGoals(LearningGoals learningGoals);
 	
 	ResponseEntity completeRegistration();
+	
+	ResponseEntity<?> verifyToken(String token);
     
     String getTermsAndConditions();
+
+    void logout(String token);
 
     Map<String, Boolean> checkStudent(String username, String email);
 

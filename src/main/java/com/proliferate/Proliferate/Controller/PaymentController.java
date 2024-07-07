@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.Payment.PaymentRequest;
+import com.proliferate.Proliferate.Response.PaymentHistoryResponse;
 import com.proliferate.Proliferate.Response.StripeResponse;
 import com.proliferate.Proliferate.Service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,17 +46,17 @@ public class PaymentController {
     }
 	
 	    @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<PaymentRequest>> getPaymentsByStudentId(@PathVariable Long studentId) {
-        List<PaymentRequest> payments = paymentService.getPaymentsByStudentId(studentId);
+    public ResponseEntity<List<PaymentHistoryResponse>> getPaymentsByStudentId(@PathVariable Long studentId) {
+        List<PaymentHistoryResponse> payments = paymentService.getPaymentsByStudentId(studentId);
         return ResponseEntity.ok(payments);
     }
 
     @GetMapping("/student/{studentId}/date-range")
-    public ResponseEntity<List<PaymentRequest>> getPaymentsByStudentIdAndDateRange(
+    public ResponseEntity<List<PaymentHistoryResponse>> getPaymentsByStudentIdAndDateRange(
             @PathVariable Long studentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        List<PaymentRequest> payments = paymentService.getPaymentsByStudentIdAndDateRange(studentId, startDate, endDate);
+        List<PaymentHistoryResponse> payments = paymentService.getPaymentsByStudentIdAndDateRange(studentId, startDate, endDate);
         return ResponseEntity.ok(payments);
     }
 }

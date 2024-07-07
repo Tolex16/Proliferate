@@ -1,25 +1,20 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDto;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.UpdateTutor;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.TutorEmailPresentException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.UsernameNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.*;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
-import com.proliferate.Proliferate.Service.EmailService;
-import com.proliferate.Proliferate.Service.JwtService;
-import com.proliferate.Proliferate.Service.StudentAuthenticationService;
-import com.proliferate.Proliferate.Service.UserService;
+import com.proliferate.Proliferate.Service.*;
 import lombok.RequiredArgsConstructor;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -47,6 +44,10 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
     private final TutorRepository tutorRepository;
     @Autowired
     private final UserService userService;
+	
+	@Autowired
+	private final TokenService tokenService;
+	
     private final Mapper<StudentEntity, StudentRegisterPersDeets> studentRegisterPersDeetsMapper;
 
     private final Mapper<StudentEntity, AcademicDetail> academicDetailMapper;
@@ -93,7 +94,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
     public ResponseEntity<?> academicDetails(AcademicDetail academicDetail){
         try {
-            Long userId = jwtService.getUserId();;
+            Long userId = jwtService.getUserId();
             if(studentRepository.existsById(userId)){
                 return studentRepository.findById(userId).map(
                         existingUser -> {
@@ -121,7 +122,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
     public ResponseEntity<?> preference(Preferences preferences) {
         try {
-            Long userId = jwtService.getUserId();;
+            Long userId = jwtService.getUserId();
             if (studentRepository.existsById(userId)) {
                 return studentRepository.findById(userId).map(
                         existingUser -> {
@@ -146,7 +147,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
     public ResponseEntity<?> learningGoals(LearningGoals learningGoals){
         try {
-            Long userId = jwtService.getUserId();;
+            Long userId = jwtService.getUserId();
             if (studentRepository.existsById(userId)) {
                 return studentRepository.findById(userId).map(
                         existingUser -> {
@@ -169,12 +170,30 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 public ResponseEntity<?> completeRegistration() {
     try {
         // Fetch the user entity by ID
-        Long userId = jwtService.getUserId();;
-        StudentEntity studentEntity = studentRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
-        
-        // Check if terms and conditions are approved
-        if (!studentEntity.isTermsAndConditionsApproved()) {
-            emailService.studentRegistrationConfirmationEmail(studentEntity.getEmail(), studentEntity.getFirstName(),studentEntity.getLastName(), studentEntity.getEmail(), studentEntity.getGender(), studentEntity.getContactNumber(), studentEntity.getAge(),studentEntity.getGradeYear(), studentEntity.getSubjectsNeedingTutoring(),studentEntity.getAttendanceType(),studentEntity.getAvailability(), studentEntity.getAdditionalPreferences(),studentEntity.getShortTermGoals(),studentEntity.getLongTermGoals());
+        Long userId = jwtService.getUserId();
+        StudentEntity studentEntity = studentRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Student not found"));
+        studentEntity.setVerificationToken(generateToken());
+        studentEntity.setTokenExpirationTime(LocalDateTime.now().plusMinutes(10));
+        studentEntity.setEmailVerified(false);
+
+        String confirmLink = "https://proliferate-site.vercel.app/auth/account-verified?token=" + studentEntity.getVerificationToken();
+
+            emailService.studentRegistrationConfirmationEmail(
+                    studentEntity.getEmail(),
+                    studentEntity.getFirstName(),
+                    studentEntity.getLastName(),
+                    studentEntity.getEmail(),
+                    studentEntity.getGender(),
+                    studentEntity.getContactNumber(),
+                    studentEntity.getAge(),
+                    studentEntity.getGradeYear(),
+                    studentEntity.getSubjectsNeedingTutoring(),
+                    studentEntity.getAttendanceType(),
+                    studentEntity.getAvailability(),
+                    studentEntity.getAdditionalPreferences(),
+                    studentEntity.getShortTermGoals(),
+                    studentEntity.getLongTermGoals(),
+                    confirmLink);
             
             // If terms and conditions are not approved, update the field to true
             studentEntity.setTermsAndConditionsApproved(true);
@@ -183,13 +202,50 @@ public ResponseEntity<?> completeRegistration() {
             studentRepository.save(studentEntity);
             
             return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            // If terms and conditions are already approved, return a response indicating so
-            return new ResponseEntity<>("Terms and conditions already approved", HttpStatus.BAD_REQUEST);
-        }
+
     } catch (UserNotFoundException error) {
         return new ResponseEntity<>(error.getMessage(), HttpStatus.NOT_FOUND);
     } catch (Exception error) {
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
+@Override
+public ResponseEntity<?> verifyToken(String token) {
+    try {
+        // Try to find the student by token
+        Optional<StudentEntity> studentOpt = studentRepository.findByVerificationToken(token);
+        
+        // Try to find the tutor by token
+        Optional<TutorEntity> tutorOpt = tutorRepository.findByVerificationToken(token);
+
+        if (studentOpt.isEmpty() && tutorOpt.isEmpty()) {
+            return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
+        }
+
+        // Verify student token if student is present
+        if (studentOpt.isPresent()) {
+            StudentEntity studentEntity = studentOpt.get();
+            if (studentEntity.getTokenExpirationTime().isBefore(LocalDateTime.now())) {
+                return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
+            }
+            studentEntity.setEmailVerified(true);
+            studentRepository.save(studentEntity);
+        }
+
+        // Verify tutor token if tutor is present
+        if (tutorOpt.isPresent()) {
+            TutorEntity tutorEntity = tutorOpt.get();
+            if (tutorEntity.getTokenExpirationTime().isBefore(LocalDateTime.now())) {
+                return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
+            }
+            tutorEntity.setEmailVerified(true);
+            tutorRepository.save(tutorEntity);
+        }
+
+        return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
+
+    } catch (Exception e) {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
@@ -217,33 +273,55 @@ public ResponseEntity<?> completeRegistration() {
     }
 
 
-public LoginResponse login(LoginStudentRequest loginStudentRequest) {
+  public LoginResponse login(LoginStudentRequest loginStudentRequest) {
     try {
         // Authenticate the user
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginStudentRequest.getUserName(), loginStudentRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(
+                        loginStudentRequest.getUserName(),
+                        loginStudentRequest.getPassword()
+                )
+        );
     } catch (BadCredentialsException e) {
-        throw new IllegalArgumentException("Invalid student username and password", e);
+        throw new IllegalArgumentException("Invalid student username or password", e);
     }
 
     // Try to find the user as a student first
-    var studentOpt = studentRepository.findByUserName(loginStudentRequest.getUserName());
+    var studentOpt = studentRepository.findByUserNameAndEmailVerifiedIsTrue(loginStudentRequest.getUserName());
     if (studentOpt.isPresent()) {
         var student = studentOpt.get();
-        if (student.isRegistrationCompleted()){
+        if (student.isEmailVerified()){
             UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
             var jwt = jwtService.genToken(userDetails, student);
             StudentDto loggedInStudent = studentMapper.mapTo(student);
             return new LoginResponse(loggedInStudent, null, jwt);
         }else {
-            return new LoginResponse(null, null,"Registration is not completed for this student");
+            throw new AccountNotVerifiedException("Account not verified for this student, please check your email to verify");
         }
    }
 
     throw new UsernameNotFoundException("Error in username and password");
 }
- 
- 
+
+    public String generateToken(){
+        List<CharacterRule> rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
+                new CharacterRule(EnglishCharacterData.LowerCase, 1),
+                new CharacterRule(EnglishCharacterData.Digit, 1));
+
+        PasswordGenerator generator = new PasswordGenerator();
+        String password = generator.generatePassword(6,rules);
+        return password;
+    }
+
+     public void logout(String token) {
+        Instant expiryTime = jwtService.extractExpiration(token).toInstant();
+        tokenService.addToken(token, expiryTime);
+    }
+
+    //public boolean isTokenBlacklisted(String token) {
+    //    return tokenService.isTokenBlacklisted(token);
+    //}
+	
     @Override
     public Map<String, Boolean> checkStudent(String username, String email) {
     Map<String, Boolean> result = new HashMap<>();

@@ -19,6 +19,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
@@ -135,6 +136,14 @@ public class TutorEntity implements UserDetails {
 	@Column(name = "registration_completed")
 	private boolean registrationCompleted;
 
+    @Column(name = "email_verified")
+    private boolean emailVerified;
+
+    @Column(name = "verification_token",length = 6)
+    private String verificationToken;
+
+    @Column(name = "token_expiration_time")
+    private LocalDateTime tokenExpirationTime;
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -148,10 +157,10 @@ public class TutorEntity implements UserDetails {
     private String bio;
 	
 	@OneToMany(mappedBy = "tutor")
-    private Set<Subject> subjects;
+    private List<Subject> subjects;
 
     @OneToMany(mappedBy = "tutor")
-    private Set<ClassSchedule> classSchedules;
+    private List<ClassSchedule> classSchedules;
 	
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

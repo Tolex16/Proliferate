@@ -30,7 +30,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.builder().setSubject(userDetails.getUsername())
 		        .claim("role", userDetails.getAuthorities())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(getLoginKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -63,14 +63,16 @@ public class JwtServiceImpl implements JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-
+    public Date extractExpiration(String token){
+        return extractClaim(token, Claims::getExpiration);
+    }
 
     private boolean isTokenExpired(String token){
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
-@Override
-public Long getUserId() {
+   @Override
+  public Long getUserId() {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     if (principal instanceof StudentEntity) {

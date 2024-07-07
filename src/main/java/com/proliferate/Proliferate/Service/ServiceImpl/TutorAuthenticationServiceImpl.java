@@ -4,6 +4,7 @@ import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
+import com.proliferate.Proliferate.ExeceptionHandler.AccountNotVerifiedException;
 import com.proliferate.Proliferate.ExeceptionHandler.StudentEmailPresentException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
@@ -16,6 +17,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -223,9 +228,13 @@ public ResponseEntity<?> completeRegistration() {
     try {
         Long userId = jwtService.getUserId();
         TutorEntity tutorEntity = tutorRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+        tutorEntity.setVerificationToken(generateToken());
+        tutorEntity.setTokenExpirationTime(LocalDateTime.now().plusMinutes(5));
+        tutorEntity.setEmailVerified(false);
 
-        if (!tutorEntity.isTermsAndConditionsApproved()) {
+        String confirmLink = "https://proliferate-site.vercel.app/auth/account-verified?token=" + tutorEntity.getVerificationToken();
+
             tutorEntity  = getTutorWithLob(userId);
             emailService.tutorRegistrationConfirmationEmail(
                     tutorEntity.getEmail(),
@@ -244,8 +253,8 @@ public ResponseEntity<?> completeRegistration() {
                     tutorEntity.getWeeklyAvailability(),
                     tutorEntity.getTimeslotAvailability(),
                     tutorEntity.getAttendanceType(),
-                    tutorEntity.getPreferredSubjects()
-            );
+                    tutorEntity.getPreferredSubjects(),
+                    confirmLink);
             tutorEntity.setTermsAndConditionsApproved(true);
 			// Persist changes to termsAndConditionsApproved
            // entityManager.merge(tutorEntity);
@@ -255,9 +264,7 @@ public ResponseEntity<?> completeRegistration() {
             entityManager.merge(tutorEntity);
 
             return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Terms and conditions already approved", HttpStatus.BAD_REQUEST);
-        }
+
     } catch (UserNotFoundException error) {
         return new ResponseEntity<>(error.getMessage(), HttpStatus.NOT_FOUND);
     } catch (Exception error) {
@@ -272,30 +279,46 @@ public ResponseEntity<?> completeRegistration() {
     public LoginResponse login(LoginTutorRequest loginTutorRequest)
     {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginTutorRequest.getEmail(), loginTutorRequest.getPassword()));
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginTutorRequest.getEmail(),
+                            loginTutorRequest.getPassword()
+                    )
+            );
         } catch (BadCredentialsException e){
-            throw new IllegalArgumentException("Invalid email and Password", e);
+            throw new IllegalArgumentException("Invalid tutor email and Password", e);
         }
         // Try to find the user as a tutor
 
-        var tutorOpt = tutorRepository.findByEmail(loginTutorRequest.getEmail());
+        var tutorOpt = tutorRepository.findByEmailAndEmailVerifiedIsTrue(loginTutorRequest.getEmail());
 
         if (tutorOpt.isPresent()) {
             var tutor = tutorOpt.get();
-            if (tutor.isRegistrationCompleted()){
+            if (tutor.isEmailVerified()){
                 UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
                 var jwt = jwtService.genToken(userDetails, tutor);
                 TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
                 return new LoginResponse(null, loggedInTutor, jwt);
             } else {
-                return new LoginResponse(null, null,"Registration is not completed for this tutor");
+                throw new AccountNotVerifiedException("Account not verified for this tutor, please check your email to verify");
             }
         }
 
         // If neither student nor tutor is found, throw an exception
         throw new IllegalArgumentException("Error in email and password");
     }
-	@Transactional
+
+    public String generateToken(){
+        List rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
+                new CharacterRule(EnglishCharacterData.LowerCase, 1),
+                new CharacterRule(EnglishCharacterData.Digit, 1));
+
+        PasswordGenerator generator = new PasswordGenerator();
+        String password = generator.generatePassword(6,rules);
+        return password;
+    }
+
+    @Transactional
 	@Override
     public Map<String, Boolean> checkMail(String email) {
         Map<String, Boolean> result = new HashMap<>();

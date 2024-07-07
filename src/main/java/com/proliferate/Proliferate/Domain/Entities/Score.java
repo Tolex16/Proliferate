@@ -17,17 +17,22 @@ public class Score {
     @JoinColumn(name = "student_id", nullable = false)
     private StudentEntity student;
 
+    @Column(name = "test")
     private String test;
 
+    @Column(name = "marks")
     private int marks;
-    
+
+    @Column(name = "questions_attempted")
 	private int questionsAttempted;
-    
+
+    @Column(name = "correct_answers")
 	private int correctAnswers;
-    
+
+    @Column(name = "wrong_answers")
 	private int wrongAnswers;
 	
-//	@Column(name = "result")
-//    @Enumerated(EnumType.STRING)
+	@Column(name = "result")
+    @Enumerated(EnumType.STRING)
     private Result result;  // "Pass", "Fail", or "Upcoming"
 }

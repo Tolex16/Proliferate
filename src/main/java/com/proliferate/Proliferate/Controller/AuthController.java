@@ -3,7 +3,6 @@ package com.proliferate.Proliferate.Controller;
 import com.proliferate.Proliferate.Domain.DTO.*;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.ExeceptionHandler.*;
-import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.InviteService;
 import com.proliferate.Proliferate.Service.StudentAuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -107,26 +106,34 @@ public class AuthController {
 	public ResponseEntity<?> completeRegistration() {
 		return authenticationService.completeRegistration();
 	}
-
+	
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyToken(@RequestParam String token) {
+		return authenticationService.verifyToken(token);
+	}
 	
     @PostMapping("/login")
-    public ResponseEntity <LoginResponse> login(@Valid @RequestBody LoginStudentRequest loginRequest, BindingResult result){
+    public ResponseEntity <?> login(@Valid @RequestBody LoginStudentRequest loginRequest, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return ResponseEntity.ok(authenticationService.login(loginRequest));
+        try {
+            return new ResponseEntity<>(authenticationService.login(loginRequest),HttpStatus.ACCEPTED);
+        }catch (IllegalArgumentException | UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+        } catch (AccountNotVerifiedException ex){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+        }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout(HttpServletRequest request, @RequestHeader("Authorization") String token) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
         SecurityContextHolder.clearContext();
-        return ResponseEntity.status(HttpStatus.OK)
-                .header("Location", "/login")
-                .body("Logged out successfully");
+        authenticationService.logout(token.substring(7)); // Remove "Bearer " prefix
+        return ResponseEntity.ok("Logged out successfully");
     }
 	
     @GetMapping("/check-student/{username}/{email}")
