@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
+import com.proliferate.Proliferate.Domain.DTO.Admin.LoginAdminRequest;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.LoginTutorRequest;
 import com.proliferate.Proliferate.Domain.Entities.AdminEntity;
 import com.proliferate.Proliferate.Domain.Entities.Role;
@@ -61,12 +62,12 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         }
     }
 	
-    public LoginResponse login(LoginTutorRequest loginTutorRequest) {
+    public LoginResponse login(LoginAdminRequest loginAdminRequest) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginTutorRequest.getEmail(),
-                            loginTutorRequest.getPassword()
+                            loginAdminRequest.getEmail(),
+                            loginAdminRequest.getPassword()
                     )
             );
         } catch (BadCredentialsException e) {
@@ -74,7 +75,7 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         }
 
         // Try to find the user as an admin
-        var adminOpt = adminRepository.findByEmail(loginTutorRequest.getEmail());
+        var adminOpt = adminRepository.findByEmail(loginAdminRequest.getEmail());
 
         if (adminOpt.isPresent()) {
             var admin = adminOpt.get();

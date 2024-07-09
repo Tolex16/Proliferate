@@ -18,7 +18,7 @@ public class EarningsHistoryResponse {
 
     private double amount;
 
-    private String noOfClasses;
+    private int noOfClasses;
 
     private String paymentMethod;
 

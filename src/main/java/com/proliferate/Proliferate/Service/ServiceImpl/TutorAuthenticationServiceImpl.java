@@ -294,18 +294,11 @@ public ResponseEntity<?> completeRegistration() {
 
         if (tutorOpt.isPresent()) {
             var tutor = tutorOpt.get();
-            if (tutor.isEmailVerified()){
                 UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
                 var jwt = jwtService.genToken(userDetails, tutor);
                 TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
                 return new LoginResponse(null, loggedInTutor, jwt);
-            } else {
-                throw new AccountNotVerifiedException("Account not verified for this tutor, please check your email to verify");
-            }
-        }
-
-        // If neither student nor tutor is found, throw an exception
-        throw new IllegalArgumentException("Error in email and password");
+        } else throw new AccountNotVerifiedException("Account not verified for this tutor, please check your email to verify");
     }
 
     public String generateToken(){

@@ -274,35 +274,29 @@ public ResponseEntity<?> verifyToken(String token) {
 
 
   public LoginResponse login(LoginStudentRequest loginStudentRequest) {
-    try {
-        // Authenticate the user
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginStudentRequest.getUserName(),
-                        loginStudentRequest.getPassword()
-                )
-        );
-    } catch (BadCredentialsException e) {
-        throw new IllegalArgumentException("Invalid student username or password", e);
-    }
+      try {
+          // Authenticate the user
+          authenticationManager.authenticate(
+                  new UsernamePasswordAuthenticationToken(
+                          loginStudentRequest.getUserName(),
+                          loginStudentRequest.getPassword()
+                  )
+          );
+      } catch (BadCredentialsException e) {
+          throw new IllegalArgumentException("Invalid student username or password", e);
+      }
 
-    // Try to find the user as a student first
-    var studentOpt = studentRepository.findByUserNameAndEmailVerifiedIsTrue(loginStudentRequest.getUserName());
-    if (studentOpt.isPresent()) {
-        var student = studentOpt.get();
-        if (student.isEmailVerified()){
-            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
-            var jwt = jwtService.genToken(userDetails, student);
-            StudentDto loggedInStudent = studentMapper.mapTo(student);
-            return new LoginResponse(loggedInStudent, null, jwt);
-        }else {
-            throw new AccountNotVerifiedException("Account not verified for this student, please check your email to verify");
-        }
-   }
+      // Try to find the user as a student first
+      var studentOpt = studentRepository.findByUserNameAndEmailVerifiedIsTrue(loginStudentRequest.getUserName());
+      if (studentOpt.isPresent()) {
+          var student = studentOpt.get();
+          UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
+          var jwt = jwtService.genToken(userDetails, student);
+          StudentDto loggedInStudent = studentMapper.mapTo(student);
+          return new LoginResponse(loggedInStudent, null, jwt);
 
-    throw new UsernameNotFoundException("Error in username and password");
-}
-
+      } else throw new AccountNotVerifiedException("Account not verified for this student, please check your email to verify");
+  }
     public String generateToken(){
         List<CharacterRule> rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
                 new CharacterRule(EnglishCharacterData.LowerCase, 1),
@@ -318,9 +312,7 @@ public ResponseEntity<?> verifyToken(String token) {
         tokenService.addToken(token, expiryTime);
     }
 
-    //public boolean isTokenBlacklisted(String token) {
-    //    return tokenService.isTokenBlacklisted(token);
-    //}
+
 	
     @Override
     public Map<String, Boolean> checkStudent(String username, String email) {

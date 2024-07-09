@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Controller;
 
+import com.proliferate.Proliferate.Domain.DTO.Admin.LoginAdminRequest;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.LoginTutorRequest;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.AdminManagementService;
@@ -24,7 +25,7 @@ public class AdminController {
     private final AdminManagementService authenticationService;
 
     @PostMapping("/login-admin")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginTutorRequest loginRequest, BindingResult result){
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginAdminRequest loginRequest, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
 
