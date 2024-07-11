@@ -366,56 +366,6 @@ public ResponseEntity<?> completeRegistration() {
     }
 
     @Transactional
-    public Map<String, byte[]> getDocuments(Long tutorId, String documentType) {
-    TutorEntity tutor = tutorRepository.findById(tutorId)
-        .orElseThrow(() -> new UserNotFoundException("Tutor not found"));
-
-    Map<String, byte[]> documents = new HashMap<>();
-
-    if ("all".equals(documentType)) {
-        if (tutor.getEducationalCertificates() != null) {
-            documents.put("educationalCertificates", tutor.getEducationalCertificates());
-        }
-        if (tutor.getResumeCurriculumVitae() != null) {
-            documents.put("resumeCurriculumVitae", tutor.getResumeCurriculumVitae());
-        }
-        if (tutor.getProfessionalDevelopmentCert() != null) {
-            documents.put("professionalDevelopmentCert", tutor.getProfessionalDevelopmentCert());
-        }
-        if (tutor.getIdentificationDocuments() != null) {
-            documents.put("identificationDocuments", tutor.getIdentificationDocuments());
-        }
-    } else {
-        switch (documentType) {
-            case "educationalCertificates":
-                if (tutor.getEducationalCertificates() != null) {
-                    documents.put("educationalCertificates", tutor.getEducationalCertificates());
-                }
-                break;
-            case "resumeCurriculumVitae":
-                if (tutor.getResumeCurriculumVitae() != null) {
-                    documents.put("resumeCurriculumVitae", tutor.getResumeCurriculumVitae());
-                }
-                break;
-            case "professionalDevelopmentCert":
-                if (tutor.getProfessionalDevelopmentCert() != null) {
-                    documents.put("professionalDevelopmentCert", tutor.getProfessionalDevelopmentCert());
-                }
-                break;
-            case "identificationDocuments":
-                if (tutor.getIdentificationDocuments() != null) {
-                    documents.put("identificationDocuments", tutor.getIdentificationDocuments());
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid document type");
-        }
-    }
-
-    return documents;
-}
-
-    @Transactional
     public TutorEntity getTutorWithoutLob(Long userId) {
         return entityManager.createQuery(
             "SELECT t FROM TutorEntity t WHERE t.tutorId = :userId", TutorEntity.class)

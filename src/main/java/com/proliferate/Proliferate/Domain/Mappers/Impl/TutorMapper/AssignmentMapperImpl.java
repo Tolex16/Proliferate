@@ -35,6 +35,9 @@ public class AssignmentMapperImpl implements Mapper<Assignment, AssignmentDto> {
         if (assignment.getAssignedStudent() != null) {
             dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName());
         }
+        if (assignment.getAssignedStudent() != null) {
+            dto.setAssignedStudentId(assignment.getAssignedStudent().getStudentId());
+        }
 
         return dto;
     }

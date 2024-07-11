@@ -1,6 +1,9 @@
 package com.proliferate.Proliferate.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -11,19 +14,31 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@Slf4j
 public class TokenService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
+	
     private final Map<String, Instant> tokenMap = new ConcurrentHashMap<>();
 
     public void addToken(String token, Instant expiryTime) {
         tokenMap.put(token, expiryTime);
+		logger.debug("Added token: {}", token);
     }
 
-    public boolean isTokenBlacklisted(String token) {
-        return tokenMap.containsKey(token);
-    }
-
-    public void removeToken(String token) {
-        tokenMap.remove(token);
+  public boolean isTokenBlacklisted(String token) {
+        Instant expiryTime = tokenMap.get(token);
+        if (expiryTime == null) {
+            return false;
+        }
+        // Check if the token has expired
+        if (expiryTime.isBefore(Instant.now())) {
+            // Optionally remove the token from the map
+            tokenMap.remove(token);
+            logger.debug("Removed token: {}", token);
+            return false;
+        }
+        return true;
     }
 
     public Set<String> getTokens() {
@@ -44,6 +59,7 @@ public class TokenService {
             Map.Entry<String, Instant> entry = iterator.next();
             if (entry.getValue().isBefore(now)) {
                 iterator.remove();
+				logger.debug("Expired token removed: {}", entry.getKey());
             }
         }
     }

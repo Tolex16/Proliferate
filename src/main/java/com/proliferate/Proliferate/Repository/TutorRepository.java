@@ -15,5 +15,5 @@ public interface TutorRepository extends JpaRepository<TutorEntity, Long>{
     Optional<TutorEntity> findByEmailAndEmailVerifiedIsTrue(String email);
     Optional<TutorEntity> findByVerificationToken(String token);
     Boolean existsByEmail(String email);
-
+    void deleteByEmail(String email);
 }

@@ -2,9 +2,12 @@ package com.proliferate.Proliferate.Controller;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
+import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorProfile;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorTable;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
@@ -27,19 +30,28 @@ public class TutorManagementController {
 
     private final Mapper<TutorEntity, TutorProfile> tutorProfileMapper;
 
+    private final Mapper<TutorEntity, TutorTable> tutorTableMapper;
+
     @PostMapping("/create-feedback")
-    public Feedback saveFeedback(@RequestBody Feedback feedback) {
+    public Feedback saveFeedback(@RequestBody FeedbackDto feedback) {
         return feedbackService.saveFeedback(feedback);
     }
 
-    @GetMapping("/feedback/{tutorName}")
-    public List<Feedback> getFeedbackByTutorName(@PathVariable String tutorName) {
-        return feedbackService.getFeedbackByTutorName(tutorName);
+    @GetMapping("/feedback/{tutorId}")
+    public List<Feedback> getFeedbackByTutorName(@PathVariable Long tutorId) {
+        return feedbackService.getFeedbackByTutorId(tutorId);
     }
 
-    @GetMapping("/feedback/{tutorName}/average")
-    public double getAverageRating(@PathVariable String tutorName) {
-        return feedbackService.getAverageRating(tutorName);
+    @GetMapping("/feedback/{tutorId}/average")
+    public double getAverageRating(@PathVariable Long tutorId) {
+        return feedbackService.getAverageRating(tutorId);
+    }
+
+    @GetMapping("/get-tutors")
+    public ResponseEntity<Iterable<TutorTable>> getAllStudents() {
+        Iterable<TutorEntity> tutors = feedbackService.getAllTutors();
+        Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
+        return ResponseEntity.ok(allTutors);
     }
 
     @GetMapping("/get-tutorProfile/{tutorId}")
@@ -92,9 +104,9 @@ public class TutorManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-    @GetMapping("/assignments/{studentName}")
-    public ResponseEntity<List<AssignmentDto>> getStudentAssignments(@PathVariable String studentName) {
-            List<AssignmentDto> assignments = feedbackService.getStudentAssignments(studentName);
+    @GetMapping("/assignments/{studentId}")
+    public ResponseEntity<List<AssignmentDto>> getStudentAssignments(@PathVariable Long studentId) {
+            List<AssignmentDto> assignments = feedbackService.getStudentAssignments(studentId);
             if (CollectionUtils.isEmpty(assignments)) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }

@@ -19,8 +19,7 @@ public class MessageServiceImpl implements MessageService {
 
     private final MessageRepository messageRepository;
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * Save a chat message to the database.
@@ -34,7 +33,6 @@ public class MessageServiceImpl implements MessageService {
         message.setReceiverType(chatMessage.getReceiverType());
         message.setContent(chatMessage.getContent());
         message.setTimestamp(LocalDateTime.now());
-		message.setTimestamp(LocalDateTime.parse(chatMessage.getTimestamp()));
         return messageRepository.save(message);
     }
 

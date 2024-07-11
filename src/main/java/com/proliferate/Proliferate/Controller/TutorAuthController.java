@@ -132,28 +132,5 @@ public class TutorAuthController {
         }
     }
 
-    @GetMapping("/documents")
-    public ResponseEntity<Map<String, byte[]>> getDocuments(
-        @RequestParam Long tutorId,
-        @RequestParam String documentType) {
-        try {
-            Map<String, byte[]> documents = authenticationService.getDocuments(tutorId, documentType);
-
-            if (documents.values().stream().allMatch(Objects::isNull)) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            return new ResponseEntity<>(documents, headers, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception error) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
 
 }

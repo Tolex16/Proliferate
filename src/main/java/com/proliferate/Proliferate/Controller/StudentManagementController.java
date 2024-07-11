@@ -4,6 +4,7 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDisplay;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
@@ -29,6 +30,8 @@ public class StudentManagementController {
     @Autowired
     private final StudentManagementService authenticationService;
     private final Mapper<StudentEntity, StudentTable> studentMapper;
+
+    private final Mapper<TutorEntity, TutorDisplay> tutorDisplayMapper;
 
     private final Mapper<StudentEntity, StudentProfile> studentProfileMapper;
 
@@ -75,6 +78,17 @@ public class StudentManagementController {
         if (studentEntityOptional.isPresent()) {
             StudentProfile studentProfile = studentProfileMapper.mapTo(studentEntityOptional.get());
             return ResponseEntity.ok(studentProfile);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @GetMapping("/get-tutorDisplay/{tutorId}")
+    public ResponseEntity<TutorDisplay> getTutorDisplay(@PathVariable Long tutorId) {
+        Optional<TutorEntity> tutorEntityOptional = authenticationService.getTutorDisplay(tutorId);
+        if (tutorEntityOptional.isPresent()) {
+            TutorDisplay tutorDisplay = tutorDisplayMapper.mapTo(tutorEntityOptional.get());
+            return ResponseEntity.ok(tutorDisplay);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }

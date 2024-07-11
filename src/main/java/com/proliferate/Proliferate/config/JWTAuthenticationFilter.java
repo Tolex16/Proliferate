@@ -44,7 +44,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         }
         jwt = authHeader.substring(7);
 		
-       if (jwt != null && !tokenService.isTokenBlacklisted(jwt)) {
+       if (jwt != null && !tokenService.isTokenBlacklisted(jwt) && !jwtservice.isTokenExpired(jwt)) {
         username = jwtservice.extractUsername(jwt);
 
         if (StringUtils.hasLength(username) && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -1,9 +1,7 @@
 package com.proliferate.Proliferate.Domain.Mappers.Impl.TutorMapper;
 
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentProfile;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorProfile;
 import com.proliferate.Proliferate.Domain.Entities.Feedback;
-import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.Repository.FeedbackRepository;
@@ -12,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -31,7 +30,7 @@ public class TutorProfileMapperImpl implements Mapper<TutorEntity, TutorProfile>
         tutorProfile.setQualification(tutorEntity.getHighestEducationLevelAttained());
         tutorProfile.setTeachingStyle(tutorEntity.getTeachingStyle());
 
-        List<Feedback> feedbacks = feedbackRepository.findByTutorName(tutorEntity.getFirstName() + " " + tutorEntity.getLastName());
+        Optional<Feedback> feedbacks = feedbackRepository.findById(tutorEntity.getTutorId());
         double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
         tutorProfile.setRating(averageRating);
 

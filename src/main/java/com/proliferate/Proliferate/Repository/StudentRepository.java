@@ -22,4 +22,5 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long>{
 
     Boolean existsByEmail(String email);
 
+    void deleteByUserName(String userName);
 }

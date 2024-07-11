@@ -11,6 +11,8 @@ public interface JwtService {
 
     Date extractExpiration(String token);
 
+    boolean isTokenExpired(String token);
+
     String genToken(UserDetails userDetails, Object o);
 
     Long getUserId();

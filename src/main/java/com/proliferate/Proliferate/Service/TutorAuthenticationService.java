@@ -30,6 +30,5 @@ public interface TutorAuthenticationService {
 	@Transactional
     ResponseEntity updateTutor (UpdateTutor updateTutor);
 	
-	@Transactional
-	Map<String, byte[]> getDocuments(Long tutorId, String documentType);
+
 }

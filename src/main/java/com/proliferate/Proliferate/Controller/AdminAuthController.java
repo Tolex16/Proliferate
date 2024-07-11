@@ -1,10 +1,8 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.Admin.LoginAdminRequest;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.LoginTutorRequest;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.AdminManagementService;
-import com.proliferate.Proliferate.Service.StudentAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth/admin")
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminAuthController {
 
     @Autowired
     private final AdminManagementService authenticationService;

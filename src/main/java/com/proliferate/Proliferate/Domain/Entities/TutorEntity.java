@@ -139,9 +139,11 @@ public class TutorEntity implements UserDetails {
     @Column(name = "email_verified")
     private boolean emailVerified;
 
+    @JsonIgnore
     @Column(name = "verification_token",length = 6)
     private String verificationToken;
 
+    @JsonIgnore
     @Column(name = "token_expiration_time")
     private LocalDateTime tokenExpirationTime;
     @Column(name = "role")
@@ -161,7 +163,10 @@ public class TutorEntity implements UserDetails {
 
     @OneToMany(mappedBy = "tutor")
     private List<ClassSchedule> classSchedules;
-	
+
+    @OneToMany(mappedBy = "tutor")
+    private List<Feedback> feedbacks;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

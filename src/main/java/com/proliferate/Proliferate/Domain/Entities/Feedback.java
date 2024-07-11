@@ -1,10 +1,8 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Entity
 @Data
@@ -14,8 +12,10 @@ public class Feedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-	
-    private String tutorName;
+
+    @ManyToOne
+    @JoinColumn(name = "tutor_id", nullable = false)
+    private TutorEntity tutor;
 
     private String subject;
 

@@ -21,8 +21,7 @@ import java.util.List;
 
 
 @Controller
-//@RequestMapping("/ws")
-@ServerEndpoint("/ws")
+//@ServerEndpoint("/ws")
 @RequiredArgsConstructor
 public class ChatController {
 	

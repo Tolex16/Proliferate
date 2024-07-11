@@ -20,7 +20,7 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long subjectId;
 	
-    @Column(name = "title", unique = true)
+    @Column(name = "title")
     @NotNull(message = "Title cannot be null")
     @NotBlank(message = "Title cannot be blank")
     private String title;

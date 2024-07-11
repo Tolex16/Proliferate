@@ -1,9 +1,7 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
-import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
-import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.TestDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
@@ -17,6 +15,7 @@ import com.proliferate.Proliferate.Service.StudentManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,7 +50,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
                 throw new AssignmentNotCreatedException("Assignment attachment exceeds the maximum allowed size of 5MB");
             }
             Subject subject = subjectRepository.findByTitle(assignmentDto.getSubjectName()).orElseThrow(() -> new SubjectNotFoundException("Subject not present"));
-            StudentEntity student = studentRepository.findByFirstName(assignmentDto.getAssignedStudentName()).orElseThrow(() -> new UserNotFoundException("Student not present"));
+            StudentEntity student = studentRepository.findById(assignmentDto.getAssignedStudentId()).orElseThrow(() -> new UserNotFoundException("Student not present"));
             Assignment assignment = assignmentMapper.mapFrom(assignmentDto);
             if (!assignmentDto.getAssignmentFile().isEmpty() && assignmentDto.getAssignmentFile() != null) {
                 assignment.setAssignmentFile(assignmentDto.getAssignmentFile().getBytes());
@@ -104,14 +103,23 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     }
 
     private boolean validateFileSize(MultipartFile file) {
-        List<String> allowedContentTypes = Arrays.asList("application/pdf", "image/png", "image/jpeg");
+    List<String> allowedContentTypes = Arrays.asList("application/pdf", "image/png", "image/jpeg", "application/msword");
 
-        String contentType = file.getContentType();
-        if (contentType == null || !allowedContentTypes.contains(contentType)) {
-            return false;
-        }
+    String contentType = file.getContentType();
+    if (contentType == null || !allowedContentTypes.contains(contentType)) {
+        return false;
+    }
 
-        return file.getSize() <= MAX_FILE_SIZE;
+    return file.getSize() <= MAX_FILE_SIZE;
+    }
+
+    @Scheduled(cron = "0 0 0 */3 * *") // This cron expression runs at midnight every 3 days
+    public void deleteAllAssignments() {
+        assignmentRepository.deleteAll();
+    }
+
+    public Optional<TutorEntity> getTutorDisplay(Long tutorId) {
+        return tutorRepository.findById(tutorId);
     }
 
     public Iterable<StudentEntity> getAllStudents() {

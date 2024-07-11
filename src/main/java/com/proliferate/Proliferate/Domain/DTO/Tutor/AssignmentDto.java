@@ -14,6 +14,8 @@ public class AssignmentDto {
 	private Long id;
 	
     private String assignedStudentName;
+
+    private Long assignedStudentId;
 	
     private String dueDate;
 	

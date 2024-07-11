@@ -3,6 +3,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
@@ -35,21 +36,28 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 
     private final Mapper<Assignment, AssignmentDto> assignmentMapper;
 
-    public Feedback saveFeedback(Feedback feedback) {
+    public Feedback saveFeedback(FeedbackDto feedbackDto) {
+        Feedback feedback = new Feedback();
+        feedback.setTutor(tutorRepository.findById(feedbackDto.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
+        feedback.setSubject(feedbackDto.getSubject());
+        feedback.setSessionDate(feedbackDto.getSessionDate());
+        feedback.setRating(feedbackDto.getRating());
+        feedback.setComments(feedbackDto.getComments());
+
         return feedbackRepository.save(feedback);
     }
 
-    public List<Feedback> getFeedbackByTutorName(String tutorName) {
-        return feedbackRepository.findByTutorName(tutorName);
+    public List<Feedback> getFeedbackByTutorId(Long tutorId) {
+        return feedbackRepository.findByTutorTutorId(tutorId);
     }
 
-    public double getAverageRating(String tutorName) {
-        List<Feedback> feedbacks = getFeedbackByTutorName(tutorName);
+    public double getAverageRating(Long tutorId) {
+        List<Feedback> feedbacks = getFeedbackByTutorId(tutorId);
         return feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
     }
 	
-	public List<AssignmentDto> getStudentAssignments(String studentName) {
-        StudentEntity student = studentRepository.findByFirstName(studentName).orElseThrow(() -> new  UserNotFoundException("Student not found"));
+	public List<AssignmentDto> getStudentAssignments(Long studentId) {
+        StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new  UserNotFoundException("Student not found"));
         return assignmentRepository.findByAssignedStudent(student).stream()
                 .map(assignment -> {
                     AssignmentDto dto = assignmentMapper.mapTo(assignment);
@@ -64,6 +72,10 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Iterable<TutorEntity> getAllTutors() {
+        return tutorRepository.findAll();
     }
 
     public Optional<TutorEntity> getTutorProfile(Long tutorId) {
