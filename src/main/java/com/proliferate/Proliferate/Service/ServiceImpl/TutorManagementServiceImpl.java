@@ -9,8 +9,10 @@ import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.*;
+import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.TutorManagementService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -23,7 +25,8 @@ import java.util.stream.Collectors;
 public class TutorManagementServiceImpl implements TutorManagementService {
 
     private final FeedbackRepository feedbackRepository;
-
+    @Autowired
+    private final JwtService jwtService;
     private final TutorRepository tutorRepository;
 
 	private final StudentRepository studentRepository;
@@ -96,20 +99,21 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         return classScheduleRepository.findByStudentStudentId(studentId);
     }
     public Subject createSubject(SubjectDto subjectDto) {
-        TutorEntity tutor = tutorRepository.findByFirstName(subjectDto.getTutorName()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+        TutorEntity tutor = tutorRepository.findById(subjectDto.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
         Subject subject = new Subject();
         subject.setTitle(subjectDto.getTitle());
         subject.setTutor(tutor);
-
+        Long studentId = jwtService.getUserId();
+        StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+        subject.setStudent(student);
         return subjectRepository.save(subject);
     }
     public List<SubjectDto> getAllSubjects() {
         return subjectRepository.findAll().stream()
                 .map(subject -> {
                     SubjectDto dto = new SubjectDto();
-                    //dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName());
                     dto.setTitle(subject.getTitle());
-                    dto.setTutorName(subject.getTutor().getFirstName());
+                    dto.setTutorName(subject.getTutor().getFirstName() + " " + subject.getTutor().getLastName());
 
                     return dto;
                 })

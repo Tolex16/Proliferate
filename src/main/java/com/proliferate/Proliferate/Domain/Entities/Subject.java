@@ -28,7 +28,11 @@ public class Subject {
     @ManyToOne
     @JoinColumn(name = "tutor_id", nullable = false)
     private TutorEntity tutor;
-	
+
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private StudentEntity student;
+
 	@OneToMany(mappedBy = "subject")
     private Set<ClassSchedule> classSchedules;
 }

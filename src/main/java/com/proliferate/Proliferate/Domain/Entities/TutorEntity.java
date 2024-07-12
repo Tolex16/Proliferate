@@ -165,7 +165,7 @@ public class TutorEntity implements UserDetails {
     private List<ClassSchedule> classSchedules;
 
     @OneToMany(mappedBy = "tutor")
-    private List<Feedback> feedbacks;
+    private Set<Feedback> feedbacks;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

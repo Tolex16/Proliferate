@@ -24,6 +24,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -230,6 +231,7 @@ public ResponseEntity<?> verifyToken(String token) {
                 return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
             }
             studentEntity.setEmailVerified(true);
+            studentEntity.setVerificationToken(null);
             studentRepository.save(studentEntity);
         }
 
@@ -240,6 +242,7 @@ public ResponseEntity<?> verifyToken(String token) {
                 return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
             }
             tutorEntity.setEmailVerified(true);
+            tutorEntity.setVerificationToken(null);
             tutorRepository.save(tutorEntity);
         }
 
@@ -272,7 +275,7 @@ public ResponseEntity<?> verifyToken(String token) {
         return termsAndConditions.toString();
     }
 
-
+@Transactional
   public LoginResponse login(LoginStudentRequest loginStudentRequest) {
       try {
           // Authenticate the user

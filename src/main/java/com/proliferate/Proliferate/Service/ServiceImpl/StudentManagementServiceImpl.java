@@ -2,7 +2,6 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
-import com.proliferate.Proliferate.Domain.DTO.Student.TestDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
@@ -35,7 +34,6 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private final StudentRepository studentRepository;
     private final ScoreRepository scoreRepository;
     private final SubjectRepository subjectRepository;
-    private final TestRepository testRepository;
 
     private final TutorRepository tutorRepository;
 
@@ -156,12 +154,4 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return scoreRepository.save(score);
     }
 
-    public Test addTest(TestDto testDto) {
-        Test test = new Test();
-        test.setTestTitle(testDto.getTestTitle());
-        test.setTestDate(testDto.getTestDate());
-        test.setTotalMarks(testDto.getTotalMarks());
-
-        return testRepository.save(test);
-    }
 }

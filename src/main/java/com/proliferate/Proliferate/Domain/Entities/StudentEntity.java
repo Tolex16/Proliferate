@@ -138,7 +138,10 @@ public class StudentEntity implements UserDetails {
 
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Payment> payments;
-	
+
+//    @OneToMany(mappedBy = "student")
+//    private List<Subject> subjects;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

@@ -111,10 +111,6 @@ public class StudentManagementController {
         return authenticationService.getTutorSchedule(tutorId);
     }
 
-    @PostMapping("/add-test")
-    public ResponseEntity<Test> addTest(@RequestBody TestDto testDto){
-        return new ResponseEntity<>(authenticationService.addTest(testDto), HttpStatus.OK);
-    }
     @PostMapping("/add-score")
     public ResponseEntity<Score> addScore(@RequestBody ScoreDto scoreDto){
         return new ResponseEntity<>(authenticationService.addScore(scoreDto), HttpStatus.OK);
