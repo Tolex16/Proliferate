@@ -17,7 +17,7 @@ public interface StudentManagementService {
 
 	Optional<StudentEntity> getStudentProfile(Long studentId);
 
-	Optional<TutorEntity> getTutorDisplay(Long tutorId);
+	Optional<TutorEntity> getTutorDisplay();
 
 	List<AttendanceEntity> getAllAttendanceRecords();
 	

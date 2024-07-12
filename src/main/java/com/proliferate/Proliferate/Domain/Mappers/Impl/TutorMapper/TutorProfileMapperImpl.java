@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class TutorProfileMapperImpl implements Mapper<TutorEntity, TutorProfile>
         tutorProfile.setSubjectExpertise(tutorEntity.getPreferredSubjects().toString());
         tutorProfile.setQualification(tutorEntity.getHighestEducationLevelAttained());
         tutorProfile.setTeachingStyle(tutorEntity.getTeachingStyle());
+        tutorProfile.setTutorImage(Base64.getEncoder().encodeToString(tutorEntity.getTutorImage()));
 
         Optional<Feedback> feedbacks = feedbackRepository.findById(tutorEntity.getTutorId());
         double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);

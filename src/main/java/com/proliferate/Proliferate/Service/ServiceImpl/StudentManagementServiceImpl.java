@@ -10,8 +10,10 @@ import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.*;
+import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.StudentManagementService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,6 +36,9 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private final StudentRepository studentRepository;
     private final ScoreRepository scoreRepository;
     private final SubjectRepository subjectRepository;
+
+    @Autowired
+    private final JwtService jwtService;
 
     private final TutorRepository tutorRepository;
 
@@ -116,7 +121,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         assignmentRepository.deleteAll();
     }
 
-    public Optional<TutorEntity> getTutorDisplay(Long tutorId) {
+    public Optional<TutorEntity> getTutorDisplay() {
+        Long tutorId = jwtService.getUserId();
         return tutorRepository.findById(tutorId);
     }
 

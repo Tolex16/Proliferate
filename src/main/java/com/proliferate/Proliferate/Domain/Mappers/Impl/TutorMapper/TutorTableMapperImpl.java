@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.Base64;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -23,6 +24,7 @@ public class TutorTableMapperImpl implements Mapper<TutorEntity, TutorTable> {
         TutorTable tutorTable = new TutorTable();
         tutorTable.setTutorId(tutor.getTutorId());
         tutorTable.setFullName(tutor.getFirstName() + " " + tutor.getLastName());
+        tutorTable.setTutorImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));
         return tutorTable;
     }
 

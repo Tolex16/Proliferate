@@ -83,9 +83,9 @@ public class StudentManagementController {
         }
     }
 
-    @GetMapping("/get-tutorDisplay/{tutorId}")
-    public ResponseEntity<TutorDisplay> getTutorDisplay(@PathVariable Long tutorId) {
-        Optional<TutorEntity> tutorEntityOptional = authenticationService.getTutorDisplay(tutorId);
+    @GetMapping("/get-bio")
+    public ResponseEntity<TutorDisplay> getTutorDisplay() {
+        Optional<TutorEntity> tutorEntityOptional = authenticationService.getTutorDisplay();
         if (tutorEntityOptional.isPresent()) {
             TutorDisplay tutorDisplay = tutorDisplayMapper.mapTo(tutorEntityOptional.get());
             return ResponseEntity.ok(tutorDisplay);
