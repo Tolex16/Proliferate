@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,10 +16,12 @@ public class ClassSchedule {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonBackReference
     private StudentEntity student;
 
     @ManyToOne
     @JoinColumn(name = "tutor_id")
+    @JsonBackReference
     private TutorEntity tutor;
 
     @Column(name = "date")
@@ -26,6 +29,7 @@ public class ClassSchedule {
 
     @ManyToOne
     @JoinColumn(name = "subject_id")
+    @JsonBackReference
     private Subject subject;
 
     @Column(name = "time")

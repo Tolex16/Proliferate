@@ -96,7 +96,8 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         // If no admin is found, throw an exception
         throw new IllegalArgumentException("Invalid email or password");
     }
-
+	
+   @Transactional
     public void deleteStudent(String userName) {
         Optional<StudentEntity> student = studentRepository.findByUserName(userName);
         if (student.isPresent()) {
@@ -106,6 +107,7 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         }
     }
 
+    @Transactional
     public void deleteTutor(String email) {
         Optional<TutorEntity> tutor = tutorRepository.findByEmail(email);
         if (tutor.isPresent()) {

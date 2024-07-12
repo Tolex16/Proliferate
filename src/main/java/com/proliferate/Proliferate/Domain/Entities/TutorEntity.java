@@ -159,12 +159,15 @@ public class TutorEntity implements UserDetails {
     private String bio;
 	
 	@OneToMany(mappedBy = "tutor")
+    @JsonManagedReference
     private List<Subject> subjects;
 
     @OneToMany(mappedBy = "tutor")
+    @JsonManagedReference
     private List<ClassSchedule> classSchedules;
 
     @OneToMany(mappedBy = "tutor")
+    @JsonManagedReference
     private Set<Feedback> feedbacks;
 
     @Override

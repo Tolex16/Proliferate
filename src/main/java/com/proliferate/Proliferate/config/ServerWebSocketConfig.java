@@ -18,14 +18,20 @@ public class ServerWebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(webSocketHandler, "/ws");
+//        registry.addHandler(chatWebSocketHandler(), "/ws/chat")
+//        .setAllowedOrigins("*");
 		registry.addHandler(videoCallWebSocketHandler(), "/ws/call")
-                .setAllowedOrigins("*");
+                .setAllowedOrigins("https://proliferate-2.onrender.com");
     }
 
     @Bean
     public VideoCallWebSocketHandler videoCallWebSocketHandler(){
         return new VideoCallWebSocketHandler();
     }
+	
+//    @Bean
+//    public WebSocketHandler chatWebSocketHandler() {
+//        return new WebSocketEventListener();
+//    }
 
 }

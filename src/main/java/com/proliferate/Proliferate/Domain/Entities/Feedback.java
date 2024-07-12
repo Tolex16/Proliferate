@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ public class Feedback {
 
     @ManyToOne
     @JoinColumn(name = "tutor_id", nullable = false)
+    @JsonBackReference
     private TutorEntity tutor;
 
     private String subject;

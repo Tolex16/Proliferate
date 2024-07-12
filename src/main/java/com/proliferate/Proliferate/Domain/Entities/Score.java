@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ public class Score {
 	
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
+    @JsonBackReference
     private StudentEntity student;
 
     @Column(name = "test")

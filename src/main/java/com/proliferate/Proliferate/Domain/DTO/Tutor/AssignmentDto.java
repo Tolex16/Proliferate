@@ -26,6 +26,10 @@ public class AssignmentDto {
     private String gradeLevel;
 	
     private MultipartFile assignmentFile;
-	
+
 	private String assignmentFileBase64; // Add this field to hold the base64 string
+
+    private MultipartFile assignmentSolution;
+
+    private String assignmentSolutionBase64;
 }

@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -22,10 +23,12 @@ public class Payment {
 
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
+    @JsonBackReference
     private StudentEntity student;
 
     @ManyToOne
-    @JoinColumn(name = "tutor_id")
+    @JoinColumn(name = "tutor_id", nullable = false)
+    @JsonBackReference
     private TutorEntity tutor;
 
     @Column(name = "amount")

@@ -131,12 +131,15 @@ public class StudentEntity implements UserDetails {
     private String bio;
 
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Score> scores;
 
 	@OneToMany(mappedBy = "student")
+    @JsonManagedReference
     private List<ClassSchedule> classSchedules;
 
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Payment> payments;
 
 //    @OneToMany(mappedBy = "student")
