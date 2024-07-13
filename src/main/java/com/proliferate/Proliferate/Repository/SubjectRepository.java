@@ -13,4 +13,6 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     List<Subject> findByTutor(TutorEntity tutor);
 
     Optional<Subject> findByTitle(String title);
+
+    Optional<Subject> findByTutorTutorId(long tutorId);
 }

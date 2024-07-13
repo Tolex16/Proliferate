@@ -2,12 +2,10 @@ package com.proliferate.Proliferate.Controller;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
+import com.proliferate.Proliferate.Domain.DTO.Student.StudentDisplay;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorProfile;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorTable;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
@@ -29,7 +27,7 @@ public class TutorManagementController {
     private final TutorManagementService feedbackService;
 
     private final Mapper<TutorEntity, TutorProfile> tutorProfileMapper;
-
+    private final Mapper<StudentEntity, StudentDisplay> studentDisplayMapper;
     private final Mapper<TutorEntity, TutorTable> tutorTableMapper;
 
     @PostMapping("/create-feedback")
@@ -54,6 +52,16 @@ public class TutorManagementController {
         return ResponseEntity.ok(allTutors);
     }
 
+    @GetMapping("/get-bio")
+    public ResponseEntity<StudentDisplay> getStudentDisplay() {
+        Optional<StudentEntity> studentEntityOptional = feedbackService.getStudentDisplay();
+        if (studentEntityOptional.isPresent()) {
+            StudentDisplay studentDisplay = studentDisplayMapper.mapTo(studentEntityOptional.get());
+            return ResponseEntity.ok(studentDisplay);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
     @GetMapping("/get-tutorProfile/{tutorId}")
     public ResponseEntity<TutorProfile> getTutorProfile(@PathVariable Long tutorId) {
         Optional<TutorEntity> tutorEntityOptional = feedbackService.getTutorProfile(tutorId);

@@ -30,7 +30,7 @@ public class TutorProfileMapperImpl implements Mapper<TutorEntity, TutorProfile>
         tutorProfile.setSubjectExpertise(tutorEntity.getPreferredSubjects().toString());
         tutorProfile.setQualification(tutorEntity.getHighestEducationLevelAttained());
         tutorProfile.setTeachingStyle(tutorEntity.getTeachingStyle());
-        tutorProfile.setTutorImage(Base64.getEncoder().encodeToString(tutorEntity.getTutorImage()));
+        tutorProfile.setProfileImage(Base64.getEncoder().encodeToString(tutorEntity.getTutorImage()));
 
         Optional<Feedback> feedbacks = feedbackRepository.findById(tutorEntity.getTutorId());
         double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);

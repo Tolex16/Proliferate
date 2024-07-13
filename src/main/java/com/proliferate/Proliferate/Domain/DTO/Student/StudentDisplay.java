@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StudentDisplay {
 
-    private String studentImage; // Add this field to hold the base64 string
+    private String profileImage; // Add this field to hold the base64 string
+
+    private String fullName;
 
     private String bio;
 }

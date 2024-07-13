@@ -58,7 +58,12 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         List<Feedback> feedbacks = getFeedbackByTutorId(tutorId);
         return feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
     }
-	
+
+    public Optional<StudentEntity> getStudentDisplay() {
+        Long studentId = jwtService.getUserId();
+        return studentRepository.findById(studentId);
+    }
+
 	public List<AssignmentDto> getStudentAssignments(Long studentId) {
         StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new  UserNotFoundException("Student not found"));
         return assignmentRepository.findByAssignedStudent(student).stream()

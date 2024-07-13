@@ -23,9 +23,9 @@ private final ModelMapper modelMapper;
         StudentDisplay studentDisplay = new StudentDisplay();
         if (student.getStudentImage() != null) {
             String base64File = Base64.getEncoder().encodeToString(student.getStudentImage());
-            studentDisplay.setStudentImage(base64File);
+            studentDisplay.setProfileImage(base64File);
         }
-
+        studentDisplay.setFullName(student.getFirstName() + " " + student.getLastName());
         studentDisplay.setBio(student.getBio());
 
         return studentDisplay;

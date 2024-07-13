@@ -26,4 +26,7 @@ public class StudentProfile {
 
     private String longTermGoals;
 
+    private String profileImage;
+
+    private String bio;
 }

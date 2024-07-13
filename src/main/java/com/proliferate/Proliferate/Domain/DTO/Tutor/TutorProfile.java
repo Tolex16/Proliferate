@@ -20,7 +20,7 @@ public class TutorProfile {
 	
     private double rating;
 
-    private String tutorImage;
+    private String profileImage;
 
     private String bio;
 

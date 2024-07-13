@@ -17,7 +17,7 @@ public interface TutorManagementService {
     double getAverageRating(Long tutorId);
 
     Iterable<TutorEntity> getAllTutors();
-
+    Optional<StudentEntity> getStudentDisplay();
     Optional<TutorEntity> getTutorProfile(Long tutorId);
 	
 	List<Score> getStudentScores(Long studentId);
