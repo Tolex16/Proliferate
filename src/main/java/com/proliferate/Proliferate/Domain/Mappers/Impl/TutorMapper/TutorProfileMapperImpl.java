@@ -23,21 +23,26 @@ public class TutorProfileMapperImpl implements Mapper<TutorEntity, TutorProfile>
 	
 	private final FeedbackRepository feedbackRepository;
 
- @Override
+    @Override
     public TutorProfile mapTo(TutorEntity tutorEntity) {
         TutorProfile tutorProfile = new TutorProfile();
         tutorProfile.setFullName(tutorEntity.getFirstName() + " " + tutorEntity.getLastName());
         tutorProfile.setSubjectExpertise(tutorEntity.getPreferredSubjects().toString());
         tutorProfile.setQualification(tutorEntity.getHighestEducationLevelAttained());
         tutorProfile.setTeachingStyle(tutorEntity.getTeachingStyle());
-        tutorProfile.setProfileImage(Base64.getEncoder().encodeToString(tutorEntity.getTutorImage()));
 
-        Optional<Feedback> feedbacks = feedbackRepository.findById(tutorEntity.getTutorId());
+        if (tutorEntity.getTutorImage() != null) {
+            tutorProfile.setProfileImage(Base64.getEncoder().encodeToString(tutorEntity.getTutorImage()));
+        } else {
+            tutorProfile.setProfileImage(null); // or set a default image, if applicable
+        }
+
+        List<Feedback> feedbacks = feedbackRepository.findByTutorTutorId(tutorEntity.getTutorId());
         double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
         tutorProfile.setRating(averageRating);
 
-		tutorProfile.setBio(tutorEntity.getBio());
-		return tutorProfile;
+        tutorProfile.setBio(tutorEntity.getBio());
+        return tutorProfile;
     }
 
     @Override

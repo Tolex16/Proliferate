@@ -51,7 +51,7 @@ public class StudentManagementController {
     public ResponseEntity<List<AssignmentDto>> getAllAssignments() {
         List<AssignmentDto> assignments = authenticationService.getAllAssignments();
         if (CollectionUtils.isEmpty(assignments)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(assignments, HttpStatus.OK);
     }
@@ -106,9 +106,9 @@ public class StudentManagementController {
         return ResponseEntity.ok(newAttendanceRecord);
     }
 	
-	@GetMapping("/schedule/{tutorId}")
-    public List<ClassSchedule> getTutorSchedule(@PathVariable Long tutorId) {
-        return authenticationService.getTutorSchedule(tutorId);
+	@GetMapping("/schedule")
+    public List<ClassSchedule> getTutorSchedule() {
+        return authenticationService.getTutorSchedule();
     }
 
     @PostMapping("/add-score")

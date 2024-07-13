@@ -296,10 +296,15 @@ public ResponseEntity<?> verifyToken(String token) {
           UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
           var jwt = jwtService.genToken(userDetails, student);
           StudentDto loggedInStudent = studentMapper.mapTo(student);
-          return new LoginResponse(loggedInStudent, null, jwt);
+          boolean hasImageAndBioPresent = hasImageAndBio(student); // Check if tutor has image and bio
+          return new LoginResponse(loggedInStudent, null, jwt, hasImageAndBioPresent);
 
       } else throw new AccountNotVerifiedException("Account not verified for this student, please check your email to verify");
   }
+    public boolean hasImageAndBio(StudentEntity student) {
+        return student.getStudentImage() != null && student.getBio() != null && !student.getBio().isEmpty();
+    }
+
     public String generateToken(){
         List<CharacterRule> rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
                 new CharacterRule(EnglishCharacterData.LowerCase, 1),

@@ -37,6 +37,14 @@ public class Subject {
     @JsonBackReference
     private StudentEntity student;
 
+    //@ManyToMany
+    //@JoinTable(
+    //    name = "subject_students",
+    //    joinColumns = @JoinColumn(name = "subject_id"),
+    //    inverseJoinColumns = @JoinColumn(name = "student_id")
+    //)
+    //private Set<StudentEntity> students = new HashSet<>();
+	
 	@OneToMany(mappedBy = "subject")
     @JsonManagedReference
     private Set<ClassSchedule> classSchedules;

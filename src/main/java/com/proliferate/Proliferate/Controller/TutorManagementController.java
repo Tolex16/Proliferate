@@ -73,9 +73,9 @@ public class TutorManagementController {
         }
     }
 
-	@GetMapping("/scores/{studentId}")
-    public ResponseEntity<List<Score>> getStudentScores(@PathVariable Long studentId) {
-        List<Score> scores = feedbackService.getStudentScores(studentId);
+	@GetMapping("/scores")
+    public ResponseEntity<List<Score>> getStudentScores() {
+        List<Score> scores = feedbackService.getStudentScores();
         return ResponseEntity.ok(scores);
     }
 
@@ -84,9 +84,9 @@ public class TutorManagementController {
         return feedbackService.createClassSchedule(schedule);
     }
 
-    @GetMapping("/schedule/{studentId}")
-    public List<ClassSchedule> getStudentSchedule(@PathVariable Long studentId) {
-        return feedbackService.getStudentSchedule(studentId);
+    @GetMapping("/schedule")
+    public List<ClassSchedule> getStudentSchedule() {
+        return feedbackService.getStudentSchedule();
     }
 
     @PostMapping("/add-subject")
@@ -112,11 +112,11 @@ public class TutorManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-    @GetMapping("/assignments/{studentId}")
-    public ResponseEntity<List<AssignmentDto>> getStudentAssignments(@PathVariable Long studentId) {
-            List<AssignmentDto> assignments = feedbackService.getStudentAssignments(studentId);
+    @GetMapping("/assignments")
+    public ResponseEntity<List<AssignmentDto>> getStudentAssignments() {
+            List<AssignmentDto> assignments = feedbackService.getStudentAssignments();
             if (CollectionUtils.isEmpty(assignments)) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(HttpStatus.OK);
             }
             return new ResponseEntity<>(assignments, HttpStatus.OK);
     }

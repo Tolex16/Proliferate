@@ -23,7 +23,7 @@ public interface StudentManagementService {
 	
 	AttendanceEntity addAttendanceRecord(AttendanceEntity attendanceEntity);
 
-	List<ClassSchedule> getTutorSchedule(Long tutorId);
+	List<ClassSchedule> getTutorSchedule();
 
 	void deleteAssignment(Long assignmentId);
 

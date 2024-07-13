@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -30,18 +31,40 @@ public class TutorDisplayMapperImpl implements Mapper<TutorEntity, TutorDisplay>
     public TutorDisplay mapTo(TutorEntity tutor) {
         TutorDisplay tutorDisplay = new TutorDisplay();
         if (tutor.getTutorImage() != null) {
-            String base64File = Base64.getEncoder().encodeToString(tutor.getTutorImage());
-            tutorDisplay.setProfileImage(base64File);
+            tutorDisplay.setProfileImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));
+        } else {
+            tutorDisplay.setProfileImage(null); // or set a default image, if applicable
         }
 
         tutorDisplay.setFullName(tutor.getFirstName() + " " + tutor.getLastName());
 
-        Optional<Feedback> feedbacks = feedbackRepository.findById(tutor.getTutorId());
+        List<Feedback> feedbacks = feedbackRepository.findByTutorTutorId(tutor.getTutorId());
         double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
-        tutorDisplay.setReview(averageRating);
-       Optional<Subject> subjectOpt = subjectRepository.findByTutorTutorId(tutor.getTutorId());
+        tutorDisplay.setRatings(averageRating);
+		tutorDisplay.setReviews(feedbacks.size()); // Set the number of feedbacks
 
-        tutorDisplay.setSubject(subjectOpt.get().getTitle());
+        //Optional<Subject> subjectOpt = subjectRepository.findByTutorTutorId(tutor.getTutorId());
+        //tutorDisplay.setSubject(subjectOpt.map(Subject::getTitle).orElse("No Subject"));
+        //Optional<Subject> subjectOpt = subjectRepository.findByTutorTutorId(tutor.getTutorId());
+       // subjectOpt.ifPresent(subject -> {
+        //    tutorDisplay.setSubject(subject.getTitle());
+            // Calculate the number of students associated with the subject
+           int studentCount = (int) subjectRepository.countByTutorTutorId(tutor.getTutorId());
+           // tutorDisplay.setStudents(studentCount);
+        //});
+		
+		Optional<Subject> subjectOpt = subjectRepository.findFirstByTutorTutorId(tutor.getTutorId());
+        subjectOpt.ifPresent(subject -> {
+            tutorDisplay.setSubject(subject.getTitle());
+
+            // Assuming each subject is associated with one student
+            // If Subject represents many students, adjust accordingly
+            //int studentCount = subject.getStudent() != null ? 1 : 0; // Count only if student is associated
+			// Calculate the number of students associated with the subject
+            //int studentCount = subject.getStudents().size();
+            tutorDisplay.setStudents(studentCount);
+        });
+		
         tutorDisplay.setBio(tutor.getBio());
 
         return tutorDisplay;

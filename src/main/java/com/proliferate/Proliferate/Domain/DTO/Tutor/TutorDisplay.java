@@ -17,7 +17,9 @@ public class TutorDisplay {
 
     private String subject;
 
-    private double review;
+    private double ratings;
 
     private int students;
+	
+	private int reviews; // Field to hold the number of feedbacks
 }

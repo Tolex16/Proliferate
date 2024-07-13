@@ -12,6 +12,6 @@ public class TutorTable {
 
     private String fullName;
 
-    private String tutorImage;
+    private String profileImage;
 
 }

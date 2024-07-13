@@ -20,13 +20,13 @@ public interface TutorManagementService {
     Optional<StudentEntity> getStudentDisplay();
     Optional<TutorEntity> getTutorProfile(Long tutorId);
 	
-	List<Score> getStudentScores(Long studentId);
+	List<Score> getStudentScores();
 
     ClassSchedule createClassSchedule(Schedule schedule);
 
-    List<ClassSchedule> getStudentSchedule(Long studentId);
+    List<ClassSchedule> getStudentSchedule();
 
-    List<AssignmentDto> getStudentAssignments(Long studentId);
+    List<AssignmentDto> getStudentAssignments();
 
     Subject createSubject(SubjectDto subjectDto);
     List<SubjectDto> getAllSubjects();

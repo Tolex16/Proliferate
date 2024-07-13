@@ -16,9 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class PaymentRequest {
-    @NotNull
-    private Long studentId;
-    
+
     @NotNull
     private Long subjectId;
 

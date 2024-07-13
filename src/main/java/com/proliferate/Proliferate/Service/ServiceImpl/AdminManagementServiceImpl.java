@@ -1,9 +1,7 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Admin.LoginAdminRequest;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.LoginTutorRequest;
 import com.proliferate.Proliferate.Domain.Entities.*;
-import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.AdminRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
@@ -90,13 +88,13 @@ public class AdminManagementServiceImpl implements AdminManagementService {
             var admin = adminOpt.get();
             UserDetails userDetails = userService.userDetailsService().loadUserByUsername(admin.getEmail());
             var jwt = jwtService.genToken(userDetails, admin);
-            return new LoginResponse(null, null, jwt);
+            return new LoginResponse(null, null, jwt, null);
         }
 
         // If no admin is found, throw an exception
         throw new IllegalArgumentException("Invalid email or password");
     }
-	
+
    @Transactional
     public void deleteStudent(String userName) {
         Optional<StudentEntity> student = studentRepository.findByUserName(userName);

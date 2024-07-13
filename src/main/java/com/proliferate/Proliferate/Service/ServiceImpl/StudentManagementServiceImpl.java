@@ -143,7 +143,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     }
 
 
-    public List<ClassSchedule> getTutorSchedule(Long tutorId) {
+    public List<ClassSchedule> getTutorSchedule() {
+        Long tutorId = jwtService.getUserId();
         return classScheduleRepository.findByTutorTutorId(tutorId);
     }
 

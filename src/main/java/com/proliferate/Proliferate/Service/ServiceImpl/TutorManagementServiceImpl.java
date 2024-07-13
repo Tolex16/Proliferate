@@ -64,12 +64,13 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         return studentRepository.findById(studentId);
     }
 
-	public List<AssignmentDto> getStudentAssignments(Long studentId) {
+	public List<AssignmentDto> getStudentAssignments() {
+        Long studentId = jwtService.getUserId();
         StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new  UserNotFoundException("Student not found"));
         return assignmentRepository.findByAssignedStudent(student).stream()
                 .map(assignment -> {
                     AssignmentDto dto = assignmentMapper.mapTo(assignment);
-                    //dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName());
+                    dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName());
                     dto.setDueDate(assignment.getDueDate());
                     dto.setTitle(assignment.getTitle());
                     dto.setSubjectName(assignment.getSubject().getTitle());
@@ -100,7 +101,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         classSchedule.setLocation(schedule.getLocation());
         return classScheduleRepository.save(classSchedule);
     }
-    public List<ClassSchedule> getStudentSchedule(Long studentId) {
+    public List<ClassSchedule> getStudentSchedule() {
+        Long studentId = jwtService.getUserId();
         return classScheduleRepository.findByStudentStudentId(studentId);
     }
     public Subject createSubject(SubjectDto subjectDto) {
@@ -142,7 +144,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         }
     }
 
-	public List<Score> getStudentScores(Long studentId) {
+	public List<Score> getStudentScores() {
+        Long studentId = jwtService.getUserId();
         return scoreRepository.findByStudentStudentId(studentId);
     }
 }

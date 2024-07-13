@@ -7,6 +7,7 @@ import com.proliferate.Proliferate.Response.EarningsHistoryResponse;
 import com.proliferate.Proliferate.Response.PaymentHistoryResponse;
 import com.proliferate.Proliferate.Response.StripeResponse;
 import com.proliferate.Proliferate.Service.EmailService;
+import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.PaymentService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -45,7 +46,10 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final TutorRepository tutorRepository;
 	private final PaymentRepository paymentRepository;
-
+	
+    @Autowired
+    private final JwtService jwtService;
+	
     @Autowired
     private EmailService emailService;
 	
@@ -137,13 +141,13 @@ public class PaymentServiceImpl implements PaymentService {
 	   
     private void saveEnrollmentAndPayment(PaymentIntent paymentIntent, PaymentRequest paymentRequest) {
         try {
-		logger.info("Fetching subject with ID: {}", paymentRequest.getSubjectId());
+		Long studentId = jwtService.getUserId();
         Subject subject = subjectRepository.findById(paymentRequest.getSubjectId())
             .orElseThrow(() -> new NoSuchElementException("Subject not found with ID: " + paymentRequest.getSubjectId()));
         
-        logger.info("Fetching student with ID: {}", paymentRequest.getStudentId());
-        StudentEntity student = studentRepository.findById(paymentRequest.getStudentId())
-            .orElseThrow(() -> new NoSuchElementException("Student not found with ID: " + paymentRequest.getStudentId()));
+        logger.info("Fetching student with ID: {}", studentId);
+        StudentEntity student = studentRepository.findById(studentId)
+            .orElseThrow(() -> new NoSuchElementException("Student not found with ID: " + studentId));
 		
         // Logging for Payment Intent
         logger.info("Payment Intent created with ID: {}", paymentIntent.getId());
@@ -222,23 +226,27 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RuntimeException("Failed payment handling failed: Enrollment or Payment not found");
         }
     }
-	public List<PaymentHistoryResponse> getPaymentsByStudentId(Long studentId) {
+	public List<PaymentHistoryResponse> getPaymentsByStudentId() {
+        Long studentId = jwtService.getUserId();
         StudentEntity student = studentRepository.findById(studentId).orElseThrow();
         List<Payment> payments = paymentRepository.findByStudent(student);
         return payments.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    public List<PaymentHistoryResponse> getPaymentsByStudentIdAndDateRange(Long studentId, LocalDate startDate, LocalDate endDate) {
+    public List<PaymentHistoryResponse> getPaymentsByStudentIdAndDateRange(LocalDate startDate, LocalDate endDate) {
+        Long studentId = jwtService.getUserId();
         List<Payment> payments = paymentRepository.findByStudent_StudentIdAndDateBetween(studentId, startDate, endDate);
         return payments.stream().map(this::convertToDto).collect(Collectors.toList());
     }
-    public List<EarningsHistoryResponse> getPaymentsByTutorId(Long tutorId) {
+    public List<EarningsHistoryResponse> getPaymentsByTutorId() {
+        Long tutorId = jwtService.getUserId();
         TutorEntity tutor = tutorRepository.findById(tutorId).orElseThrow();
         List<Payment> payments = paymentRepository.findByTutor(tutor);
         return payments.stream().map(this::earningsHistoryResponse).collect(Collectors.toList());
     }
 
-    public List<EarningsHistoryResponse> getPaymentsByTutorIdAndDateRange(Long tutorId, LocalDate startDate, LocalDate endDate) {
+    public List<EarningsHistoryResponse> getPaymentsByTutorIdAndDateRange(LocalDate startDate, LocalDate endDate) {
+        Long tutorId = jwtService.getUserId();
         List<Payment> payments = paymentRepository.findByTutor_TutorIdAndDateBetween(tutorId, startDate, endDate);
         return payments.stream().map(this::earningsHistoryResponse).collect(Collectors.toList());
     }

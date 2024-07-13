@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.Payment.PaymentRequest;
+import com.proliferate.Proliferate.Response.EarningsHistoryResponse;
 import com.proliferate.Proliferate.Response.PaymentHistoryResponse;
 import com.proliferate.Proliferate.Response.StripeResponse;
 import com.proliferate.Proliferate.Service.PaymentService;
@@ -35,7 +36,7 @@ public class PaymentController {
         }
     }
 
-@PostMapping("/fulfill/{paymentIntentId}")
+    @PostMapping("/fulfill/{paymentIntentId}")
     public ResponseEntity<Void> fulfillOrder(@PathVariable String paymentIntentId) {
         try {
             paymentService.fulfillOrder(paymentIntentId);
@@ -45,18 +46,31 @@ public class PaymentController {
         }
     }
 	
-	    @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<PaymentHistoryResponse>> getPaymentsByStudentId(@PathVariable Long studentId) {
-        List<PaymentHistoryResponse> payments = paymentService.getPaymentsByStudentId(studentId);
+    @GetMapping("/student")
+    public ResponseEntity<List<PaymentHistoryResponse>> getPaymentsByStudentId() {
+        List<PaymentHistoryResponse> payments = paymentService.getPaymentsByStudentId();
         return ResponseEntity.ok(payments);
     }
 
-    @GetMapping("/student/{studentId}/date-range")
+    @GetMapping("/student/date-range")
     public ResponseEntity<List<PaymentHistoryResponse>> getPaymentsByStudentIdAndDateRange(
-            @PathVariable Long studentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        List<PaymentHistoryResponse> payments = paymentService.getPaymentsByStudentIdAndDateRange(studentId, startDate, endDate);
+        List<PaymentHistoryResponse> payments = paymentService.getPaymentsByStudentIdAndDateRange( startDate, endDate);
+        return ResponseEntity.ok(payments);
+    }
+
+    @GetMapping("/tutor")
+    public ResponseEntity<List<EarningsHistoryResponse>> getPaymentsByTutorId() {
+        List<EarningsHistoryResponse> payments = paymentService.getPaymentsByTutorId();
+        return ResponseEntity.ok(payments);
+    }
+
+    @GetMapping("/tutor/date-range")
+    public ResponseEntity<List<EarningsHistoryResponse>> getPaymentsByTutorIdAndDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<EarningsHistoryResponse> payments = paymentService.getPaymentsByTutorIdAndDateRange(startDate, endDate);
         return ResponseEntity.ok(payments);
     }
 }

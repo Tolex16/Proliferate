@@ -36,6 +36,9 @@ public class Assignment {
 	@Column(name = "grade_level")
     private String gradeLevel;
 
+    @Column(name = "description")
+    private String description;
+
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "assignment_file")

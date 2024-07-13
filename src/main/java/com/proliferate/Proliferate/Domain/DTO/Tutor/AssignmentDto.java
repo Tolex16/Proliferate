@@ -24,6 +24,8 @@ public class AssignmentDto {
     private String subjectName;
 	
     private String gradeLevel;
+
+    private String description;
 	
     private MultipartFile assignmentFile;
 

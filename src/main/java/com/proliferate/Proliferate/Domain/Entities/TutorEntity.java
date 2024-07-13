@@ -95,7 +95,7 @@ public class TutorEntity implements UserDetails {
     private String attendanceType;
 
 	@Column(name = "preferred_subjects")
-	@ElementCollection
+    @ElementCollection
 	private List<String> preferredSubjects;
 
     @Column(name = "weekly_availability")
@@ -146,6 +146,7 @@ public class TutorEntity implements UserDetails {
     @JsonIgnore
     @Column(name = "token_expiration_time")
     private LocalDateTime tokenExpirationTime;
+	
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;

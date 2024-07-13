@@ -24,7 +24,12 @@ public class TutorTableMapperImpl implements Mapper<TutorEntity, TutorTable> {
         TutorTable tutorTable = new TutorTable();
         tutorTable.setTutorId(tutor.getTutorId());
         tutorTable.setFullName(tutor.getFirstName() + " " + tutor.getLastName());
-        tutorTable.setTutorImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));
+		if (tutor.getTutorImage() != null) {
+            tutorTable.setProfileImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));;
+        } else {
+            tutorTable.setProfileImage(null); // or set a default image, if applicable
+        }
+
         return tutorTable;
     }
 

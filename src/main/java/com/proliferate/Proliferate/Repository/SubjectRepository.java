@@ -15,4 +15,9 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     Optional<Subject> findByTitle(String title);
 
     Optional<Subject> findByTutorTutorId(long tutorId);
+	
+	long countByTutorTutorId(Long tutorId);
+	
+	Optional<Subject> findFirstByTutorTutorId(Long tutorId); // Ensure only one result
+
 }

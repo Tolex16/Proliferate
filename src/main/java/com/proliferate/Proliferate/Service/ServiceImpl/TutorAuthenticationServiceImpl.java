@@ -297,10 +297,15 @@ public ResponseEntity<?> completeRegistration() {
                 UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
                 var jwt = jwtService.genToken(userDetails, tutor);
                 TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
-                return new LoginResponse(null, loggedInTutor, jwt);
+				boolean hasImageAndBioPresent = hasImageAndBio(tutor); // Check if tutor has image and bio
+                return new LoginResponse(null, loggedInTutor, jwt, hasImageAndBioPresent);
         } else throw new AccountNotVerifiedException("Account not verified for this tutor, please check your email to verify");
     }
-
+	
+    public boolean hasImageAndBio(TutorEntity tutor) {
+        return tutor.getTutorImage() != null && tutor.getBio() != null && !tutor.getBio().isEmpty();
+    }
+	
     public String generateToken(){
         List rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
                 new CharacterRule(EnglishCharacterData.LowerCase, 1),
