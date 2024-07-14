@@ -142,7 +142,6 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return attendanceRepository.save(attendanceEntity);
     }
 
-
     public List<ClassSchedule> getTutorSchedule() {
         Long tutorId = jwtService.getUserId();
         return classScheduleRepository.findByTutorTutorId(tutorId);

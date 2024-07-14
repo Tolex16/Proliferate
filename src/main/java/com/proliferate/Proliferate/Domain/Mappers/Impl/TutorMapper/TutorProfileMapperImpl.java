@@ -27,7 +27,7 @@ public class TutorProfileMapperImpl implements Mapper<TutorEntity, TutorProfile>
     public TutorProfile mapTo(TutorEntity tutorEntity) {
         TutorProfile tutorProfile = new TutorProfile();
         tutorProfile.setFullName(tutorEntity.getFirstName() + " " + tutorEntity.getLastName());
-        tutorProfile.setSubjectExpertise(tutorEntity.getPreferredSubjects().toString());
+        tutorProfile.setSubjectExpertise(tutorEntity.getPreferredSubjects());
         tutorProfile.setQualification(tutorEntity.getHighestEducationLevelAttained());
         tutorProfile.setTeachingStyle(tutorEntity.getTeachingStyle());
 

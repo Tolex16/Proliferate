@@ -151,24 +151,20 @@ public class PaymentServiceImpl implements PaymentService {
 		
         // Logging for Payment Intent
         logger.info("Payment Intent created with ID: {}", paymentIntent.getId());
-		
-        // Save Enrollment
-        Enrollment enrollment = new Enrollment();
-        enrollment.setStudent(student);
-        enrollment.setSubject(subject);
-        enrollment.setStatus(Status.PENDING);
-        enrollment.setPaymentIntent(paymentIntent.getId());
-        enrollmentRepository.save(enrollment);
-        logger.info("Enrollment saved with ID: {}", enrollment.getEnrollmentId());
-		
+
+        TutorEntity tutor = subject.getTutor();
+
         // Save Payment
         Payment payment = new Payment();
         payment.setStudent(student);
+        payment.setSubject(subject);
         payment.setAmount(paymentRequest.getAmount());
         payment.setCurrency(paymentRequest.getCurrency());
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
-        payment.setStatus(Status.PENDING);
         payment.setTransactionId(paymentIntent.getId());
+        payment.setTutor(tutor);
+        payment.setStatus(Status.COMPLETED);
+        payment.setDate(LocalDate.now());
 		payment.setDescription(paymentRequest.getDescription());
         paymentRepository.save(payment);
 
@@ -178,54 +174,51 @@ public class PaymentServiceImpl implements PaymentService {
     }
 }
 	
-	    @Transactional
-    public void fulfillOrder(String paymentIntentId) {
-        try {
-        Enrollment enrollment = enrollmentRepository.findByPaymentIntent(paymentIntentId);
-        Payment payment = paymentRepository.findByTransactionId(paymentIntentId);
-            // Send email notifications
-            Subject subject = enrollment.getSubject();
-            StudentEntity student = enrollment.getStudent();
-            TutorEntity tutor = subject.getTutor();
-
-            if (enrollment != null && payment != null) {
-            enrollment.setStatus(Status.ENROLLED);
-            enrollmentRepository.save(enrollment);
-
-            payment.setTutor(tutor);
-            payment.setStatus(Status.COMPLETED);
-            payment.setDate(LocalDate.now());
-            paymentRepository.save(payment);
+//	    @Transactional
+//    public void fulfillOrder(String paymentIntentId) {
+//        try {
+//        Enrollment enrollment = enrollmentRepository.findByPaymentIntent(paymentIntentId);
+//        Payment payment = paymentRepository.findByTransactionId(paymentIntentId);
+//            // Send email notifications
+//            Subject subject = enrollment.getSubject();
+//            StudentEntity student = enrollment.getStudent();
+//            TutorEntity tutor = subject.getTutor();
+//
+//            if (enrollment != null && payment != null) {
+//            enrollment.setStatus(Status.ENROLLED);
+//            enrollmentRepository.save(enrollment);
+//
+//            payment.setTutor(tutor);
+//            payment.setStatus(Status.COMPLETED);
+//            payment.setDate(LocalDate.now());
+//            paymentRepository.save(payment);
 
 
 //            if (student != null && tutor != null) {
 //                emailService.sendEnrollmentConfirmation(student.getEmail(), subject.getTitle());
 //                emailService.notifyTutor(tutor.getEmail(), student.getEmail(), subject.getTitle());
 //            }
-        } else {
-            throw new RuntimeException("Order fulfillment failed: Enrollment or Payment not found");
-        }
-		
-        } catch (Exception e) {
-            logger.error("Error fulfilling order", e);
-            throw new RuntimeException("Order fulfillment failed");
-        }
-    }
+//        } else {
+//            throw new RuntimeException("Order fulfillment failed: Enrollment or Payment not found");
+//        }
+//
+//        } catch (Exception e) {
+//            logger.error("Error fulfilling order", e);
+//            throw new RuntimeException("Order fulfillment failed");
+//        }
+//    }
 	
    public void handleFailedPayment(String paymentIntentId) {
-        Enrollment enrollment = enrollmentRepository.findByPaymentIntent(paymentIntentId);
         Payment payment = paymentRepository.findByTransactionId(paymentIntentId);
 
-        if (enrollment != null && payment != null) {
-            enrollment.setStatus(Status.PENDING);
-            enrollmentRepository.save(enrollment);
-
+        if (payment != null) {
             payment.setStatus(Status.FAILED);
             paymentRepository.save(payment);
         } else {
             throw new RuntimeException("Failed payment handling failed: Enrollment or Payment not found");
         }
     }
+
 	public List<PaymentHistoryResponse> getPaymentsByStudentId() {
         Long studentId = jwtService.getUserId();
         StudentEntity student = studentRepository.findById(studentId).orElseThrow();

@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface PaymentService {
     StripeResponse createPaymentIntent(PaymentRequest paymentRequest) throws StripeException;
-    void fulfillOrder(String paymentIntentId);
+
 	void handleFailedPayment(String paymentIntentId);
     List<PaymentHistoryResponse> getPaymentsByStudentId();
     List<PaymentHistoryResponse> getPaymentsByStudentIdAndDateRange(LocalDate startDate, LocalDate endDate);

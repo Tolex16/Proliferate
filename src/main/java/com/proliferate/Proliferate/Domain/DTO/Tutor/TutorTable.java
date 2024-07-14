@@ -14,4 +14,8 @@ public class TutorTable {
 
     private String profileImage;
 
+    private String availability;
+
+    private String bio;
+
 }

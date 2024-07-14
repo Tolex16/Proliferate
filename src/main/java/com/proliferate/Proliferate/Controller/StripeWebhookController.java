@@ -35,13 +35,13 @@ public class StripeWebhookController {
         // Handle the event
         switch (event.getType()) {
             case "payment_intent.succeeded":
-                handlePaymentIntentSucceeded(event);
-                break;
+//                handlePaymentIntentSucceeded(event);
+//                break;
             case "payment_intent.payment_failed":
                 handlePaymentIntentFailed(event);
-                break;
-				case "payment_method.attached":
-                handlePaymentMethodAttached(event);
+//                break;
+//				case "payment_method.attached":
+//                handlePaymentMethodAttached(event);
                 break;
             default:
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unhandled event type" + event.getType());
@@ -50,11 +50,11 @@ public class StripeWebhookController {
         return ResponseEntity.ok("Event processed");
     }
 
-    private void handlePaymentIntentSucceeded(Event event) {
-        // Extract the payment intent ID and fulfill the order
-        String paymentIntentId = event.getDataObjectDeserializer().getObject().get().toJson();
-        paymentService.fulfillOrder(paymentIntentId);
-    }
+//    private void handlePaymentIntentSucceeded(Event event) {
+//        // Extract the payment intent ID and fulfill the order
+//        String paymentIntentId = event.getDataObjectDeserializer().getObject().get().toJson();
+//        paymentService.pa(paymentIntentId);
+//    }
 
     private void handlePaymentIntentFailed(Event event) {
         // Handle payment failure
@@ -62,11 +62,11 @@ public class StripeWebhookController {
         paymentService.handleFailedPayment(paymentIntentId);
     }
 	
-	private void handlePaymentMethodAttached(Event event) {
-        PaymentMethod paymentMethod = (PaymentMethod) event.getData().getPreviousAttributes();
-        // Handle the event
-		String paymentIntentId = paymentMethod.getId();
-        paymentService.fulfillOrder(paymentIntentId);
-    }
+//	private void handlePaymentMethodAttached(Event event) {
+//        PaymentMethod paymentMethod = (PaymentMethod) event.getData().getPreviousAttributes();
+//        // Handle the event
+//		String paymentIntentId = paymentMethod.getId();
+//        paymentService.fulfillOrder(paymentIntentId);
+//    }
 }
 

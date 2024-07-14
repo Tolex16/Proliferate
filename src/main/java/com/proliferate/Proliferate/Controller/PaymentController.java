@@ -36,15 +36,15 @@ public class PaymentController {
         }
     }
 
-    @PostMapping("/fulfill/{paymentIntentId}")
-    public ResponseEntity<Void> fulfillOrder(@PathVariable String paymentIntentId) {
-        try {
-            paymentService.fulfillOrder(paymentIntentId);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).build();
-        }
-    }
+//    @PostMapping("/fulfill/{paymentIntentId}")
+//    public ResponseEntity<Void> fulfillOrder(@PathVariable String paymentIntentId) {
+//        try {
+//            paymentService.fulfillOrder(paymentIntentId);
+//            return ResponseEntity.ok().build();
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.status(500).build();
+//        }
+//    }
 	
     @GetMapping("/student")
     public ResponseEntity<List<PaymentHistoryResponse>> getPaymentsByStudentId() {
