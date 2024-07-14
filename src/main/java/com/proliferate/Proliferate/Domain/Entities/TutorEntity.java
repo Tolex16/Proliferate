@@ -95,7 +95,6 @@ public class TutorEntity implements UserDetails {
     private String attendanceType;
 
 	@Column(name = "preferred_subjects")
-    @ElementCollection
 	private List<String> preferredSubjects;
 
     @Column(name = "weekly_availability")
