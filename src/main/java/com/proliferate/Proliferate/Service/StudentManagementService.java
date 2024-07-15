@@ -29,4 +29,6 @@ public interface StudentManagementService {
 
 	Score addScore(ScoreDto scoreDto);
 
+	void clearAssignmentsAfterDueDate();
+
 }

@@ -9,8 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Submission {
-
-    private String assignedStudentName;
+	
+	private Long assignmentId;
 
     private MultipartFile solutionFile;
 }

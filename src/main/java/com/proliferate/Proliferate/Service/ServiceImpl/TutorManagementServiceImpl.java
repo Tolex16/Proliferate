@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
+import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
@@ -13,8 +14,11 @@ import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.TutorManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +66,26 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     public Optional<StudentEntity> getStudentDisplay() {
         Long studentId = jwtService.getUserId();
         return studentRepository.findById(studentId);
+
+    }
+	
+	public ResponseEntity<?> uploadSolution(Submission submission) {
+        try {
+            Optional<Assignment> optionalAssignment = assignmentRepository.findById(submission.getAssignmentId());
+            if (optionalAssignment.isPresent()) {
+                Assignment assignment = optionalAssignment.get();
+                if (!submission.getSolutionFile().isEmpty() && submission.getSolutionFile() != null) {
+                    assignment.setAssignmentSolution(submission.getSolutionFile().getBytes());
+                }
+
+                assignmentRepository.save(assignment);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Assignment not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (IOException e) {
+            return new ResponseEntity<>("Error uploading solution", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 	public List<AssignmentDto> getStudentAssignments() {

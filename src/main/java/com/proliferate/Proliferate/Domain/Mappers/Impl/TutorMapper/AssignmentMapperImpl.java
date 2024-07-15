@@ -26,7 +26,7 @@ public class AssignmentMapperImpl implements Mapper<Assignment, AssignmentDto> {
     @Override
     public AssignmentDto mapTo(Assignment assignment) {
         AssignmentDto dto = new AssignmentDto();
-        dto.setId(assignment.getAssignmentId());
+        dto.setAssignmentId(assignment.getAssignmentId());
         dto.setDueDate(assignment.getDueDate());
         dto.setTitle(assignment.getTitle());
         dto.setSubjectName(assignment.getSubject().getTitle());
@@ -47,11 +47,12 @@ public class AssignmentMapperImpl implements Mapper<Assignment, AssignmentDto> {
     @Override
     public Assignment mapFrom(AssignmentDto assignmentDto) {
         Assignment assignment = new Assignment();
-        assignment.setAssignmentId(assignmentDto.getId());
+        assignment.setAssignmentId(assignmentDto.getAssignmentId());
         assignment.setDueDate(assignmentDto.getDueDate());
         assignment.setTitle(assignmentDto.getTitle());
         assignment.setGradeLevel(assignmentDto.getGradeLevel());
         assignment.setDescription(assignmentDto.getDescription());
+        
         // Fetch and set the student entity
         if (assignmentDto.getAssignedStudentName() != null) {
             StudentEntity student = studentRepository.findByFirstName(assignmentDto.getAssignedStudentName())

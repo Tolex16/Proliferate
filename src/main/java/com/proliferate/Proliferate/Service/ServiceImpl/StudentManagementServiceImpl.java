@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,6 +79,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
                         //String fileType = determineFileType(base64File);
                         dto.setAssignmentFileBase64(base64File);
                     }
+                    if (assignment.getAssignmentSolution() != null) {
+                        String base64File = Base64.getEncoder().encodeToString(assignment.getAssignmentSolution());
+                        //String fileType = determineFileType(base64File);
+                        dto.setAssignmentSolutionBase64(base64File);
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -115,10 +122,35 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
     return file.getSize() <= MAX_FILE_SIZE;
     }
+	
+	@Scheduled(cron = "0 0 * * * *") // This cron expression runs every hour
+    public void clearAssignmentsAfterDueDate() {
+        List<Assignment> assignments = assignmentRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    @Scheduled(cron = "0 0 0 */3 * *") // This cron expression runs at midnight every 3 days
-    public void deleteAllAssignments() {
-        assignmentRepository.deleteAll();
+        for (Assignment assignment : assignments) {
+            LocalDateTime dueDate = LocalDateTime.parse(assignment.getDueDate(), formatter);
+            if (now.isAfter(dueDate.plusHours(2))) {
+                assignmentRepository.delete(assignment);
+            }
+        }
+    }
+	
+	    public ResponseEntity<String> getSolutionFile(Long assignmentId) {
+        Optional<Assignment> optionalAssignment = assignmentRepository.findById(assignmentId);
+        if (optionalAssignment.isPresent()) {
+            Assignment assignment = optionalAssignment.get();
+            byte[] solutionBytes = assignment.getAssignmentSolution();
+            if (solutionBytes != null) {
+                String base64Solution = Base64.getEncoder().encodeToString(solutionBytes);
+                return new ResponseEntity<>(base64Solution, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Solution not found", HttpStatus.NOT_FOUND);
+            }
+        } else {
+            return new ResponseEntity<>("Assignment not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     public Optional<TutorEntity> getTutorDisplay() {

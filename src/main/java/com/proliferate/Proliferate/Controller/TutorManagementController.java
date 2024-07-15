@@ -5,15 +5,19 @@ import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentDisplay;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
+import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
+import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.Service.TutorManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -72,8 +76,19 @@ public class TutorManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+    @PostMapping(path = "/add-solution", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addSolution(@ModelAttribute Submission submission, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+        try {
+            feedbackService.uploadSolution(submission);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        } catch (AssignmentNotCreatedException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(ex.getMessage());
+        }
+    }
 
-	@GetMapping("/scores")
+    @GetMapping("/scores")
     public ResponseEntity<List<Score>> getStudentScores() {
         List<Score> scores = feedbackService.getStudentScores();
         return ResponseEntity.ok(scores);
@@ -103,7 +118,7 @@ public class TutorManagementController {
         return new ResponseEntity<>(feedbackService.getSubjectById(subjectId),HttpStatus.OK);
     }
 
-    @DeleteMapping("/subject/delete/{id}")
+    @DeleteMapping("/subject/delete/{subjectId}")
     public ResponseEntity<?> deleteSubject(@PathVariable Long subjectId) {
         try {
             feedbackService.deleteSubject(subjectId);

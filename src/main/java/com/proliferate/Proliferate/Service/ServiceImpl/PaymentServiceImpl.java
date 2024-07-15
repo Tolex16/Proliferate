@@ -174,39 +174,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 }
 	
-//	    @Transactional
-//    public void fulfillOrder(String paymentIntentId) {
-//        try {
-//        Enrollment enrollment = enrollmentRepository.findByPaymentIntent(paymentIntentId);
-//        Payment payment = paymentRepository.findByTransactionId(paymentIntentId);
-//            // Send email notifications
-//            Subject subject = enrollment.getSubject();
-//            StudentEntity student = enrollment.getStudent();
-//            TutorEntity tutor = subject.getTutor();
-//
-//            if (enrollment != null && payment != null) {
-//            enrollment.setStatus(Status.ENROLLED);
-//            enrollmentRepository.save(enrollment);
-//
-//            payment.setTutor(tutor);
-//            payment.setStatus(Status.COMPLETED);
-//            payment.setDate(LocalDate.now());
-//            paymentRepository.save(payment);
 
-
-//            if (student != null && tutor != null) {
-//                emailService.sendEnrollmentConfirmation(student.getEmail(), subject.getTitle());
-//                emailService.notifyTutor(tutor.getEmail(), student.getEmail(), subject.getTitle());
-//            }
-//        } else {
-//            throw new RuntimeException("Order fulfillment failed: Enrollment or Payment not found");
-//        }
-//
-//        } catch (Exception e) {
-//            logger.error("Error fulfilling order", e);
-//            throw new RuntimeException("Order fulfillment failed");
-//        }
-//    }
 	
    public void handleFailedPayment(String paymentIntentId) {
         Payment payment = paymentRepository.findByTransactionId(paymentIntentId);
@@ -258,12 +226,17 @@ public class PaymentServiceImpl implements PaymentService {
     private EarningsHistoryResponse earningsHistoryResponse(Payment payment) {
         EarningsHistoryResponse dto = new EarningsHistoryResponse();
         StudentEntity student = payment.getStudent();
-
+		//Subject subject = payment.getStudent();
+		
+		Long tutorId = jwtService.getUserId();
+		int classCount = (int) subjectRepository.countByTutorTutorId(tutorId);
+		
         dto.setSNo(payment.getId());
         dto.setStudentName(student.getFirstName()  + " " + student.getLastName());
         dto.setDate(String.valueOf(LocalDate.parse(payment.getDate().toString())));
         dto.setTransactionId(payment.getTransactionId());
         dto.setAmount(payment.getAmount());
+		dto.setNoOfClasses(classCount);
         dto.setPaymentMethod(payment.getPaymentMethod());
         dto.setStatus(payment.getStatus());
 

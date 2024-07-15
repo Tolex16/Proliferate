@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class AssignmentDto {
-	private Long id;
+	private Long assignmentId;
 	
     private String assignedStudentName;
 
