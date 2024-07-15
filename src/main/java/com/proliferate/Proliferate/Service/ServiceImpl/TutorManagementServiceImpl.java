@@ -143,7 +143,9 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         return subjectRepository.findAll().stream()
                 .map(subject -> {
                     SubjectDto dto = new SubjectDto();
+                    dto.setSubjectId(subject.getSubjectId());
                     dto.setTitle(subject.getTitle());
+                    dto.setTutorId(subject.getTutor().getTutorId());
                     dto.setTutorName(subject.getTutor().getFirstName() + " " + subject.getTutor().getLastName());
 
                     return dto;

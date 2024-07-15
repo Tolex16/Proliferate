@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class SubjectDto {
+    private Long subjectId;
+
     private String title;
 
     private String tutorName;
