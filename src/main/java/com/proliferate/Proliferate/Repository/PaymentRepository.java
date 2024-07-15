@@ -19,5 +19,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
 	List<Payment> findByTutor_TutorIdAndDateBetween(Long tutorId, LocalDate startDate, LocalDate endDate);
 
+    long countByTutorTutorId(Long tutorId);
 }
 

@@ -229,7 +229,7 @@ public class PaymentServiceImpl implements PaymentService {
 		//Subject subject = payment.getStudent();
 		
 		Long tutorId = jwtService.getUserId();
-		int classCount = (int) subjectRepository.countByTutorTutorId(tutorId);
+		int classCount = (int) paymentRepository.countByTutorTutorId(tutorId);
 		
         dto.setSNo(payment.getId());
         dto.setStudentName(student.getFirstName()  + " " + student.getLastName());
