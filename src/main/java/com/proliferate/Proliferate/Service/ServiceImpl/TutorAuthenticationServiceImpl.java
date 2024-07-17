@@ -263,7 +263,7 @@ public ResponseEntity<?> completeRegistration() {
             tutorEntity.setRegistrationCompleted(true);
             entityManager.merge(tutorEntity);
 
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(tutorEntity.getVerificationToken(),HttpStatus.OK);
 
     } catch (UserNotFoundException error) {
         return new ResponseEntity<>(error.getMessage(), HttpStatus.NOT_FOUND);

@@ -202,7 +202,7 @@ public ResponseEntity<?> completeRegistration() {
             studentEntity.setRegistrationCompleted(true);
             studentRepository.save(studentEntity);
             
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(studentEntity.getVerificationToken(),HttpStatus.OK);
 
     } catch (UserNotFoundException error) {
         return new ResponseEntity<>(error.getMessage(), HttpStatus.NOT_FOUND);

@@ -169,6 +169,10 @@ public class TutorEntity implements UserDetails {
     @OneToMany(mappedBy = "tutor")
     @JsonManagedReference
     private Set<Feedback> feedbacks;
+	
+	@OneToMany(mappedBy = "tutor")
+	@JsonManagedReference
+    private List<Notifications> notifications;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -141,6 +141,10 @@ public class StudentEntity implements UserDetails {
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Payment> payments;
+	
+	@OneToMany(mappedBy = "student")
+	@JsonManagedReference
+    private List<Notifications> notifications;
 
 //    @OneToMany(mappedBy = "student")
 //    private List<Subject> subjects;

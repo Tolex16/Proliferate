@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.proliferate.Proliferate.config.StrongPassword;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -48,6 +49,11 @@ public class AdminEntity implements UserDetails {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
+	
+	@OneToMany(mappedBy = "admin")
+	@JsonManagedReference
+    private List<Notifications> notifications;
+	
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

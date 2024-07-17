@@ -38,8 +38,6 @@ public class PaymentServiceImpl implements PaymentService {
 	
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
-    private final EnrollmentRepository enrollmentRepository;
-
     private final SubjectRepository subjectRepository;
 
     private final StudentRepository studentRepository;

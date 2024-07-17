@@ -6,32 +6,40 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "enrollment")
-public class Enrollment {
+@Table(name = "notifications")
+public class Notifications {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long enrollmentId;
+    private Long notificationId;
+	
+	private String type;
+	
+	private String message;
 
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+	
     @ManyToOne
     @JoinColumn(name = "student_id")
     @JsonBackReference
     private StudentEntity student;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
+    @JoinColumn(name = "tutor_id")
     @JsonBackReference
-    private Subject subject;
+    private TutorEntity tutor;
 	
-	@Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private Status status; // e.g., "PENDING", "ENROLLED"
-	
-	@Column(name = "payment_intent")
-    private String paymentIntent;
+	@ManyToOne
+    @JoinColumn(name = "admin_id")
+    @JsonBackReference
+    private AdminEntity admin;
 
 }
