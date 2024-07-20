@@ -17,6 +17,6 @@ public class LoginResponse {
     @JsonProperty("token")
     private final String token;
 	
-	private final Boolean hasImageAndBio;
+	private final Boolean hasBio;
 
 }

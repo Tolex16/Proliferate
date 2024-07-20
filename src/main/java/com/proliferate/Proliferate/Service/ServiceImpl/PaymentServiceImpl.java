@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Payment.PaymentRequest;
 import com.proliferate.Proliferate.Domain.Entities.*;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.*;
 import com.proliferate.Proliferate.Response.EarningsHistoryResponse;
 import com.proliferate.Proliferate.Response.PaymentHistoryResponse;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -43,8 +45,11 @@ public class PaymentServiceImpl implements PaymentService {
     private final StudentRepository studentRepository;
 
     private final TutorRepository tutorRepository;
+
+    private final AdminRepository adminRepository;
 	private final PaymentRepository paymentRepository;
-	
+
+    private final NotificationRepository notificationRepository;
     @Autowired
     private final JwtService jwtService;
 	
@@ -166,7 +171,27 @@ public class PaymentServiceImpl implements PaymentService {
 		payment.setDescription(paymentRequest.getDescription());
         paymentRepository.save(payment);
 
-    } catch (NoSuchElementException e) {
+        List<AdminEntity> admins = adminRepository.findAll();
+        for (AdminEntity admin : admins) {
+            Notifications notification = new Notifications();
+            notification.setAdmin(admin);
+            notification.setType("Payment Confirmation");
+            notification.setMessage("Payment received: Your payment for the tutoring session with " + tutor.getFirstName() + " " + tutor.getLastName() + " has successfully paid for the tutoring session with " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + ".");
+            notification.setCreatedAt(LocalDateTime.now());
+
+            notificationRepository.save(notification);
+        }
+
+        Notifications notification1 = new Notifications();
+
+        notification1.setStudent(student);
+        notification1.setType("Payment Confirmation for Session");
+        notification1.setMessage("Payment received: Your payment for the tutoring session with  " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + "has been successfully processed.");
+        notification1.setCreatedAt(LocalDateTime.now());
+
+        notificationRepository.save(notification1);
+
+        } catch (NoSuchElementException e) {
         logger.error("Entity not found", e);
         throw e;
     }
@@ -180,6 +205,19 @@ public class PaymentServiceImpl implements PaymentService {
         if (payment != null) {
             payment.setStatus(Status.FAILED);
             paymentRepository.save(payment);
+
+            List<AdminEntity> admins = adminRepository.findAll();
+            for (AdminEntity admin : admins) {
+                Notifications notification = new Notifications();
+
+                notification.setAdmin(admin);
+                notification.setType("Payment Failure Notice");
+                notification.setMessage("Payment failure alert: A payment for the tutoring session with " + payment.getTutor().getFirstName() + " " + payment.getTutor().getLastName() + " on " + payment.getDate() + " by " + payment.getStudent().getFirstName() + " " + payment.getStudent().getLastName() +
+                        " has failed. Please review the payment details and contact the user to resolve the issue.");
+                notification.setCreatedAt(LocalDateTime.now());
+
+                notificationRepository.save(notification);
+            }
         } else {
             throw new RuntimeException("Failed payment handling failed: Enrollment or Payment not found");
         }

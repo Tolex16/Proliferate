@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,11 +20,10 @@ public class Assignment {
 	
     @ManyToOne
     @JoinColumn(name = "student_id")
-
     private StudentEntity assignedStudent;
 	
 	@Column(name = "due_date")
-    private String dueDate;
+    private LocalDate dueDate;
 	
 	@Column(name = "title")
     private String title;

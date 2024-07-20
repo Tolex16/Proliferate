@@ -1,9 +1,11 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Admin.LoginAdminRequest;
+import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.AdminRepository;
+import com.proliferate.Proliferate.Repository.NotificationRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
@@ -21,9 +23,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +39,8 @@ public class AdminManagementServiceImpl implements AdminManagementService {
     private final PasswordEncoder passwordEncoder;
 
     private final TutorRepository tutorRepository;
+
+    private final NotificationRepository notificationRepository;
 
     private final StudentRepository studentRepository;
     @Autowired
@@ -165,4 +173,33 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         return documents;
     }
 
+    public List<NotificationDTO> getNotificationsForAdmin() {
+        Long adminId = jwtService.getUserId();
+        List<Notifications> notifications = notificationRepository.findByAdminAdminId(adminId);
+        return notifications.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    private NotificationDTO convertToDto(Notifications notifications) {
+        NotificationDTO dto = new NotificationDTO();
+        dto.setType(notifications.getType());
+        dto.setMessage(notifications.getMessage());
+        dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
+
+        return dto;
+    }
+    private String calculateTimeAgo(LocalDateTime createdAt) {
+        Duration duration = Duration.between(createdAt, LocalDateTime.now());
+        long minutes = duration.toMinutes();
+        long hours = duration.toHours();
+        long days = duration.toDays();
+
+        if (minutes < 60) {
+            return minutes + " mins ago";
+        } else if (hours < 24) {
+            return hours + " hours ago";
+        } else {
+            return days + " days ago";
+        }
+    }
 }

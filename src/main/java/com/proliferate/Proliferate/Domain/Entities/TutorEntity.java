@@ -164,6 +164,10 @@ public class TutorEntity implements UserDetails {
 
     @OneToMany(mappedBy = "tutor")
     @JsonManagedReference
+    private List<Payment> payments;
+
+    @OneToMany(mappedBy = "tutor")
+    @JsonManagedReference
     private List<ClassSchedule> classSchedules;
 
     @OneToMany(mappedBy = "tutor")

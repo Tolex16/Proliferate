@@ -17,13 +17,11 @@ import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -83,8 +81,16 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
     @Transactional
     @Override
     public ResponseEntity<String> resetPassword(ResetPassword resetPassword) {
-        ForgotPassToken forgotPassToken = forgotPassTokenRep.findByToken(resetPassword.getToken());
-        if (forgotPassToken == null || !forgotPassToken.getToken().equals(resetPassword.getToken())) {
+		Optional<ForgotPassToken> forgotPassTokenOpt = findByToken(resetPassword.getToken());
+        
+        if (!forgotPassTokenOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Token has expired or is invalid");
+        }
+		
+		ForgotPassToken forgotPassToken = forgotPassTokenOpt.get();
+		
+        //ForgotPassToken forgotPassToken = forgotPassTokenRep.findByToken(resetPassword.getToken());
+        if (!forgotPassToken.getToken().equals(resetPassword.getToken())) {
             return ResponseEntity.badRequest().body("Token does not match");
         }
 
@@ -118,18 +124,16 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
     }
 	
 	
-	@Scheduled(cron = "0 0 * * * *") // This cron expression runs every hour
-    public void clearTokenAfterExpiration() {
-        List<ForgotPassToken> forgotPassTokens = forgotPassTokenRep.findAll();
-        LocalDateTime now = LocalDateTime.now();
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-        for (ForgotPassToken forgotPassToken : forgotPassTokens) {
-            LocalDateTime tokenExpire = forgotPassToken.getExpireTime();
-            if (now.isAfter(tokenExpire.plusHours(1))) {
-                forgotPassTokenRep.delete(forgotPassToken);
+    public Optional<ForgotPassToken> findByToken(String token) {
+        Optional<ForgotPassToken> forgotPassToken = forgotPassTokenRep.findByToken(token);
+        if (forgotPassToken.isPresent()) {
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isAfter(forgotPassToken.get().getExpireTime())) {
+                forgotPassTokenRep.delete(forgotPassToken.get()); // This line deletes the entire row
+                return Optional.empty(); // Token has expired and deleted
             }
         }
+        return forgotPassToken;
     }
 
     public LocalDateTime expireTimeRange(){

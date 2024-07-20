@@ -4,8 +4,11 @@ import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 @Repository
 public interface TutorRepository extends JpaRepository<TutorEntity, Long>{
@@ -16,4 +19,6 @@ public interface TutorRepository extends JpaRepository<TutorEntity, Long>{
     Optional<TutorEntity> findByVerificationToken(String token);
     Boolean existsByEmail(String email);
     void deleteByEmail(String email);
+    @Query("SELECT DISTINCT p.tutor FROM Payment p WHERE p.student.id = :studentId")
+    List<TutorEntity> findTutorsByStudentPayments(@Param("studentId") Long studentId);
 }

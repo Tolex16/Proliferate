@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
+import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
@@ -19,6 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +39,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 
 	private final StudentRepository studentRepository;
 	private final ScoreRepository scoreRepository;
-	
+
+    private final NotificationRepository notificationRepository;
 	private final AssignmentRepository assignmentRepository;
 
     private final SubjectRepository subjectRepository;
@@ -79,6 +84,16 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 }
 
                 assignmentRepository.save(assignment);
+
+                Notifications notification = new Notifications();
+
+                //TutorEntity tutor = tutorRepository.findById(tutorEntity.getTutorId()).orElseThrow(() -> new UserNotFoundException("Admin not found"));
+                notification.setTutor(assignment.getSubject().getTutor());
+                notification.setType("Uploaded Answers by Student");
+                notification.setMessage("Assignment Solution uploaded: " + assignment.getAssignedStudent().getFirstName() + " "+ assignment.getAssignedStudent().getLastName() + " " + "has uploaded the study's" +
+                        "solution for " + assignment.getSubject().getTutor().getFirstName() + " " + assignment.getSubject().getTutor().getLastName() + ".");
+                notification.setCreatedAt(LocalDateTime.now());
+                notificationRepository.save(notification);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("Assignment not found", HttpStatus.NOT_FOUND);
@@ -107,9 +122,14 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 .collect(Collectors.toList());
     }
 
-    public Iterable<TutorEntity> getAllTutors() {
+   // public Iterable<TutorEntity> getAllTutors() {
 
-        return tutorRepository.findAll();
+     //   return tutorRepository.findAll();
+    //}
+	
+	public Iterable<TutorEntity> getTutorsByStudentPayments() {
+		Long studentId = jwtService.getUserId();
+        return tutorRepository.findTutorsByStudentPayments(studentId);
     }
 
     public Optional<TutorEntity> getTutorProfile(Long tutorId) {
@@ -131,14 +151,27 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         return classScheduleRepository.findByStudentStudentId(studentId);
     }
     public Subject createSubject(SubjectDto subjectDto) {
+
         TutorEntity tutor = tutorRepository.findById(subjectDto.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
         Subject subject = new Subject();
         subject.setTitle(subjectDto.getTitle());
         subject.setTutor(tutor);
+
         Long studentId = jwtService.getUserId();
-        StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+        StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
         subject.setStudent(student);
+
+        Notifications notification = new Notifications();
+
+        notification.setTutor(tutor);
+        notification.setType("Student Books a Tutoring Session");
+        notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring" +
+                "session with you on" + student.getAvailability() + ". Please review and confirm.");
+        notification.setCreatedAt(LocalDateTime.now());
+        notificationRepository.save(notification);
+
         return subjectRepository.save(subject);
+
     }
     public List<SubjectDto> getAllSubjects() {
         return subjectRepository.findAll().stream()
@@ -174,5 +207,34 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 	public List<Score> getStudentScores() {
         Long studentId = jwtService.getUserId();
         return scoreRepository.findByStudentStudentId(studentId);
+    }
+    public List<NotificationDTO> getNotificationsForStudent() {
+        Long studentId = jwtService.getUserId();
+        List<Notifications> notifications = notificationRepository.findByStudentStudentId(studentId);
+        return notifications.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    private NotificationDTO convertToDto(Notifications notifications) {
+        NotificationDTO dto = new NotificationDTO();
+        dto.setType(notifications.getType());
+        dto.setMessage(notifications.getMessage());
+        dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
+
+        return dto;
+    }
+    private String calculateTimeAgo(LocalDateTime createdAt) {
+        Duration duration = Duration.between(createdAt, LocalDateTime.now());
+        long minutes = duration.toMinutes();
+        long hours = duration.toHours();
+        long days = duration.toDays();
+
+        if (minutes < 60) {
+            return minutes + " mins ago";
+        } else if (hours < 24) {
+            return hours + " hours ago";
+        } else {
+            return days + " days ago";
+        }
     }
 }

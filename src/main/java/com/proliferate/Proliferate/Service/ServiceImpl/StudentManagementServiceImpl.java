@@ -1,7 +1,7 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
+import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
@@ -21,8 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +39,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
     private final ClassScheduleRepository classScheduleRepository;
     private final StudentRepository studentRepository;
+
+    private final AdminRepository adminRepository;
     private final ScoreRepository scoreRepository;
     private final SubjectRepository subjectRepository;
 
@@ -44,7 +49,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
     private final TutorRepository tutorRepository;
 
-    private final Mapper<StudentEntity, StudentTable> studentMapper;
+    private final NotificationRepository notificationRepository;
     private final Mapper<Assignment, AssignmentDto> assignmentMapper;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -54,6 +59,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             if (!validateFileSize(assignmentDto.getAssignmentFile())) {
                 throw new AssignmentNotCreatedException("Assignment attachment exceeds the maximum allowed size of 5MB");
             }
+            Long tutorId = jwtService.getUserId();
+            TutorEntity tutor = tutorRepository.findById(tutorId).orElseThrow(() -> new UserNotFoundException("Tutor not present"));
             Subject subject = subjectRepository.findByTitle(assignmentDto.getSubjectName()).orElseThrow(() -> new SubjectNotFoundException("Subject not present"));
             StudentEntity student = studentRepository.findById(assignmentDto.getAssignedStudentId()).orElseThrow(() -> new UserNotFoundException("Student not present"));
             Assignment assignment = assignmentMapper.mapFrom(assignmentDto);
@@ -62,7 +69,32 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             }
             assignment.setSubject(subject);
             assignment.setAssignedStudent(student);
+			
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate dueDate = LocalDate.parse(assignmentDto.getDueDate(), formatter);
+            assignment.setDueDate(dueDate);
+
             assignmentRepository.save(assignment);
+
+            List<AdminEntity> admins = adminRepository.findAll();
+            for (AdminEntity admin : admins) {
+                Notifications notification = new Notifications();
+                notification.setAdmin(admin);
+                notification.setType("Uploaded Assignment by Tutor");
+                notification.setMessage("Assignment uploaded: " + tutor.getFirstName() + " " + tutor.getLastName() + " has uploaded an Assignment for " + student.getFirstName() + " " + student.getLastName() + ".");
+                notification.setCreatedAt(LocalDateTime.now());
+                notificationRepository.save(notification);
+            }
+
+            Notifications notification1 = new Notifications();
+
+            notification1.setStudent(student);
+            notification1.setType("Uploaded Study Materials by Tutor");
+            notification1.setMessage("Assignment available: " + tutor.getFirstName() + " " + tutor.getLastName() + " has uploaded Assignments. Please review them.");
+            notification1.setCreatedAt(LocalDateTime.now());
+
+            notificationRepository.save(notification1);
+
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (AssignmentNotCreatedException | IOException error) {
             throw new AssignmentNotCreatedException("Assignment could not be created");
@@ -123,20 +155,56 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     return file.getSize() <= MAX_FILE_SIZE;
     }
 	
-	@Scheduled(cron = "0 0 * * * *") // This cron expression runs every hour
+    @Scheduled(cron = "0 0 * * * *") // This cron expression runs every hour
     public void clearAssignmentsAfterDueDate() {
         List<Assignment> assignments = assignmentRepository.findAll();
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         for (Assignment assignment : assignments) {
-            LocalDateTime dueDate = LocalDateTime.parse(assignment.getDueDate(), formatter);
-            if (now.isAfter(dueDate.plusHours(2))) {
-                assignmentRepository.delete(assignment);
+            try {
+                LocalDate dueDate = assignment.getDueDate();
+                LocalDateTime dueDateTime = dueDate.atStartOfDay(); // Convert LocalDate to LocalDateTime
+
+                if (now.isAfter(dueDateTime.plusHours(2))) {
+                    assignmentRepository.delete(assignment);
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing due date for assignment ID " + assignment.getAssignmentId() + ": " + e.getMessage());
             }
         }
     }
 	
+	
+    public List<NotificationDTO> getNotificationsForTutor() {
+        Long tutorId = jwtService.getUserId();
+        List<Notifications> notifications = notificationRepository.findByTutorTutorId(tutorId);
+        return notifications.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    private NotificationDTO convertToDto(Notifications notifications) {
+        NotificationDTO dto = new NotificationDTO();
+        dto.setType(notifications.getType());
+        dto.setMessage(notifications.getMessage());
+        dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
+
+        return dto;
+    }
+
+    private String calculateTimeAgo(LocalDateTime createdAt) {
+        Duration duration = Duration.between(createdAt, LocalDateTime.now());
+        long minutes = duration.toMinutes();
+        long hours = duration.toHours();
+        long days = duration.toDays();
+
+        if (minutes < 60) {
+            return minutes + " mins ago";
+        } else if (hours < 24) {
+            return hours + " hours ago";
+        } else {
+            return days + " days ago";
+        }
+    }
 	    public ResponseEntity<String> getSolutionFile(Long assignmentId) {
         Optional<Assignment> optionalAssignment = assignmentRepository.findById(assignmentId);
         if (optionalAssignment.isPresent()) {
@@ -158,13 +226,14 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return tutorRepository.findById(tutorId);
     }
 
-    public Iterable<StudentEntity> getAllStudents() {
-        return studentRepository.findAll();
+    public Iterable<StudentEntity> getStudentsByTutorPayments() {
+        Long tutorId = jwtService.getUserId();
+        return studentRepository.findStudentsByTutorPayments(tutorId);
     }
 
-    public Optional<StudentEntity> getStudentProfile(Long studentId) {
-        return studentRepository.findById(studentId);
-    }
+//    public Iterable<StudentEntity> getAllStudents() {
+//        return studentRepository.findAll();
+//    }
 
     public List<AttendanceEntity> getAllAttendanceRecords() {
         return attendanceRepository.findAll();

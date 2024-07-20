@@ -9,13 +9,29 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class StudentTable {
+
     private long studentId;
 
     private String fullName;
 
     private String subjectsNeedingTutoring;
-	
-	private String gradeYear;
 
+    private int age;
+
+    private String gradeYear;
+
+    private String attendanceType;
+
+    private String availability;
+
+    private String additionalPreferencesRequirements;
+
+    private String shortTermGoals;
+
+    private String longTermGoals;
+
+    private String profileImage;
+
+    private String bio;
    
 }

@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
+import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
@@ -64,24 +65,27 @@ public class StudentManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
+    @GetMapping("/notifications")
+    public List<NotificationDTO> getNotificationsForTutor() {
+        return authenticationService.getNotificationsForTutor();
+    }
     @GetMapping("/get-students")
     public ResponseEntity<Iterable<StudentTable>> getAllStudents() {
-        Iterable<StudentEntity> students = authenticationService.getAllStudents();
+        Iterable<StudentEntity> students = authenticationService.getStudentsByTutorPayments();
         Iterable<StudentTable> allStudent = studentMapper.mapListTo(students);
         return ResponseEntity.ok(allStudent);
     }
 
-    @GetMapping("/get-studentProfile/{studentId}")
-    public ResponseEntity<StudentProfile> getStudentProfile(@PathVariable Long studentId) {
-        Optional<StudentEntity> studentEntityOptional = authenticationService.getStudentProfile(studentId);
-        if (studentEntityOptional.isPresent()) {
-            StudentProfile studentProfile = studentProfileMapper.mapTo(studentEntityOptional.get());
-            return ResponseEntity.ok(studentProfile);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
+//    @GetMapping("/get-studentProfile/{studentId}")
+//    public ResponseEntity<StudentProfile> getStudentProfile(@PathVariable Long studentId) {
+//        Optional<StudentEntity> studentEntityOptional = authenticationService.getStudentProfile(studentId);
+//        if (studentEntityOptional.isPresent()) {
+//            StudentProfile studentProfile = studentProfileMapper.mapTo(studentEntityOptional.get());
+//            return ResponseEntity.ok(studentProfile);
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        }
+//    }
 
     @GetMapping("/get-bio")
     public ResponseEntity<TutorDisplay> getTutorDisplay() {

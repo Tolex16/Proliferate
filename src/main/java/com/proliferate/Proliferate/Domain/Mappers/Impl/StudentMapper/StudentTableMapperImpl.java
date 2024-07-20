@@ -24,7 +24,13 @@ public class StudentTableMapperImpl implements Mapper<StudentEntity, StudentTabl
         studentTable.setStudentId(studentEntity.getStudentId());
         studentTable.setFullName(studentEntity.getFirstName() + " " + studentEntity.getLastName());
         studentTable.setSubjectsNeedingTutoring(studentEntity.getSubjectsNeedingTutoring());
+        studentTable.setAge(studentEntity.getAge());
         studentTable.setGradeYear(studentEntity.getGradeYear());
+        studentTable.setAttendanceType(studentEntity.getAttendanceType());
+        studentTable.setAvailability(studentEntity.getAvailability());
+        studentTable.setAdditionalPreferencesRequirements(studentEntity.getAdditionalPreferences() + ", " + studentEntity.getRequirements());
+        studentTable.setShortTermGoals(studentEntity.getShortTermGoals());
+        studentTable.setLongTermGoals(studentEntity.getLongTermGoals());
         return studentTable;
     }
 

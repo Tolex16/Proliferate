@@ -2,6 +2,8 @@ package com.proliferate.Proliferate.Repository;
 
 import com.proliferate.Proliferate.Domain.Entities.*;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -20,5 +22,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	List<Payment> findByTutor_TutorIdAndDateBetween(Long tutorId, LocalDate startDate, LocalDate endDate);
 
     long countByTutorTutorId(Long tutorId);
+
+
 }
+
 

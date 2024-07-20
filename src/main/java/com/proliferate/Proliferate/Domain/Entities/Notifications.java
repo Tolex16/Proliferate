@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,5 +42,8 @@ public class Notifications {
     @JoinColumn(name = "admin_id")
     @JsonBackReference
     private AdminEntity admin;
+
+
+
 
 }

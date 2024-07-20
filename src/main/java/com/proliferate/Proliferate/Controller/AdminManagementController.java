@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Controller;
 
+import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Service.AdminManagementService;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,7 +47,10 @@ public class AdminManagementController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
+    @GetMapping("/notifications")
+    public List<NotificationDTO> getNotificationsForAdmin() {
+        return managementService.getNotificationsForAdmin();
+    }
     @DeleteMapping("/student/delete/{userName}")
     public ResponseEntity<?> deleteStudent(@PathVariable String userName) {
         try {

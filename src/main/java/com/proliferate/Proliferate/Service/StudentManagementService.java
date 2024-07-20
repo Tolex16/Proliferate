@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Service;
 
+import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
@@ -13,9 +14,9 @@ public interface StudentManagementService {
 
     List<AssignmentDto> getAllAssignments();
 	
-	Iterable<StudentEntity> getAllStudents();
+	//Iterable<StudentEntity> getAllStudents();
 
-	Optional<StudentEntity> getStudentProfile(Long studentId);
+	Iterable<StudentEntity> getStudentsByTutorPayments();
 
 	Optional<TutorEntity> getTutorDisplay();
 
@@ -26,6 +27,7 @@ public interface StudentManagementService {
 	List<ClassSchedule> getTutorSchedule();
 
 	void deleteAssignment(Long assignmentId);
+	List<NotificationDTO> getNotificationsForTutor();
 
 	Score addScore(ScoreDto scoreDto);
 

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Data
@@ -34,4 +36,10 @@ public class AssignmentDto {
     private MultipartFile assignmentSolution;
 
     private String assignmentSolutionBase64;
+	
+	
+	public void setDueDate(LocalDate dueDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        this.dueDate = dueDate.format(formatter);
+    }
 }

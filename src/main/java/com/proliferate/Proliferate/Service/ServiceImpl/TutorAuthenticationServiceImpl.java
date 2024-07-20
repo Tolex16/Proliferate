@@ -1,6 +1,8 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
+import com.proliferate.Proliferate.Domain.Entities.AdminEntity;
+import com.proliferate.Proliferate.Domain.Entities.Notifications;
 import com.proliferate.Proliferate.Domain.Entities.Role;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
@@ -8,6 +10,8 @@ import com.proliferate.Proliferate.ExeceptionHandler.AccountNotVerifiedException
 import com.proliferate.Proliferate.ExeceptionHandler.StudentEmailPresentException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.Repository.AdminRepository;
+import com.proliferate.Proliferate.Repository.NotificationRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
@@ -45,6 +49,11 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
     private final TutorRepository tutorRepository;
 
     private final StudentRepository studentRepository;
+
+    private final AdminRepository adminRepository;
+
+    private final NotificationRepository notificationRepository;
+
     @PersistenceContext
     private final EntityManager entityManager;
 
@@ -263,7 +272,18 @@ public ResponseEntity<?> completeRegistration() {
             tutorEntity.setRegistrationCompleted(true);
             entityManager.merge(tutorEntity);
 
-            return new ResponseEntity<>(tutorEntity.getVerificationToken(),HttpStatus.OK);
+        List<AdminEntity> admins = adminRepository.findAll();
+        for (AdminEntity admin : admins) {
+            Notifications notification = new Notifications();
+            notification.setAdmin(admin);
+            notification.setType("Tutor Applies to Join");
+            notification.setMessage("New tutor application: A tutor has applied to join the platform. " +
+                    "Please review their profile and qualifications.");
+            notification.setCreatedAt(LocalDateTime.now());
+            notificationRepository.save(notification);
+        }
+
+        return new ResponseEntity<>(tutorEntity.getVerificationToken(),HttpStatus.OK);
 
     } catch (UserNotFoundException error) {
         return new ResponseEntity<>(error.getMessage(), HttpStatus.NOT_FOUND);
@@ -297,15 +317,32 @@ public ResponseEntity<?> completeRegistration() {
                 UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
                 var jwt = jwtService.genToken(userDetails, tutor);
                 TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
-				boolean hasImageAndBioPresent = hasImageAndBio(tutor); // Check if tutor has image and bio
-                return new LoginResponse(null, loggedInTutor, jwt, hasImageAndBioPresent);
+				boolean hasBioPresent = hasBio(tutor); // Check if tutor has bio
+                boolean hasImagePresent = hasImage(tutor); // Check if tutor has image
+
+            if (!hasImagePresent) {
+                Notifications notification = new Notifications();
+
+                notification.setTutor(tutor);
+                notification.setType("Request for Profile Update");
+                notification.setMessage("Profile update required: Please update your profile with your photo," +
+                        "ID and relevant certificate to make your profile visible on our platform.");
+                notification.setCreatedAt(LocalDateTime.now());
+
+                notificationRepository.save(notification);
+            }
+                return new LoginResponse(null, loggedInTutor, jwt, hasBioPresent);
         } else throw new AccountNotVerifiedException("Account not verified for this tutor, please check your email to verify");
     }
 	
-    public boolean hasImageAndBio(TutorEntity tutor) {
-        return tutor.getTutorImage() != null && tutor.getBio() != null && !tutor.getBio().isEmpty();
+    public boolean hasBio(TutorEntity tutor) {
+        return tutor.getBio() != null && !tutor.getBio().isEmpty();
     }
-	
+
+    public boolean hasImage(TutorEntity tutor) {
+        return tutor.getTutorImage() != null;
+    }
+
     public String generateToken(){
         List rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
                 new CharacterRule(EnglishCharacterData.LowerCase, 1),

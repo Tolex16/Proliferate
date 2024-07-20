@@ -14,6 +14,8 @@ import lombok.Data;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Data
 @Component
 public class AssignmentMapperImpl implements Mapper<Assignment, AssignmentDto> {
@@ -48,7 +50,7 @@ public class AssignmentMapperImpl implements Mapper<Assignment, AssignmentDto> {
     public Assignment mapFrom(AssignmentDto assignmentDto) {
         Assignment assignment = new Assignment();
         assignment.setAssignmentId(assignmentDto.getAssignmentId());
-        assignment.setDueDate(assignmentDto.getDueDate());
+        assignment.setDueDate(LocalDate.parse(assignmentDto.getDueDate()));
         assignment.setTitle(assignmentDto.getTitle());
         assignment.setGradeLevel(assignmentDto.getGradeLevel());
         assignment.setDescription(assignmentDto.getDescription());

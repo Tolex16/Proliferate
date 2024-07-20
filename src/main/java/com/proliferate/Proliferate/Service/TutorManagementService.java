@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Service;
 
+import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
@@ -18,9 +19,13 @@ public interface TutorManagementService {
 
     double getAverageRating(Long tutorId);
 
-    Iterable<TutorEntity> getAllTutors();
+    //Iterable<TutorEntity> getAllTutors();
+
+    Iterable<TutorEntity> getTutorsByStudentPayments();
     Optional<StudentEntity> getStudentDisplay();
     Optional<TutorEntity> getTutorProfile(Long tutorId);
+
+    List<NotificationDTO> getNotificationsForStudent();
     ResponseEntity<?> uploadSolution(Submission submission);
 	List<Score> getStudentScores();
 

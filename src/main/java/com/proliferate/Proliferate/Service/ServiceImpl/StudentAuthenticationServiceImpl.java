@@ -1,11 +1,11 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
-import com.proliferate.Proliferate.Domain.Entities.Role;
-import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
-import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.*;
+import com.proliferate.Proliferate.Repository.AdminRepository;
+import com.proliferate.Proliferate.Repository.NotificationRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
@@ -43,6 +43,9 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
     private final Mapper<StudentEntity, UpdateStudent> updateStudentMapper;
 
     private final TutorRepository tutorRepository;
+
+    private final NotificationRepository notificationRepository;
+    private final AdminRepository adminRepository;
     @Autowired
     private final UserService userService;
 	
@@ -168,7 +171,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
         }
     }
 
-public ResponseEntity<?> completeRegistration() {
+   public ResponseEntity<?> completeRegistration() {
     try {
         // Fetch the user entity by ID
         Long userId = jwtService.getUserId();
@@ -201,8 +204,17 @@ public ResponseEntity<?> completeRegistration() {
             // Optionally, you can update the user entity to mark registration as completed
             studentEntity.setRegistrationCompleted(true);
             studentRepository.save(studentEntity);
-            
-            return new ResponseEntity<>(studentEntity.getVerificationToken(),HttpStatus.OK);
+
+        List<AdminEntity> admins = adminRepository.findAll();
+        for (AdminEntity admin : admins) {
+            Notifications notification = new Notifications();
+            notification.setAdmin(admin);
+            notification.setType("Student Signs Up");
+            notification.setMessage("New user registration: A student has signed up on the platform. Please review and verify the account.");
+            notification.setCreatedAt(LocalDateTime.now());
+            notificationRepository.save(notification);
+        }
+        return new ResponseEntity<>(studentEntity.getVerificationToken(),HttpStatus.OK);
 
     } catch (UserNotFoundException error) {
         return new ResponseEntity<>(error.getMessage(), HttpStatus.NOT_FOUND);
@@ -211,8 +223,8 @@ public ResponseEntity<?> completeRegistration() {
     }
 }
 
-@Override
-public ResponseEntity<?> verifyToken(String token) {
+  @Override
+  public ResponseEntity<?> verifyToken(String token) {
     try {
         // Try to find the student by token
         Optional<StudentEntity> studentOpt = studentRepository.findByVerificationToken(token);
@@ -233,6 +245,7 @@ public ResponseEntity<?> verifyToken(String token) {
             studentEntity.setEmailVerified(true);
             studentEntity.setVerificationToken(null);
             studentRepository.save(studentEntity);
+
         }
 
         // Verify tutor token if tutor is present
@@ -244,6 +257,15 @@ public ResponseEntity<?> verifyToken(String token) {
             tutorEntity.setEmailVerified(true);
             tutorEntity.setVerificationToken(null);
             tutorRepository.save(tutorEntity);
+
+            Notifications notification = new Notifications();
+
+            //TutorEntity tutor = tutorRepository.findById(tutorEntity.getTutorId()).orElseThrow(() -> new UserNotFoundException("Admin not found"));
+            notification.setTutor(tutorEntity);
+            notification.setType("Account Approval");
+            notification.setMessage("Account approved: Congratulations! Your tutor account on Proliferate has been approved. You can now start offering tutoring services.");
+            notification.setCreatedAt(LocalDateTime.now());
+            notificationRepository.save(notification);
         }
 
         return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
@@ -251,7 +273,7 @@ public ResponseEntity<?> verifyToken(String token) {
     } catch (Exception e) {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
+  }
 
 	
 	 public String getTermsAndConditions() {
@@ -275,7 +297,7 @@ public ResponseEntity<?> verifyToken(String token) {
         return termsAndConditions.toString();
     }
 
-@Transactional
+  @Transactional
   public LoginResponse login(LoginStudentRequest loginStudentRequest) {
       try {
           // Authenticate the user
@@ -296,14 +318,32 @@ public ResponseEntity<?> verifyToken(String token) {
           UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
           var jwt = jwtService.genToken(userDetails, student);
           StudentDto loggedInStudent = studentMapper.mapTo(student);
-          boolean hasImageAndBioPresent = hasImageAndBio(student); // Check if tutor has image and bio
-          return new LoginResponse(loggedInStudent, null, jwt, hasImageAndBioPresent);
+          boolean hasBioPresent = hasBio(student); // Check if tutor has bio
+         // boolean hasImagePresent = hasImage(student); // Check if tutor has image
+
+//          if (!hasImagePresent) {
+//              Notifications notification = new Notifications();
+//
+//              notification.setStudent(student);
+//              notification.setType("Request for Profile Update");
+//              notification.setMessage("Profile update required: Please update your profile with your photo, " +
+//                      "ID and relevant certificate to make your profile visible on our platform.");
+//              notification.setCreatedAt(LocalDateTime.now());
+//
+//              notificationRepository.save(notification);
+//          }
+
+          return new LoginResponse(loggedInStudent, null, jwt, hasBioPresent);
 
       } else throw new AccountNotVerifiedException("Account not verified for this student, please check your email to verify");
   }
-    public boolean hasImageAndBio(StudentEntity student) {
-        return student.getStudentImage() != null && student.getBio() != null && !student.getBio().isEmpty();
+    public boolean hasBio(StudentEntity student) {
+        return student.getBio() != null && !student.getBio().isEmpty();
     }
+
+//    public boolean hasImage(StudentEntity student) {
+//        return student.getStudentImage() != null;
+//    }
 
     public String generateToken(){
         List<CharacterRule> rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),

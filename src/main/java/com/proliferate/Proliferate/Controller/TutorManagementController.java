@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
+import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentDisplay;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
@@ -51,7 +52,7 @@ public class TutorManagementController {
 
     @GetMapping("/get-tutors")
     public ResponseEntity<Iterable<TutorTable>> getAllStudents() {
-        Iterable<TutorEntity> tutors = feedbackService.getAllTutors();
+        Iterable<TutorEntity> tutors = feedbackService.getTutorsByStudentPayments();
         Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
         return ResponseEntity.ok(allTutors);
     }
@@ -86,6 +87,11 @@ public class TutorManagementController {
         } catch (AssignmentNotCreatedException ex) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(ex.getMessage());
         }
+    }
+
+    @GetMapping("/notifications")
+    public List<NotificationDTO> getNotificationsForStudent() {
+        return feedbackService.getNotificationsForStudent();
     }
 
     @GetMapping("/scores")
