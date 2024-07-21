@@ -6,5 +6,11 @@ public enum Currency {
 	
 	USD,
 	
-	NGN
+	NAIRA,
+
+	CAD,
+
+	GDP,
+
+	YEN
 }

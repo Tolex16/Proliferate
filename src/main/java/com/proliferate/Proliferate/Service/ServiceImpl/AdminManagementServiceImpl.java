@@ -2,12 +2,11 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Admin.LoginAdminRequest;
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
+import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
+import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
-import com.proliferate.Proliferate.Repository.AdminRepository;
-import com.proliferate.Proliferate.Repository.NotificationRepository;
-import com.proliferate.Proliferate.Repository.StudentRepository;
-import com.proliferate.Proliferate.Repository.TutorRepository;
+import com.proliferate.Proliferate.Repository.*;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.AdminManagementService;
 import com.proliferate.Proliferate.Service.JwtService;
@@ -41,6 +40,7 @@ public class AdminManagementServiceImpl implements AdminManagementService {
     private final TutorRepository tutorRepository;
 
     private final NotificationRepository notificationRepository;
+    private final SubjectRepository subjectRepository;
 
     private final StudentRepository studentRepository;
     @Autowired
@@ -200,6 +200,23 @@ public class AdminManagementServiceImpl implements AdminManagementService {
             return hours + " hours ago";
         } else {
             return days + " days ago";
+        }
+    }
+
+    public Subject createSubject(SubjectDto subjectDto) {
+        Subject subject = new Subject();
+        subject.setSubjectId(subjectDto.getSubjectId() );
+        subject.setTitle(subjectDto.getTitle());
+
+        return subjectRepository.save(subject);
+    }
+
+    public void deleteSubject(Long subjectId) {
+        Optional<Subject> subject = subjectRepository.findById(subjectId);
+        if (subject.isPresent()) {
+            subjectRepository.deleteById(subjectId);
+        } else {
+            throw new SubjectNotFoundException("Subject not found with id: " + subjectId);
         }
     }
 }

@@ -21,6 +21,11 @@ public class Assignment {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private StudentEntity assignedStudent;
+
+    @ManyToOne
+    @JoinColumn(name = "tutor_id")
+    @JsonBackReference
+    private TutorEntity tutor;
 	
 	@Column(name = "due_date")
     private LocalDate dueDate;

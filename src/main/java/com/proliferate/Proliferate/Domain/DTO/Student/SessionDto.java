@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class SubjectDto {
+public class SessionDto {
+    private Long sessionId;
 
     private Long subjectId;
 
-    private String title;
+    private Long tutorId;
 
+    private Long studentId;
 }

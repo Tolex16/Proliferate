@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,19 +38,15 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
     private final ClassScheduleRepository classScheduleRepository;
     private final StudentRepository studentRepository;
-
+    private final SessionRepository sessionRepository;
     private final AdminRepository adminRepository;
     private final ScoreRepository scoreRepository;
     private final SubjectRepository subjectRepository;
-
     @Autowired
     private final JwtService jwtService;
-
     private final TutorRepository tutorRepository;
-
     private final NotificationRepository notificationRepository;
     private final Mapper<Assignment, AssignmentDto> assignmentMapper;
-
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
     public ResponseEntity<?> createAssignment(AssignmentDto assignmentDto) {
@@ -61,12 +56,13 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             }
             Long tutorId = jwtService.getUserId();
             TutorEntity tutor = tutorRepository.findById(tutorId).orElseThrow(() -> new UserNotFoundException("Tutor not present"));
-            Subject subject = subjectRepository.findByTitle(assignmentDto.getSubjectName()).orElseThrow(() -> new SubjectNotFoundException("Subject not present"));
+            Subject subject = subjectRepository.findById(assignmentDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not present"));
             StudentEntity student = studentRepository.findById(assignmentDto.getAssignedStudentId()).orElseThrow(() -> new UserNotFoundException("Student not present"));
             Assignment assignment = assignmentMapper.mapFrom(assignmentDto);
             if (!assignmentDto.getAssignmentFile().isEmpty() && assignmentDto.getAssignmentFile() != null) {
                 assignment.setAssignmentFile(assignmentDto.getAssignmentFile().getBytes());
             }
+            assignment.setTutor(tutor);
             assignment.setSubject(subject);
             assignment.setAssignedStudent(student);
 			
@@ -89,6 +85,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             Notifications notification1 = new Notifications();
 
             notification1.setStudent(student);
+            if (student.getStudentImage() != null) {
+                notification1.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
+            } else {
+                notification1.setProfileImage(null); // or set a default image, if applicable
+            }
             notification1.setType("Uploaded Study Materials by Tutor");
             notification1.setMessage("Assignment available: " + tutor.getFirstName() + " " + tutor.getLastName() + " has uploaded Assignments. Please review them.");
             notification1.setCreatedAt(LocalDateTime.now());
@@ -184,6 +185,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     }
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
+        dto.setProfileImage(notifications.getProfileImage());
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
@@ -205,21 +207,31 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             return days + " days ago";
         }
     }
-	    public ResponseEntity<String> getSolutionFile(Long assignmentId) {
-        Optional<Assignment> optionalAssignment = assignmentRepository.findById(assignmentId);
-        if (optionalAssignment.isPresent()) {
-            Assignment assignment = optionalAssignment.get();
-            byte[] solutionBytes = assignment.getAssignmentSolution();
-            if (solutionBytes != null) {
-                String base64Solution = Base64.getEncoder().encodeToString(solutionBytes);
-                return new ResponseEntity<>(base64Solution, HttpStatus.OK);
+    public void cancelSession(Long sessionId) {
+        Optional<Session> session = sessionRepository.findById(sessionId);
+        Long tutorId = jwtService.getUserId();
+        TutorEntity tutor = tutorRepository.findById(tutorId).orElseThrow(() -> new UserNotFoundException("Tutor not present"));
+        if (session.isPresent()) {
+
+            sessionRepository.deleteById(sessionId);
+
+            Notifications notification = new Notifications();
+
+            notification.setStudent(session.get().getStudent());
+            if (session.get().getStudent().getStudentImage() != null) {
+                notification.setProfileImage(Base64.getEncoder().encodeToString(session.get().getStudent().getStudentImage()));
             } else {
-                return new ResponseEntity<>("Solution not found", HttpStatus.NOT_FOUND);
+                notification.setProfileImage(null); // or set a default image, if applicable
             }
+            notification.setType("Session Request Declined by Tutor");
+            notification.setMessage( "Session declined: Unfortunately, " + tutor.getFirstName() + " " + tutor.getLastName() + " has declined your tutoring session request. Consider choosing another available tutor.");
+            notification.setCreatedAt(LocalDateTime.now());
+            notificationRepository.save(notification);
         } else {
-            return new ResponseEntity<>("Assignment not found", HttpStatus.NOT_FOUND);
+            throw new SubjectNotFoundException("Session not found with id: " + sessionId);
         }
     }
+
 
     public Optional<TutorEntity> getTutorDisplay() {
         Long tutorId = jwtService.getUserId();

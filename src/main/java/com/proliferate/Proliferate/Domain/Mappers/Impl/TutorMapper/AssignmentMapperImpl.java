@@ -56,13 +56,13 @@ public class AssignmentMapperImpl implements Mapper<Assignment, AssignmentDto> {
         assignment.setDescription(assignmentDto.getDescription());
         
         // Fetch and set the student entity
-        if (assignmentDto.getAssignedStudentName() != null) {
-            StudentEntity student = studentRepository.findByFirstName(assignmentDto.getAssignedStudentName())
+        if (assignmentDto.getAssignedStudentId() != null) {
+            StudentEntity student = studentRepository.findById(assignmentDto.getAssignedStudentId())
                     .orElseThrow(() -> new UserNotFoundException("Student not found"));
             assignment.setAssignedStudent(student);
         }
-        if (assignmentDto.getSubjectName() != null) {
-            Subject subject = subjectRepository.findByTitle(assignmentDto.getSubjectName())
+        if (assignmentDto.getSubjectId() != null) {
+            Subject subject = subjectRepository.findById(assignmentDto.getSubjectId())
                     .orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
             assignment.setSubject(subject);
         }

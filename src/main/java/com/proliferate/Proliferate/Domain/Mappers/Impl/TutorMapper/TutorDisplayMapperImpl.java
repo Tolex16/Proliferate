@@ -2,11 +2,11 @@ package com.proliferate.Proliferate.Domain.Mappers.Impl.TutorMapper;
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDisplay;
 import com.proliferate.Proliferate.Domain.Entities.Feedback;
-import com.proliferate.Proliferate.Domain.Entities.Subject;
+import com.proliferate.Proliferate.Domain.Entities.Session;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.Repository.FeedbackRepository;
-import com.proliferate.Proliferate.Repository.SubjectRepository;
+import com.proliferate.Proliferate.Repository.SessionRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,7 +26,7 @@ public class TutorDisplayMapperImpl implements Mapper<TutorEntity, TutorDisplay>
     private final FeedbackRepository feedbackRepository;
 
     private final TutorRepository tutorRepository;
-    private final SubjectRepository subjectRepository;
+    private final SessionRepository sessionRepository;
     @Override
     public TutorDisplay mapTo(TutorEntity tutor) {
         TutorDisplay tutorDisplay = new TutorDisplay();
@@ -43,19 +43,15 @@ public class TutorDisplayMapperImpl implements Mapper<TutorEntity, TutorDisplay>
         tutorDisplay.setRatings(averageRating);
 		tutorDisplay.setReviews(feedbacks.size()); // Set the number of feedbacks
 
-        //Optional<Subject> subjectOpt = subjectRepository.findByTutorTutorId(tutor.getTutorId());
-        //tutorDisplay.setSubject(subjectOpt.map(Subject::getTitle).orElse("No Subject"));
-        //Optional<Subject> subjectOpt = subjectRepository.findByTutorTutorId(tutor.getTutorId());
-       // subjectOpt.ifPresent(subject -> {
-        //    tutorDisplay.setSubject(subject.getTitle());
+
             // Calculate the number of students associated with the subject
-           int studentCount = (int) subjectRepository.countByTutorTutorId(tutor.getTutorId());
+           int studentCount = (int) sessionRepository.countByTutorTutorId(tutor.getTutorId());
            // tutorDisplay.setStudents(studentCount);
         //});
 		
-		Optional<Subject> subjectOpt = subjectRepository.findFirstByTutorTutorId(tutor.getTutorId());
-        subjectOpt.ifPresent(subject -> {
-            tutorDisplay.setSubject(subject.getTitle());
+		Optional<Session> sessionOpt = sessionRepository.findByTutorTutorId(tutor.getTutorId());
+        sessionOpt.ifPresent(session -> {
+            tutorDisplay.setSubject(session.getSubject().getTitle());
 
             // Assuming each subject is associated with one student
             // If Subject represents many students, adjust accordingly

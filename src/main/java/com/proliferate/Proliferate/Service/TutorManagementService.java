@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
+import com.proliferate.Proliferate.Domain.DTO.Student.SessionDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
@@ -20,7 +21,8 @@ public interface TutorManagementService {
     double getAverageRating(Long tutorId);
 
     //Iterable<TutorEntity> getAllTutors();
-
+    Session createSession(SessionDto sessionDto);
+    void cancelSession(Long sessionId);
     Iterable<TutorEntity> getTutorsByStudentPayments();
     Optional<StudentEntity> getStudentDisplay();
     Optional<TutorEntity> getTutorProfile(Long tutorId);
@@ -35,10 +37,8 @@ public interface TutorManagementService {
 
     List<AssignmentDto> getStudentAssignments();
 
-    Subject createSubject(SubjectDto subjectDto);
     List<SubjectDto> getAllSubjects();
 
     SubjectDto getSubjectById(Long subjectId);
 
-    void deleteSubject(Long subjectId);
 }

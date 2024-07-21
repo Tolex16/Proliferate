@@ -324,9 +324,13 @@ public ResponseEntity<?> completeRegistration() {
                 Notifications notification = new Notifications();
 
                 notification.setTutor(tutor);
+                if (tutor.getTutorImage() != null) {
+                    notification.setProfileImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));
+                } else {
+                    notification.setProfileImage(null); // or set a default image, if applicable
+                }
                 notification.setType("Request for Profile Update");
-                notification.setMessage("Profile update required: Please update your profile with your photo," +
-                        "ID and relevant certificate to make your profile visible on our platform.");
+                notification.setMessage("Profile update required: Please update your profile with your photo, ID and relevant certificate to make your profile visible on our platform.");
                 notification.setCreatedAt(LocalDateTime.now());
 
                 notificationRepository.save(notification);

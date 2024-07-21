@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
+import com.proliferate.Proliferate.Domain.DTO.Student.SessionDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
@@ -40,6 +41,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 	private final StudentRepository studentRepository;
 	private final ScoreRepository scoreRepository;
 
+    private final SessionRepository sessionRepository;
     private final NotificationRepository notificationRepository;
 	private final AssignmentRepository assignmentRepository;
 
@@ -85,13 +87,19 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 
                 assignmentRepository.save(assignment);
 
+                Long studentId = jwtService.getUserId();
                 Notifications notification = new Notifications();
 
-                //TutorEntity tutor = tutorRepository.findById(tutorEntity.getTutorId()).orElseThrow(() -> new UserNotFoundException("Admin not found"));
-                notification.setTutor(assignment.getSubject().getTutor());
+                StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
+                notification.setTutor(assignment.getTutor());
+                if (student.getStudentImage() != null) {
+                    notification.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
+                } else {
+                    notification.setProfileImage(null); // or set a default image, if applicable
+                }
                 notification.setType("Uploaded Answers by Student");
                 notification.setMessage("Assignment Solution uploaded: " + assignment.getAssignedStudent().getFirstName() + " "+ assignment.getAssignedStudent().getLastName() + " " + "has uploaded the study's" +
-                        "solution for " + assignment.getSubject().getTutor().getFirstName() + " " + assignment.getSubject().getTutor().getLastName() + ".");
+                        "solution for " + assignment.getTutor().getFirstName() + " " + assignment.getTutor().getLastName() + ".");
                 notification.setCreatedAt(LocalDateTime.now());
                 notificationRepository.save(notification);
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -150,37 +158,68 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         Long studentId = jwtService.getUserId();
         return classScheduleRepository.findByStudentStudentId(studentId);
     }
-    public Subject createSubject(SubjectDto subjectDto) {
 
-        TutorEntity tutor = tutorRepository.findById(subjectDto.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
-        Subject subject = new Subject();
-        subject.setTitle(subjectDto.getTitle());
-        subject.setTutor(tutor);
+    public Session createSession(SessionDto sessionDto) {
+
+        TutorEntity tutor = tutorRepository.findById(sessionDto.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+        Session session = new Session();
+        session.setTutor(tutor);
 
         Long studentId = jwtService.getUserId();
         StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
-        subject.setStudent(student);
+        session.setStudent(student);
+
+        Subject subject = subjectRepository.findById(sessionDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
+        session.setSubject(subject);
 
         Notifications notification = new Notifications();
 
         notification.setTutor(tutor);
+        if (tutor.getTutorImage() != null) {
+            notification.setProfileImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));
+        } else {
+            notification.setProfileImage(null); // or set a default image, if applicable
+        }
         notification.setType("Student Books a Tutoring Session");
         notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring" +
                 "session with you on" + student.getAvailability() + ". Please review and confirm.");
         notification.setCreatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
 
-        return subjectRepository.save(subject);
-
+        return sessionRepository.save(session);
     }
+
+    public void cancelSession(Long sessionId) {
+        Optional<Session> session = sessionRepository.findById(sessionId);
+        Long studentId = jwtService.getUserId();
+        StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
+
+        if (session.isPresent()) {
+            sessionRepository.deleteById(sessionId);
+
+            Notifications notification = new Notifications();
+
+            notification.setStudent(student);
+            if (student.getStudentImage() != null) {
+                notification.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
+            } else {
+                notification.setProfileImage(null); // or set a default image, if applicable
+            }
+            notification.setType("Session Request Cancellation by Student");
+            notification.setMessage(  "Session canceled: You have canceled the tutoring session request with " + session.get().getTutor().getFirstName() + " " + session.get().getTutor().getLastName() +  "on" + student.getAvailability() + ".");
+            notification.setCreatedAt(LocalDateTime.now());
+            notificationRepository.save(notification);
+        } else {
+            throw new SubjectNotFoundException("Session not found with id: " + sessionId);
+        }
+    }
+
     public List<SubjectDto> getAllSubjects() {
         return subjectRepository.findAll().stream()
                 .map(subject -> {
                     SubjectDto dto = new SubjectDto();
                     dto.setSubjectId(subject.getSubjectId());
                     dto.setTitle(subject.getTitle());
-                    dto.setTutorId(subject.getTutor().getTutorId());
-                    dto.setTutorName(subject.getTutor().getFirstName() + " " + subject.getTutor().getLastName());
 
                     return dto;
                 })
@@ -190,18 +229,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new  UserNotFoundException("Student not found"));
                     SubjectDto dto = new SubjectDto();
                     dto.setTitle(subject.getTitle());
-                    dto.setTutorName(subject.getTutor().getFirstName());
 
                     return dto;
-    }
-
-    public void deleteSubject(Long subjectId) {
-        Optional<Subject> subject = subjectRepository.findById(subjectId);
-        if (subject.isPresent()) {
-            subjectRepository.deleteById(subjectId);
-        } else {
-            throw new SubjectNotFoundException("Subject not found with id: " + subjectId);
-        }
     }
 
 	public List<Score> getStudentScores() {
@@ -217,6 +246,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     }
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
+        dto.setProfileImage(notifications.getProfileImage());
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));

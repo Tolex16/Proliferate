@@ -10,6 +10,7 @@ import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.Service.StudentManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +96,16 @@ public class StudentManagementController {
             return ResponseEntity.ok(tutorDisplay);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @DeleteMapping("/cancel-session/{sessionId}")
+    public ResponseEntity<?> cancelSession(@PathVariable Long sessionId) {
+        try {
+            authenticationService.cancelSession(sessionId);
+            return ResponseEntity.ok("Session deleted successfully.");
+        } catch (SubjectNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 

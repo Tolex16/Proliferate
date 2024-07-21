@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class PaymentRequest {
 
     @NotNull
-    private Long subjectId;
+    private Long sessionId;
 
     @NotNull
     @Min(0)

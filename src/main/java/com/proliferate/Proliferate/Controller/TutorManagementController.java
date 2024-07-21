@@ -3,10 +3,7 @@ package com.proliferate.Proliferate.Controller;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentDisplay;
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
-import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
-import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
+import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
@@ -110,11 +107,6 @@ public class TutorManagementController {
         return feedbackService.getStudentSchedule();
     }
 
-    @PostMapping("/add-subject")
-    public ResponseEntity<Subject> createSubject(@RequestBody SubjectDto subjectDto){
-        Subject createdSubject = feedbackService.createSubject(subjectDto);
-        return new ResponseEntity<>(createdSubject,HttpStatus.CREATED);
-    }
     @GetMapping("/get-subjects")
     public ResponseEntity<List<SubjectDto>> getAllSubjects(){
         return new ResponseEntity<>(feedbackService.getAllSubjects(),HttpStatus.OK);
@@ -124,15 +116,21 @@ public class TutorManagementController {
         return new ResponseEntity<>(feedbackService.getSubjectById(subjectId),HttpStatus.OK);
     }
 
-    @DeleteMapping("/subject/delete/{subjectId}")
-    public ResponseEntity<?> deleteSubject(@PathVariable Long subjectId) {
+    @PostMapping("/add-session")
+    public ResponseEntity<Session> createSession(@RequestBody SessionDto sessionDto){
+        Session createdSession= feedbackService.createSession(sessionDto);
+        return new ResponseEntity<>(createdSession,HttpStatus.CREATED);
+    }
+    @DeleteMapping("/cancel-session/{sessionId}")
+    public ResponseEntity<?> cancelSession(@PathVariable Long sessionId) {
         try {
-            feedbackService.deleteSubject(subjectId);
-            return ResponseEntity.ok("Subject deleted successfully.");
+            feedbackService.cancelSession(sessionId);
+            return ResponseEntity.ok("Session deleted successfully.");
         } catch (SubjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
     @GetMapping("/assignments")
     public ResponseEntity<List<AssignmentDto>> getStudentAssignments() {
             List<AssignmentDto> assignments = feedbackService.getStudentAssignments();

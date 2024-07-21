@@ -19,7 +19,6 @@ import java.util.Set;
 public class Subject {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long subjectId;
 	
     @Column(name = "title")
@@ -27,25 +26,4 @@ public class Subject {
     @NotBlank(message = "Title cannot be blank")
     private String title;
 
-    @ManyToOne
-    @JoinColumn(name = "tutor_id", nullable = false)
-    @JsonBackReference
-    private TutorEntity tutor;
-
-    @ManyToOne
-    @JoinColumn(name = "student_id")
-    @JsonBackReference
-    private StudentEntity student;
-
-    //@ManyToMany
-    //@JoinTable(
-    //    name = "subject_students",
-    //    joinColumns = @JoinColumn(name = "subject_id"),
-    //    inverseJoinColumns = @JoinColumn(name = "student_id")
-    //)
-    //private Set<StudentEntity> students = new HashSet<>();
-	
-	@OneToMany(mappedBy = "subject")
-    @JsonManagedReference
-    private Set<ClassSchedule> classSchedules;
 }

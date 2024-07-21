@@ -2,7 +2,9 @@ package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.Admin.LoginAdminRequest;
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
+import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.LoginTutorRequest;
+import com.proliferate.Proliferate.Domain.Entities.Subject;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,4 +24,6 @@ public interface AdminManagementService {
     Map<String, byte[]> getDocuments(String email, String documentType);
 
     List<NotificationDTO> getNotificationsForAdmin();
+    Subject createSubject(SubjectDto subjectDto);
+    void deleteSubject(Long subjectId);
 }

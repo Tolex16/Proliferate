@@ -160,7 +160,7 @@ public class TutorEntity implements UserDetails {
 	
 	@OneToMany(mappedBy = "tutor")
     @JsonManagedReference
-    private List<Subject> subjects;
+    private List<Session> sessions;
 
     @OneToMany(mappedBy = "tutor")
     @JsonManagedReference

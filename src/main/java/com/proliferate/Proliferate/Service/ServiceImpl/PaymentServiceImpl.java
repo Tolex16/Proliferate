@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
 	
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
-    private final SubjectRepository subjectRepository;
+    private final SessionRepository sessionRepository;
 
     private final StudentRepository studentRepository;
 
@@ -71,7 +72,6 @@ public class PaymentServiceImpl implements PaymentService {
             } else {
                 throw new IllegalArgumentException("Unsupported payment method: " + paymentRequest.getPaymentMethod());
             }
-            
             
             // Save enrollment and payment details
             saveEnrollmentAndPayment(paymentIntent, paymentRequest);
@@ -145,8 +145,8 @@ public class PaymentServiceImpl implements PaymentService {
     private void saveEnrollmentAndPayment(PaymentIntent paymentIntent, PaymentRequest paymentRequest) {
         try {
 		Long studentId = jwtService.getUserId();
-        Subject subject = subjectRepository.findById(paymentRequest.getSubjectId())
-            .orElseThrow(() -> new NoSuchElementException("Subject not found with ID: " + paymentRequest.getSubjectId()));
+        Session session = sessionRepository.findById(paymentRequest.getSessionId())
+            .orElseThrow(() -> new NoSuchElementException("Session not found with ID: " + paymentRequest.getSessionId()));
         
         logger.info("Fetching student with ID: {}", studentId);
         StudentEntity student = studentRepository.findById(studentId)
@@ -155,12 +155,12 @@ public class PaymentServiceImpl implements PaymentService {
         // Logging for Payment Intent
         logger.info("Payment Intent created with ID: {}", paymentIntent.getId());
 
-        TutorEntity tutor = subject.getTutor();
+        TutorEntity tutor = session.getTutor();
 
         // Save Payment
         Payment payment = new Payment();
         payment.setStudent(student);
-        payment.setSubject(subject);
+        payment.setSession(session);
         payment.setAmount(paymentRequest.getAmount());
         payment.setCurrency(paymentRequest.getCurrency());
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
@@ -185,8 +185,14 @@ public class PaymentServiceImpl implements PaymentService {
         Notifications notification1 = new Notifications();
 
         notification1.setStudent(student);
+
+            if (student.getStudentImage() != null) {
+                notification1.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
+            } else {
+                notification1.setProfileImage(null); // or set a default image, if applicable
+            }
         notification1.setType("Payment Confirmation for Session");
-        notification1.setMessage("Payment received: Your payment for the tutoring session with  " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + "has been successfully processed.");
+        notification1.setMessage("Payment received: Your payment for the tutoring session with  " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + " has been successfully processed.");
         notification1.setCreatedAt(LocalDateTime.now());
 
         notificationRepository.save(notification1);

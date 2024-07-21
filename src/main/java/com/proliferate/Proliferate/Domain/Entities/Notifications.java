@@ -20,7 +20,9 @@ public class Notifications {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
-	
+
+    private String profileImage;
+
 	private String type;
 	
 	private String message;
@@ -42,8 +44,5 @@ public class Notifications {
     @JoinColumn(name = "admin_id")
     @JsonBackReference
     private AdminEntity admin;
-
-
-
 
 }

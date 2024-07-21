@@ -23,8 +23,10 @@ public class AssignmentDto {
 	
     private String title;
 	
-    private String subjectName;
-	
+    private Long subjectId;
+
+    private String SubjectName;
+
     private String gradeLevel;
 
     private String description;

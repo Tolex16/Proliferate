@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class NotificationDTO {
+
+    private String profileImage;
 	
 	private String type;
 	

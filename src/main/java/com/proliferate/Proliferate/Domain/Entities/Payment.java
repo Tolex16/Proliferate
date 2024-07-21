@@ -32,9 +32,9 @@ public class Payment {
     private TutorEntity tutor;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
+    @JoinColumn(name = "session_id")
     @JsonBackReference
-    private Subject subject;
+    private Session session;
 
     @Column(name = "amount")
     private double amount;

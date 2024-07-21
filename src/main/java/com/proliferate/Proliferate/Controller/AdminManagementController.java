@@ -1,7 +1,10 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
+import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
+import com.proliferate.Proliferate.Domain.Entities.Subject;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Service.AdminManagementService;
 import com.proliferate.Proliferate.Service.TutorAuthenticationService;
@@ -67,6 +70,22 @@ public class AdminManagementController {
             managementService.deleteTutor(email);
             return ResponseEntity.ok("Tutor deleted successfully.");
         } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/add-subject")
+    public ResponseEntity<Subject> createSubject(@RequestBody SubjectDto subjectDto){
+        Subject createdSubject = managementService.createSubject(subjectDto);
+        return new ResponseEntity<>(createdSubject,HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/subject/delete/{subjectId}")
+    public ResponseEntity<?> deleteSubject(@PathVariable Long subjectId) {
+        try {
+            managementService.deleteSubject(subjectId);
+            return ResponseEntity.ok("Subject deleted successfully.");
+        } catch (SubjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

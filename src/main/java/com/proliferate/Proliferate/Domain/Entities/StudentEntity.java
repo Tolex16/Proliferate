@@ -146,9 +146,6 @@ public class StudentEntity implements UserDetails {
 	@JsonManagedReference
     private List<Notifications> notifications;
 
-//    @OneToMany(mappedBy = "student")
-//    private List<Subject> subjects;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
