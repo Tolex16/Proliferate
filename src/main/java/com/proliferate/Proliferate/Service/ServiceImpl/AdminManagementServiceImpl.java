@@ -219,4 +219,14 @@ public class AdminManagementServiceImpl implements AdminManagementService {
             throw new SubjectNotFoundException("Subject not found with id: " + subjectId);
         }
     }
+	
+	public void deleteNotification(Long notificationId) {
+        Optional<Notifications> notification = notificationRepository.findById(notificationId);
+
+        if (notification.isPresent()) {
+            notificationRepository.deleteById(notificationId);
+        } else {
+            throw new SubjectNotFoundException("Notification not found with id: " + notificationId);
+        }
+    }
 }

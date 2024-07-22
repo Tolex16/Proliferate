@@ -70,6 +70,17 @@ public class StudentManagementController {
     public List<NotificationDTO> getNotificationsForTutor() {
         return authenticationService.getNotificationsForTutor();
     }
+	
+	@DeleteMapping("/delete-notification/{notificationId}")
+    public ResponseEntity<?> deleteNotification(@PathVariable Long notificationId) {
+        try {
+            authenticationService.deleteNotification(notificationId);
+            return ResponseEntity.ok("Notification deleted successfully.");
+        } catch (SubjectNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+	
     @GetMapping("/get-students")
     public ResponseEntity<Iterable<StudentTable>> getAllStudents() {
         Iterable<StudentEntity> students = authenticationService.getStudentsByTutorPayments();
@@ -129,5 +140,15 @@ public class StudentManagementController {
     @PostMapping("/add-score")
     public ResponseEntity<Score> addScore(@RequestBody ScoreDto scoreDto){
         return new ResponseEntity<>(authenticationService.addScore(scoreDto), HttpStatus.OK);
+    }
+	
+	@GetMapping("/report-history")
+    public List<Report> getAllReports() {
+        return authenticationService.getAllReports();
+    }
+
+    @PostMapping("add-report")
+    public Report addReport(@RequestBody ReportDto reportDto) {
+        return authenticationService.addReport(reportDto);
     }
 }

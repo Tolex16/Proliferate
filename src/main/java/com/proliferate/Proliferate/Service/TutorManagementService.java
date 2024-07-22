@@ -40,5 +40,7 @@ public interface TutorManagementService {
     List<SubjectDto> getAllSubjects();
 
     SubjectDto getSubjectById(Long subjectId);
+	
+	void deleteNotification(Long notificationId);
 
 }

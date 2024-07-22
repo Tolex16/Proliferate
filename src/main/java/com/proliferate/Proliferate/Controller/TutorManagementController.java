@@ -121,6 +121,7 @@ public class TutorManagementController {
         Session createdSession= feedbackService.createSession(sessionDto);
         return new ResponseEntity<>(createdSession,HttpStatus.CREATED);
     }
+	
     @DeleteMapping("/cancel-session/{sessionId}")
     public ResponseEntity<?> cancelSession(@PathVariable Long sessionId) {
         try {
@@ -130,6 +131,17 @@ public class TutorManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+	
+	@DeleteMapping("/delete-notification/{notificationId}")
+    public ResponseEntity<?> deleteNotification(@PathVariable Long notificationId) {
+        try {
+            feedbackService.deleteNotification(notificationId);
+            return ResponseEntity.ok("Notification deleted successfully.");
+        } catch (SubjectNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+	
 
     @GetMapping("/assignments")
     public ResponseEntity<List<AssignmentDto>> getStudentAssignments() {

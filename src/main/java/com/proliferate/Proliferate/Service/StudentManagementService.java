@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
+import com.proliferate.Proliferate.Domain.DTO.Student.ReportDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
@@ -31,7 +32,13 @@ public interface StudentManagementService {
 	List<NotificationDTO> getNotificationsForTutor();
 
 	Score addScore(ScoreDto scoreDto);
+	
+    List<Report> getAllReports();
+
+    Report addReport(ReportDto reportDto);
 
 	void clearAssignmentsAfterDueDate();
+	
+	void deleteNotification(Long notificationId);
 
 }

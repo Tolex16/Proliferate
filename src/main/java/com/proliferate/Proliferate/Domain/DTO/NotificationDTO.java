@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationDTO {
 
+    private Long notificationId;
+
     private String profileImage;
 	
 	private String type;

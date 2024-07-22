@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
+import com.proliferate.Proliferate.Domain.DTO.Student.ReportDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
@@ -185,6 +186,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     }
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
+        dto.setNotificationId(notifications.getNotificationId());
         dto.setProfileImage(notifications.getProfileImage());
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
@@ -262,7 +264,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
     public Score addScore(ScoreDto scoreDto) {
         Score score = new Score();
-        score.setStudent(studentRepository.findById(scoreDto.getStudentId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
+        score.setStudent(studentRepository.findById(scoreDto.getStudentId()).orElseThrow(() -> new UserNotFoundException("Student not found")));
         score.setTest(scoreDto.getTest());
         score.setMarks(scoreDto.getMarks());
         score.setQuestionsAttempted(scoreDto.getQuestionsAttempted());
@@ -272,5 +274,29 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
         return scoreRepository.save(score);
     }
+	
+	private final ReportRepository reportRepository;
 
+    public List<Report> getAllReports() {
+        return reportRepository.findAll();
+    }
+
+    public Report addReport(ReportDto reportDto) {
+		Report report = new Report();
+		report.setStudent(studentRepository.findById(reportDto.getStudentId()).orElseThrow(() -> new UserNotFoundException("Student not found")));
+        report.setSubject(subjectRepository.findById(reportDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not present")));
+		report.setStatus(reportDto.getStatus());
+		
+        return reportRepository.save(report);
+    }
+
+	public void deleteNotification(Long notificationId) {
+        Optional<Notifications> notification = notificationRepository.findById(notificationId);
+
+        if (notification.isPresent()) {
+            notificationRepository.deleteById(notificationId);
+        } else {
+            throw new SubjectNotFoundException("Notification not found with id: " + notificationId);
+        }
+    }
 }

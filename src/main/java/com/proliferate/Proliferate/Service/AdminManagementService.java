@@ -24,6 +24,10 @@ public interface AdminManagementService {
     Map<String, byte[]> getDocuments(String email, String documentType);
 
     List<NotificationDTO> getNotificationsForAdmin();
+	
     Subject createSubject(SubjectDto subjectDto);
-    void deleteSubject(Long subjectId);
+    
+	void deleteSubject(Long subjectId);
+	
+	void deleteNotification(Long notificationId);
 }

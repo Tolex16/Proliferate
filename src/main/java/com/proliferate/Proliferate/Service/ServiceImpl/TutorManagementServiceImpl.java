@@ -98,7 +98,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                     notification.setProfileImage(null); // or set a default image, if applicable
                 }
                 notification.setType("Uploaded Answers by Student");
-                notification.setMessage("Assignment Solution uploaded: " + assignment.getAssignedStudent().getFirstName() + " "+ assignment.getAssignedStudent().getLastName() + " " + "has uploaded the study's" +
+                notification.setMessage("Assignment Solution uploaded: " + assignment.getAssignedStudent().getFirstName() + " "+ assignment.getAssignedStudent().getLastName() + " " + "has uploaded the study's " +
                         "solution for " + assignment.getTutor().getFirstName() + " " + assignment.getTutor().getLastName() + ".");
                 notification.setCreatedAt(LocalDateTime.now());
                 notificationRepository.save(notification);
@@ -181,8 +181,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             notification.setProfileImage(null); // or set a default image, if applicable
         }
         notification.setType("Student Books a Tutoring Session");
-        notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring" +
-                "session with you on" + student.getAvailability() + ". Please review and confirm.");
+        notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring session with you on" + student.getAvailability() + ". Please review and confirm.");
         notification.setCreatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
 
@@ -246,6 +245,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     }
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
+		dto.setNotificationId(notifications.getNotificationId());
         dto.setProfileImage(notifications.getProfileImage());
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
@@ -265,6 +265,16 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             return hours + " hours ago";
         } else {
             return days + " days ago";
+        }
+    }
+	
+	public void deleteNotification(Long notificationId) {
+        Optional<Notifications> notification = notificationRepository.findById(notificationId);
+
+        if (notification.isPresent()) {
+            notificationRepository.deleteById(notificationId);
+        } else {
+            throw new SubjectNotFoundException("Notification not found with id: " + notificationId);
         }
     }
 }
