@@ -130,10 +130,16 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 .collect(Collectors.toList());
     }
 
-   // public Iterable<TutorEntity> getAllTutors() {
+    public Iterable<TutorEntity> getAllTutors() {
 
-     //   return tutorRepository.findAll();
-    //}
+        return tutorRepository.findAll();
+    }
+	
+	public Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId) {
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
+        String subjectTitle = subject.getTitle();
+        return tutorRepository.findTutorsByPreferredSubject(subjectTitle);
+    }
 	
 	public Iterable<TutorEntity> getTutorsByStudentPayments() {
 		Long studentId = jwtService.getUserId();

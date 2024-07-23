@@ -47,12 +47,26 @@ public class TutorManagementController {
         return feedbackService.getAverageRating(tutorId);
     }
 
-    @GetMapping("/get-tutors")
-    public ResponseEntity<Iterable<TutorTable>> getAllStudents() {
+    @GetMapping("/get-alltutors")
+    public ResponseEntity<Iterable<TutorTable>> getAllPresentTutors() {
+        Iterable<TutorEntity> tutors = feedbackService.getAllTutors();
+        Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
+        return ResponseEntity.ok(allTutors);
+    }
+    @GetMapping("/get-tutors/paid")
+    public ResponseEntity<Iterable<TutorTable>> getAllTutors() {
         Iterable<TutorEntity> tutors = feedbackService.getTutorsByStudentPayments();
         Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
         return ResponseEntity.ok(allTutors);
     }
+	
+	@GetMapping("/get-subject-tutors/subjectId")
+    public ResponseEntity<Iterable<TutorTable>> getTutorsBySubject(@PathVariable Long subjectId) {
+        Iterable<TutorEntity> tutors = feedbackService.getTutorsBySubjectTitle(subjectId);
+        Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
+        return ResponseEntity.ok(allTutors);
+    }
+
 
     @GetMapping("/get-bio")
     public ResponseEntity<StudentDisplay> getStudentDisplay() {

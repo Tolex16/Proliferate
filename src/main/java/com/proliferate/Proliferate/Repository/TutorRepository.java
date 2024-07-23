@@ -21,4 +21,9 @@ public interface TutorRepository extends JpaRepository<TutorEntity, Long>{
     void deleteByEmail(String email);
     @Query("SELECT DISTINCT p.tutor FROM Payment p WHERE p.student.id = :studentId")
     List<TutorEntity> findTutorsByStudentPayments(@Param("studentId") Long studentId);
+
+    @Query("SELECT t FROM TutorEntity t WHERE :subjectTitle IN elements(t.preferredSubjects)")
+    List<TutorEntity> findTutorsByPreferredSubject(@Param("subjectTitle") String subjectTitle);
 }
+//@Query("SELECT t FROM TutorEntity t JOIN t.preferredSubjects s WHERE s = :subjectTitle")
+    //List<TutorEntity> findTutorsByPreferredSubject(@Param("subjectTitle") String subjectTitle);

@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -93,9 +94,11 @@ public class TutorEntity implements UserDetails {
 	
 	@Column(name = "attendance_type")
     private String attendanceType;
-
-	@Column(name = "preferred_subjects")
-	private List<String> preferredSubjects;
+	
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "preferred_subjects", joinColumns = @JoinColumn(name = "tutor_id"))
+    @Column(name = "preferred_subjects")
+    private List<String> preferredSubjects = new ArrayList<>();
 
     @Column(name = "weekly_availability")
     private String weeklyAvailability;

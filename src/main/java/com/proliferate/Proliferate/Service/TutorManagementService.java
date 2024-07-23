@@ -20,7 +20,10 @@ public interface TutorManagementService {
 
     double getAverageRating(Long tutorId);
 
-    //Iterable<TutorEntity> getAllTutors();
+    Iterable<TutorEntity> getAllTutors();
+	
+	Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId);
+	
     Session createSession(SessionDto sessionDto);
     void cancelSession(Long sessionId);
     Iterable<TutorEntity> getTutorsByStudentPayments();
