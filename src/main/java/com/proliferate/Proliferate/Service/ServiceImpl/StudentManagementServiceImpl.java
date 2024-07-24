@@ -86,11 +86,6 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             Notifications notification1 = new Notifications();
 
             notification1.setStudent(student);
-            if (student.getStudentImage() != null) {
-                notification1.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
-            } else {
-                notification1.setProfileImage(null); // or set a default image, if applicable
-            }
             notification1.setType("Uploaded Study Materials by Tutor");
             notification1.setMessage("Assignment available: " + tutor.getFirstName() + " " + tutor.getLastName() + " has uploaded Assignments. Please review them.");
             notification1.setCreatedAt(LocalDateTime.now());
@@ -107,7 +102,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return assignmentRepository.findAll().stream()
                 .map(assignment -> {
                     AssignmentDto dto = assignmentMapper.mapTo(assignment);
-                    dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName());
+                    dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName() + " " + assignment.getAssignedStudent().getLastName());
                     if (assignment.getAssignmentFile() != null) {
                         String base64File = Base64.getEncoder().encodeToString(assignment.getAssignmentFile());
                         //String fileType = determineFileType(base64File);
@@ -187,7 +182,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
         dto.setNotificationId(notifications.getNotificationId());
-        dto.setProfileImage(notifications.getProfileImage());
+        //dto.setProfileImage(notifications.getProfileImage());
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
@@ -220,11 +215,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             Notifications notification = new Notifications();
 
             notification.setStudent(session.get().getStudent());
-            if (session.get().getStudent().getStudentImage() != null) {
-                notification.setProfileImage(Base64.getEncoder().encodeToString(session.get().getStudent().getStudentImage()));
-            } else {
-                notification.setProfileImage(null); // or set a default image, if applicable
-            }
+//            if (session.get().getStudent().getStudentImage() != null) {
+//                notification.setProfileImage(Base64.getEncoder().encodeToString(session.get().getStudent().getStudentImage()));
+//            } else {
+//                notification.setProfileImage(null); // or set a default image, if applicable
+//            }
             notification.setType("Session Request Declined by Tutor");
             notification.setMessage( "Session declined: Unfortunately, " + tutor.getFirstName() + " " + tutor.getLastName() + " has declined your tutoring session request. Consider choosing another available tutor.");
             notification.setCreatedAt(LocalDateTime.now());

@@ -127,7 +127,7 @@ public class StudentEntity implements UserDetails {
     @Column(name = "student_image")
     private byte[] studentImage;
 
-    @Column(name = "bio")
+    @Column(name = "bio", length = 2500)
     private String bio;
 
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

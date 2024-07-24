@@ -92,11 +92,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 
                 StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
                 notification.setTutor(assignment.getTutor());
-                if (student.getStudentImage() != null) {
-                    notification.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
-                } else {
-                    notification.setProfileImage(null); // or set a default image, if applicable
-                }
+
                 notification.setType("Uploaded Answers by Student");
                 notification.setMessage("Assignment Solution uploaded: " + assignment.getAssignedStudent().getFirstName() + " "+ assignment.getAssignedStudent().getLastName() + " " + "has uploaded the study's " +
                         "solution for " + assignment.getTutor().getFirstName() + " " + assignment.getTutor().getLastName() + ".");
@@ -117,7 +113,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         return assignmentRepository.findByAssignedStudent(student).stream()
                 .map(assignment -> {
                     AssignmentDto dto = assignmentMapper.mapTo(assignment);
-                    dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName());
+                    dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName() + " " + assignment.getAssignedStudent().getLastName());
                     dto.setDueDate(assignment.getDueDate());
                     dto.setTitle(assignment.getTitle());
                     dto.setSubjectName(assignment.getSubject().getTitle());
@@ -130,10 +126,9 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 .collect(Collectors.toList());
     }
 
-    public Iterable<TutorEntity> getAllTutors() {
-
-        return tutorRepository.findAll();
-    }
+//    public Iterable<TutorEntity> getAllTutors() {
+//        return tutorRepository.findAll();
+//    }
 	
 	public Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
@@ -152,14 +147,42 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 
     public ClassSchedule createClassSchedule(Schedule schedule) {
         ClassSchedule classSchedule = new ClassSchedule();
-        classSchedule.setStudent(studentRepository.findById(schedule.getStudentId()).orElseThrow(() -> new UserNotFoundException("Student not found")));
-        classSchedule.setTutor(tutorRepository.findById(schedule.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
-        classSchedule.setSubject(subjectRepository.findById(schedule.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found")));
+        Long studentId = jwtService.getUserId();
+        StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
+        classSchedule.setStudent(student);
+
+        TutorEntity tutor = tutorRepository.findById(schedule.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+        classSchedule.setTutor(tutor);
+        Subject subject = subjectRepository.findById(schedule.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
+        classSchedule.setSubject(subject);
         classSchedule.setDate(schedule.getDate());
         classSchedule.setTime(schedule.getTime());
+        classSchedule.setSchedule(schedule.getSchedule());
         classSchedule.setLocation(schedule.getLocation());
         return classScheduleRepository.save(classSchedule);
     }
+
+    public ClassSchedule createRescheduling(Schedule schedule) {
+            Optional<ClassSchedule>  classScheduleOpt = classScheduleRepository.findById(schedule.getClassScheduleId());
+            if (classScheduleOpt.isPresent()) {
+                ClassSchedule classSchedule = classScheduleOpt.get();
+
+                Long studentId = jwtService.getUserId();
+                StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
+                classSchedule.setStudent(student);
+
+                TutorEntity tutor = tutorRepository.findById(schedule.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+                classSchedule.setTutor(tutor);
+                Subject subject = subjectRepository.findById(schedule.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
+                classSchedule.setSubject(subject);
+                classSchedule.setDate(schedule.getDate());
+                classSchedule.setTime(schedule.getTime());
+                classSchedule.setReason(schedule.getReason());
+                return classScheduleRepository.save(classSchedule);
+            }
+            return new ResponseEntity<ClassSchedule>(HttpStatus.CREATED).getBody();
+    }
+
     public List<ClassSchedule> getStudentSchedule() {
         Long studentId = jwtService.getUserId();
         return classScheduleRepository.findByStudentStudentId(studentId);
@@ -181,13 +204,13 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         Notifications notification = new Notifications();
 
         notification.setTutor(tutor);
-        if (tutor.getTutorImage() != null) {
-            notification.setProfileImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));
-        } else {
-            notification.setProfileImage(null); // or set a default image, if applicable
-        }
+       // if (tutor.getTutorImage() != null) {
+       //     notification.setProfileImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));
+        //} else {
+            //notification.setProfileImage(null); // or set a default image, if applicable
+     //   }
         notification.setType("Student Books a Tutoring Session");
-        notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring session with you on" + student.getAvailability() + ". Please review and confirm.");
+        notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring session with you on " + student.getAvailability() + ". Please review and confirm.");
         notification.setCreatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
 
@@ -205,13 +228,13 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             Notifications notification = new Notifications();
 
             notification.setStudent(student);
-            if (student.getStudentImage() != null) {
-                notification.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
-            } else {
-                notification.setProfileImage(null); // or set a default image, if applicable
-            }
+           // if (student.getStudentImage() != null) {
+         //       notification.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
+        //    } else {
+           //     notification.setProfileImage(null); // or set a default image, if applicable
+          //  }
             notification.setType("Session Request Cancellation by Student");
-            notification.setMessage(  "Session canceled: You have canceled the tutoring session request with " + session.get().getTutor().getFirstName() + " " + session.get().getTutor().getLastName() +  "on" + student.getAvailability() + ".");
+            notification.setMessage(  "Session canceled: You have canceled the tutoring session request with " + session.get().getTutor().getFirstName() + " " + session.get().getTutor().getLastName() +  " on " + student.getAvailability() + ".");
             notification.setCreatedAt(LocalDateTime.now());
             notificationRepository.save(notification);
         } else {
@@ -252,7 +275,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
 		dto.setNotificationId(notifications.getNotificationId());
-        dto.setProfileImage(notifications.getProfileImage());
+       // dto.setProfileImage(notifications.getProfileImage());
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
@@ -269,7 +292,9 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             return minutes + " mins ago";
         } else if (hours < 24) {
             return hours + " hours ago";
-        } else {
+        } else if (hours >= 24 ) {
+            return days + " day ago";
+        }  else {
             return days + " days ago";
         }
     }

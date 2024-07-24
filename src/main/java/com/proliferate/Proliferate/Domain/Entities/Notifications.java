@@ -21,10 +21,12 @@ public class Notifications {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
 
-    private String profileImage;
-
+    //private String profileImage;
+	
+	@Column(name = "type", length = 255)
 	private String type;
 	
+	@Column(name = "message", length = 1024)  // Increase the length of the message column
 	private String message;
 
     @CreationTimestamp

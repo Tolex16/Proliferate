@@ -20,7 +20,7 @@ public interface TutorManagementService {
 
     double getAverageRating(Long tutorId);
 
-    Iterable<TutorEntity> getAllTutors();
+    //Iterable<TutorEntity> getAllTutors();
 	
 	Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId);
 	
@@ -36,6 +36,7 @@ public interface TutorManagementService {
 
     ClassSchedule createClassSchedule(Schedule schedule);
 
+    ClassSchedule createRescheduling(Schedule schedule);
     List<ClassSchedule> getStudentSchedule();
 
     List<AssignmentDto> getStudentAssignments();

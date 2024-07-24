@@ -186,11 +186,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         notification1.setStudent(student);
 
-            if (student.getStudentImage() != null) {
-                notification1.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
-            } else {
-                notification1.setProfileImage(null); // or set a default image, if applicable
-            }
+//            if (student.getStudentImage() != null) {
+//                notification1.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
+//            } else {
+//                notification1.setProfileImage(null); // or set a default image, if applicable
+//            }
         notification1.setType("Payment Confirmation for Session");
         notification1.setMessage("Payment received: Your payment for the tutoring session with  " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + " has been successfully processed.");
         notification1.setCreatedAt(LocalDateTime.now());

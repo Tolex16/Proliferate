@@ -32,6 +32,8 @@ public class TutorManagementController {
     private final Mapper<StudentEntity, StudentDisplay> studentDisplayMapper;
     private final Mapper<TutorEntity, TutorTable> tutorTableMapper;
 
+    private final Mapper<ClassSchedule, Schedule> classScheduleMapper;
+
     @PostMapping("/create-feedback")
     public Feedback saveFeedback(@RequestBody FeedbackDto feedback) {
         return feedbackService.saveFeedback(feedback);
@@ -47,12 +49,12 @@ public class TutorManagementController {
         return feedbackService.getAverageRating(tutorId);
     }
 
-    @GetMapping("/get-alltutors")
-    public ResponseEntity<Iterable<TutorTable>> getAllPresentTutors() {
-        Iterable<TutorEntity> tutors = feedbackService.getAllTutors();
-        Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
-        return ResponseEntity.ok(allTutors);
-    }
+//    @GetMapping("/get-alltutors")
+//    public ResponseEntity<Iterable<TutorTable>> getAllPresentTutors() {
+//        Iterable<TutorEntity> tutors = feedbackService.getAllTutors();
+//        Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
+//        return ResponseEntity.ok(allTutors);
+//    }
     @GetMapping("/get-tutors/paid")
     public ResponseEntity<Iterable<TutorTable>> getAllTutors() {
         Iterable<TutorEntity> tutors = feedbackService.getTutorsByStudentPayments();
@@ -60,13 +62,12 @@ public class TutorManagementController {
         return ResponseEntity.ok(allTutors);
     }
 	
-	@GetMapping("/get-subject-tutors/subjectId")
+	@GetMapping("/get-all-tutors/{subjectId}")
     public ResponseEntity<Iterable<TutorTable>> getTutorsBySubject(@PathVariable Long subjectId) {
         Iterable<TutorEntity> tutors = feedbackService.getTutorsBySubjectTitle(subjectId);
         Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
         return ResponseEntity.ok(allTutors);
     }
-
 
     @GetMapping("/get-bio")
     public ResponseEntity<StudentDisplay> getStudentDisplay() {
@@ -115,10 +116,15 @@ public class TutorManagementController {
     public ClassSchedule createClassSchedule(@RequestBody Schedule schedule) {
         return feedbackService.createClassSchedule(schedule);
     }
-
+    @PostMapping("/reschedule")
+    public ClassSchedule reSchedule(@RequestBody Schedule schedule) {
+        return feedbackService.createRescheduling(schedule);
+    }
     @GetMapping("/schedule")
-    public List<ClassSchedule> getStudentSchedule() {
-        return feedbackService.getStudentSchedule();
+    public ResponseEntity<Iterable<Schedule>> getStudentSchedule() {
+        Iterable<ClassSchedule> classSchedules = feedbackService.getStudentSchedule();
+        Iterable<Schedule> studentSchedules = classScheduleMapper.mapListTo(classSchedules);
+        return ResponseEntity.ok(studentSchedules);
     }
 
     @GetMapping("/get-subjects")

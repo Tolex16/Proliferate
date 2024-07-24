@@ -158,7 +158,7 @@ public class TutorEntity implements UserDetails {
 	@Column(name = "tutor_image")
     private byte[] tutorImage;
 	
-	@Column(name = "bio")
+	@Column(name = "bio", length = 2500)
     private String bio;
 	
 	@OneToMany(mappedBy = "tutor")

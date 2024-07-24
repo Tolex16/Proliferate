@@ -1,7 +1,6 @@
 package com.proliferate.Proliferate.Domain.DTO;
 
-import com.proliferate.Proliferate.config.StrongPassword;
-import jakarta.validation.constraints.NotBlank;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Schedule {
 
-    private Long studentId; 
+	private Long classScheduleId;
+
+    //private Long studentId;
 	
 	private Long tutorId;
 	
@@ -19,8 +20,19 @@ public class Schedule {
 	
 	private Long subjectId;
 	
+	private String subjectTitle;
+	
+	private String tutorName;
+
+	private String studentName;
+	
 	private String time; 
 	
 	private String location; 
+	
+	private String reason;
 
+	private String schedule;
+	
+	private double rating;
 }

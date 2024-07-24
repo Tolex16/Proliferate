@@ -37,4 +37,10 @@ public class ClassSchedule {
 
     @Column(name = "location")
     private String location;
+	
+	@Column(name = "reason", length = 100)
+	private String reason;
+	
+	@Column(name = "schedule")
+	private String schedule;
 }
