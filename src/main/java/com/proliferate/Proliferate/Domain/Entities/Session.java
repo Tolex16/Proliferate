@@ -17,7 +17,7 @@ public class Session {
     private Long sessionId;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
+    @JoinColumn(name = "subject_id",nullable = false)
     @JsonBackReference
     private Subject subject;
 
@@ -31,4 +31,6 @@ public class Session {
     @JsonBackReference
     private StudentEntity student;
 
+    @Column(name = "frequency", nullable = false)
+	private int frequency;
 }

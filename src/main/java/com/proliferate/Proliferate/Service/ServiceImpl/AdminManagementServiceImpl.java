@@ -188,18 +188,21 @@ public class AdminManagementServiceImpl implements AdminManagementService {
 
         return dto;
     }
-    private String calculateTimeAgo(LocalDateTime createdAt) {
+    public String calculateTimeAgo(LocalDateTime createdAt) {
         Duration duration = Duration.between(createdAt, LocalDateTime.now());
         long minutes = duration.toMinutes();
         long hours = duration.toHours();
         long days = duration.toDays();
 
         if (minutes < 60) {
-            return minutes + " mins ago";
+            return minutes + (minutes == 1 ? " min ago" : " mins ago");
         } else if (hours < 24) {
-            return hours + " hours ago";
+            return hours + (hours == 1 ? " hour ago" : " hours ago");
+        } else if (days < 30) {
+            return days + (days == 1 ? " day ago" : " days ago");
         } else {
-            return days + " days ago";
+            long months = days / 30;
+            return months + (months == 1 ? " month ago" : " months ago");
         }
     }
 

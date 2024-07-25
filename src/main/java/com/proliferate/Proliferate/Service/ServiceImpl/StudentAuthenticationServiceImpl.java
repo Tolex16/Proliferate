@@ -375,10 +375,10 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
     result.put("email", isEmailPresent);
 
     // Check if the email is present in the tutor repository
-    boolean isEmailTutorPresent = tutorRepository.findByEmail(email).isPresent();
-    result.put("email", isEmailTutorPresent);
+    //boolean isEmailTutorPresent = tutorRepository.findByEmail(email).isPresent();
+    //result.put("email", isEmailTutorPresent);
 
-        return result;
+    return result;
 }
 
 

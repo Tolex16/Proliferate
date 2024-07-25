@@ -8,6 +8,7 @@ import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
+import com.proliferate.Proliferate.Response.SessionResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public interface TutorManagementService {
 	
 	Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId);
 	
-    Session createSession(SessionDto sessionDto);
+    SessionResponse createSession(SessionDto sessionDto);
     void cancelSession(Long sessionId);
     Iterable<TutorEntity> getTutorsByStudentPayments();
     Optional<StudentEntity> getStudentDisplay();

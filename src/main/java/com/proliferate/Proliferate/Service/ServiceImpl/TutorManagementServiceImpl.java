@@ -12,6 +12,7 @@ import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.*;
+import com.proliferate.Proliferate.Response.SessionResponse;
 import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.TutorManagementService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -171,10 +173,6 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
                 classSchedule.setStudent(student);
 
-                TutorEntity tutor = tutorRepository.findById(schedule.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
-                classSchedule.setTutor(tutor);
-                Subject subject = subjectRepository.findById(schedule.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
-                classSchedule.setSubject(subject);
                 classSchedule.setDate(schedule.getDate());
                 classSchedule.setTime(schedule.getTime());
                 classSchedule.setReason(schedule.getReason());
@@ -188,7 +186,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         return classScheduleRepository.findByStudentStudentId(studentId);
     }
 
-    public Session createSession(SessionDto sessionDto) {
+    public SessionResponse createSession(SessionDto sessionDto) {
 
         TutorEntity tutor = tutorRepository.findById(sessionDto.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
         Session session = new Session();
@@ -200,22 +198,86 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 
         Subject subject = subjectRepository.findById(sessionDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
         session.setSubject(subject);
+		
+		// Calculate the price for the session
+        int frequency = sessionDto.getFrequency();
+        double pricePerSession = calculatePrice(student,subject, frequency);
+    
+	
+	    session.setFrequency(frequency);
+        double price = pricePerSession * frequency;
 
+		
+		 // Save the session
+        Session savedSession = sessionRepository.save(session);
+	
         Notifications notification = new Notifications();
 
         notification.setTutor(tutor);
-       // if (tutor.getTutorImage() != null) {
-       //     notification.setProfileImage(Base64.getEncoder().encodeToString(tutor.getTutorImage()));
-        //} else {
-            //notification.setProfileImage(null); // or set a default image, if applicable
-     //   }
+
         notification.setType("Student Books a Tutoring Session");
         notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring session with you on " + student.getAvailability() + ". Please review and confirm.");
         notification.setCreatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
 
-        return sessionRepository.save(session);
+		    // Prepare the response with session ID and calculated price
+        return new SessionResponse(savedSession.getSessionId(), price);
     }
+	
+  private double calculatePrice(StudentEntity student, Subject subject, int frequency) {
+
+     String gradeLevel = determineGradeLevel(student, subject);
+	
+	// Example logic, you may need to refine this to match the exact structure of your pricing table
+    if (gradeLevel.equals("K-5")) {
+        if (subject.getTitle().equals("Mathematics")) {
+            return frequency == 2 ? 140 : 190;
+        } else if (subject.getTitle().equals("English")) {
+            return frequency == 2 ? 140 : 190;
+        }
+    } else if (gradeLevel.equals("6-12")) {
+        if (subject.getTitle().equals(("Mathematics"))) {
+            return frequency == 2 ? 160 : 200;
+        }else if (subject.getTitle().equals(("English"))) {
+            return frequency == 2 ? 160 : 200;
+        } else if (subject.getTitle().equals(("Biology"))) {
+            return frequency == 2 ? 160 : 240;
+        }else if (subject.getTitle().equals(("Chemistry"))) {
+            return frequency == 2 ? 160 : 240;
+        }else if (subject.getTitle().equals(("Physics"))) {
+            return frequency == 2 ? 160 : 240;
+        }
+    } else if (gradeLevel.equals("Any Grade")) {
+        if (subject.getTitle().equals(("STEM (Coding & Robotics)"))) {
+            return frequency == 3 ? 200 : 300;
+        } else if (subject.getTitle().equals(("French"))) {
+            return frequency == 3 ? 160 : 190;
+        } else if (subject.getTitle().equals(("Spanish"))) {
+            return frequency == 3 ? 160 : 190;
+        }else if (subject.getTitle().equals(("German"))) {
+            return frequency == 3 ? 160 : 190;
+        } if (subject.getTitle().equals(("Mathematics"))) {
+            return frequency == 2 ? 160 : 200;
+        } else if (subject.getTitle().equals(("English"))) {
+            return frequency == 2 ? 160 : 200;
+        }
+    }
+
+    throw new IllegalArgumentException("Invalid subject or grade level");
+}
+  private String determineGradeLevel(StudentEntity student, Subject subject) {
+    // Example logic to determine if the subject falls under "Any Grade"
+    List<String> anyGradeSubjects = Arrays.asList("STEM (Coding & Robotics)", "French", "Spanish", "German");
+
+    // Check if the subject is one of the "Any Grade" subjects
+    if (anyGradeSubjects.contains(subject.getTitle())) {
+        return "Any Grade";
+    }
+
+    // Otherwise, use the specific grade level of the student
+    return student.getGradeYear(); // Assuming this field exists in StudentEntity
+  }
+
 
     public void cancelSession(Long sessionId) {
         Optional<Session> session = sessionRepository.findById(sessionId);
@@ -228,11 +290,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             Notifications notification = new Notifications();
 
             notification.setStudent(student);
-           // if (student.getStudentImage() != null) {
-         //       notification.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
-        //    } else {
-           //     notification.setProfileImage(null); // or set a default image, if applicable
-          //  }
+
             notification.setType("Session Request Cancellation by Student");
             notification.setMessage(  "Session canceled: You have canceled the tutoring session request with " + session.get().getTutor().getFirstName() + " " + session.get().getTutor().getLastName() +  " on " + student.getAvailability() + ".");
             notification.setCreatedAt(LocalDateTime.now());
@@ -275,29 +333,31 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
 		dto.setNotificationId(notifications.getNotificationId());
-       // dto.setProfileImage(notifications.getProfileImage());
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
 
         return dto;
     }
-    private String calculateTimeAgo(LocalDateTime createdAt) {
+
+    public String calculateTimeAgo(LocalDateTime createdAt) {
         Duration duration = Duration.between(createdAt, LocalDateTime.now());
         long minutes = duration.toMinutes();
         long hours = duration.toHours();
         long days = duration.toDays();
 
         if (minutes < 60) {
-            return minutes + " mins ago";
+            return minutes + (minutes == 1 ? " min ago" : " mins ago");
         } else if (hours < 24) {
-            return hours + " hours ago";
-        } else if (hours >= 24 ) {
-            return days + " day ago";
-        }  else {
-            return days + " days ago";
+            return hours + (hours == 1 ? " hour ago" : " hours ago");
+        } else if (days < 30) {
+            return days + (days == 1 ? " day ago" : " days ago");
+        } else {
+            long months = days / 30;
+            return months + (months == 1 ? " month ago" : " months ago");
         }
     }
+	
 	
 	public void deleteNotification(Long notificationId) {
         Optional<Notifications> notification = notificationRepository.findById(notificationId);

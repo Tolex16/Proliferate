@@ -9,6 +9,7 @@ import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
+import com.proliferate.Proliferate.Response.SessionResponse;
 import com.proliferate.Proliferate.Service.TutorManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,8 +138,8 @@ public class TutorManagementController {
     }
 
     @PostMapping("/add-session")
-    public ResponseEntity<Session> createSession(@RequestBody SessionDto sessionDto){
-        Session createdSession= feedbackService.createSession(sessionDto);
+    public ResponseEntity<?> createSession(@RequestBody SessionDto sessionDto){
+        SessionResponse createdSession= feedbackService.createSession(sessionDto);
         return new ResponseEntity<>(createdSession,HttpStatus.CREATED);
     }
 	

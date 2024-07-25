@@ -15,4 +15,6 @@ public class SessionDto {
     private Long tutorId;
 
     private Long studentId;
+	
+	private int frequency;
 }
