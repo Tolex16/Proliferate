@@ -1,9 +1,8 @@
 package com.proliferate.Proliferate.Controller;
 
-import com.proliferate.Proliferate.Domain.DTO.Chat.MessageType;
-import jakarta.websocket.server.ServerEndpoint;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.proliferate.Proliferate.Domain.DTO.Chat.ChatMessage;
+import com.proliferate.Proliferate.Domain.DTO.Chat.MessageType;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.proliferate.Proliferate.Domain.Entities.Message;
 import com.proliferate.Proliferate.Service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;

@@ -30,7 +30,7 @@ public class Assignment {
 	@Column(name = "due_date")
     private LocalDate dueDate;
 	
-	@Column(name = "title")
+	@Column(name = "title", length = 50)
     private String title;
 
     @ManyToOne

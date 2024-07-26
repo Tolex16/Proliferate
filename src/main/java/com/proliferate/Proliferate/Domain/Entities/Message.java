@@ -22,12 +22,6 @@ public class Message {
 	@Column(name = "receiver_id")
     private Long receiverId;
 	
-	@Column(name = "sender_type")
-    private String senderType;
-	
-	@Column(name = "receiver_type")
-    private String receiverType;
-	
 	@Column(name = "content")
     private String content;
 	
@@ -37,4 +31,8 @@ public class Message {
 	@Enumerated(EnumType.STRING)
     @Column(name = "type")
     private MessageType type;
+	
+	@ManyToOne
+    @JoinColumn(name = "thread_id", nullable = false)
+    private ChatThread thread;
 }

@@ -234,18 +234,33 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             return frequency == 2 ? 140 : 190;
         } else if (subject.getTitle().equals("English")) {
             return frequency == 2 ? 140 : 190;
+        } else if (subject.getTitle().equals("English")) {
+            return frequency == 1 ? 140 : 190;
+        } else if (subject.getTitle().equals("Mathematics")) {
+            return frequency == 1 ? 140 : 190;
         }
     } else if (gradeLevel.equals("6-12")) {
         if (subject.getTitle().equals(("Mathematics"))) {
             return frequency == 2 ? 160 : 200;
+        } else if (subject.getTitle().equals(("Mathematics"))) {
+            return frequency == 1 ? 160 : 200;
         }else if (subject.getTitle().equals(("English"))) {
             return frequency == 2 ? 160 : 200;
+        } else if (subject.getTitle().equals(("English"))) {
+            return frequency == 1 ? 160 : 200;
+        }
+         else if (subject.getTitle().equals(("Biology"))) {
+            return frequency == 2 ? 160 : 240;
         } else if (subject.getTitle().equals(("Biology"))) {
-            return frequency == 2 ? 160 : 240;
-        }else if (subject.getTitle().equals(("Chemistry"))) {
-            return frequency == 2 ? 160 : 240;
+            return frequency == 1 ? 160 : 240;
+        } else if (subject.getTitle().equals(("Chemistry"))) {
+                return frequency == 2 ? 160 : 240;
+         }else if (subject.getTitle().equals(("Chemistry"))) {
+            return frequency == 1 ? 160 : 240;
         }else if (subject.getTitle().equals(("Physics"))) {
             return frequency == 2 ? 160 : 240;
+        } else if (subject.getTitle().equals(("Physics"))) {
+            return frequency == 1 ? 160 : 240;
         }
     } else if (gradeLevel.equals("Any Grade")) {
         if (subject.getTitle().equals(("STEM (Coding & Robotics)"))) {
@@ -273,7 +288,6 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     if (anyGradeSubjects.contains(subject.getTitle())) {
         return "Any Grade";
     }
-
     // Otherwise, use the specific grade level of the student
     return student.getGradeYear(); // Assuming this field exists in StudentEntity
   }

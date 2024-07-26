@@ -9,21 +9,9 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Builder
-public class ChatMessage {
+public class ChatThreadDto {
 	
     private Long senderId;
-	
-    private Long receiverId;
-	
-    private String sender;
-	
-    private String receiver;
-	
-    private String content;
-	
-    private String timestamp;
-
-    private MessageType type;
 	
 	private String threadId;
 }

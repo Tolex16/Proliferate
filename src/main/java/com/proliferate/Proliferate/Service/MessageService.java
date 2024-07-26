@@ -1,9 +1,7 @@
 package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.Chat.ChatMessage;
-import com.proliferate.Proliferate.Domain.DTO.Student.FriendInvite;
 import com.proliferate.Proliferate.Domain.Entities.Message;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 

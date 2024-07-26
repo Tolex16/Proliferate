@@ -362,8 +362,8 @@ public ResponseEntity<?> completeRegistration() {
         result.put("email", isEmailPresent);
 
         // Check if the email is present in the student repository
-        boolean isEmailStudentPresent = studentRepository.findByEmail(email).isPresent();
-        result.put("email", isEmailStudentPresent);
+       // boolean isEmailStudentPresent = studentRepository.findByEmail(email).isPresent();
+        //result.put("email", isEmailStudentPresent);
 
         return result;
 	}

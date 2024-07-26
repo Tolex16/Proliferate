@@ -5,7 +5,6 @@ import com.proliferate.Proliferate.Domain.Entities.Message;
 import com.proliferate.Proliferate.Repository.MessageRepository;
 import com.proliferate.Proliferate.Service.MessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +28,6 @@ public class MessageServiceImpl implements MessageService {
         Message message = new Message();
         message.setSenderId(Long.parseLong(chatMessage.getSender()));
         message.setReceiverId(Long.parseLong(chatMessage.getReceiver()));
-        message.setSenderType(chatMessage.getSenderType());
-        message.setReceiverType(chatMessage.getReceiverType());
         message.setContent(chatMessage.getContent());
         message.setTimestamp(LocalDateTime.now());
         return messageRepository.save(message);
