@@ -4,7 +4,9 @@ import com.proliferate.Proliferate.Domain.DTO.Admin.LoginAdminRequest;
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.LoginTutorRequest;
+import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.Subject;
+import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,4 +32,8 @@ public interface AdminManagementService {
 	void deleteSubject(Long subjectId);
 	
 	void deleteNotification(Long notificationId);
+
+    Iterable<TutorEntity> getAllTutors();
+
+    Iterable<StudentEntity> getAllStudents();
 }

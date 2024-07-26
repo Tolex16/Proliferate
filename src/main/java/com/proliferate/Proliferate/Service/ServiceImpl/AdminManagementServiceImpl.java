@@ -232,4 +232,12 @@ public class AdminManagementServiceImpl implements AdminManagementService {
             throw new SubjectNotFoundException("Notification not found with id: " + notificationId);
         }
     }
+
+       public Iterable<TutorEntity> getAllTutors() {
+        return tutorRepository.findAll();
+}
+
+    public Iterable<StudentEntity> getAllStudents() {
+        return studentRepository.findAll();
+    }
 }

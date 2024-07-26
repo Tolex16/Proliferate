@@ -1,7 +1,9 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Chat.ChatMessage;
+import com.proliferate.Proliferate.Domain.Entities.ChatThread;
 import com.proliferate.Proliferate.Domain.Entities.Message;
+import com.proliferate.Proliferate.Repository.ChatThreadRepository;
 import com.proliferate.Proliferate.Repository.MessageRepository;
 import com.proliferate.Proliferate.Service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -17,7 +20,7 @@ import java.util.List;
 public class MessageServiceImpl implements MessageService {
 
     private final MessageRepository messageRepository;
-
+    private final ChatThreadRepository chatThreadRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     /**
@@ -25,11 +28,18 @@ public class MessageServiceImpl implements MessageService {
      */
 	 
     public Message saveMessage(ChatMessage chatMessage) {
+	ChatThread thread = chatThreadRepository.findByThreadId(chatMessage.getThreadId()).orElseGet(() -> {
+        ChatThread newThread = new ChatThread();
+        newThread.setThreadId(UUID.randomUUID().toString().substring(0, 6));
+        return chatThreadRepository.save(newThread);
+    });
+
         Message message = new Message();
-        message.setSenderId(Long.parseLong(chatMessage.getSender()));
-        message.setReceiverId(Long.parseLong(chatMessage.getReceiver()));
+        message.setSenderId(chatMessage.getSenderId());
+        message.setReceiverId(chatMessage.getReceiverId());
         message.setContent(chatMessage.getContent());
         message.setTimestamp(LocalDateTime.now());
+		message.setThread(thread);
         return messageRepository.save(message);
     }
 
@@ -40,6 +50,11 @@ public class MessageServiceImpl implements MessageService {
     public List<Message> getMessagesBetweenUsers(Long senderId, Long receiverId) {
         return messageRepository.findBySenderIdAndReceiverId(senderId, receiverId);
     }
+	
+	
+	public List<Message> getMessagesByThreadId(String threadId) {
+        return messageRepository.findByThread_ThreadId(threadId);
+    }
 
 
     /**
@@ -48,7 +63,7 @@ public class MessageServiceImpl implements MessageService {
     public void sendMessage(ChatMessage chatMessage) {
         Message message = saveMessage(chatMessage);
         messagingTemplate.convertAndSendToUser(
-                chatMessage.getReceiver(),
+                chatMessage.getReceiverFullName(),
                 "/topic/messages",
                 chatMessage
         );

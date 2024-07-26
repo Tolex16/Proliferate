@@ -15,9 +15,9 @@ public class ChatMessage {
 	
     private Long receiverId;
 	
-    private String sender;
-	
-    private String receiver;
+	private String senderFullName;
+    
+	private String receiverFullName;
 	
     private String content;
 	

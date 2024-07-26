@@ -6,8 +6,9 @@ import com.proliferate.Proliferate.Domain.Entities.Message;
 import java.util.List;
 
 public interface MessageService {
-	
-	List<Message> getMessagesBetweenUsers(Long senderId, Long receiverId);
-	
-	void sendMessage(ChatMessage chatMessage);
+    Message saveMessage(ChatMessage chatMessage);
+    List<Message> getMessagesBetweenUsers(Long senderId, Long receiverId);
+    void sendMessage(ChatMessage chatMessage);
+   // List<ChatThread> getAllThreads();
+    List<Message> getMessagesByThreadId(String threadId);
 }

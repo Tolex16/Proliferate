@@ -14,8 +14,7 @@ public interface StudentManagementService {
     ResponseEntity createAssignment(AssignmentDto assignmentDto);
 
     List<AssignmentDto> getAllAssignments();
-	
-	//Iterable<StudentEntity> getAllStudents();
+
 	void cancelSession(Long sessionId);
 
 	Iterable<StudentEntity> getStudentsByTutorPayments();

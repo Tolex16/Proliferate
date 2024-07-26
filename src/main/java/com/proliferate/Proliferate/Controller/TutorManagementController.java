@@ -50,12 +50,7 @@ public class TutorManagementController {
         return feedbackService.getAverageRating(tutorId);
     }
 
-//    @GetMapping("/get-alltutors")
-//    public ResponseEntity<Iterable<TutorTable>> getAllPresentTutors() {
-//        Iterable<TutorEntity> tutors = feedbackService.getAllTutors();
-//        Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
-//        return ResponseEntity.ok(allTutors);
-//    }
+
     @GetMapping("/get-tutors/paid")
     public ResponseEntity<Iterable<TutorTable>> getAllTutors() {
         Iterable<TutorEntity> tutors = feedbackService.getTutorsByStudentPayments();

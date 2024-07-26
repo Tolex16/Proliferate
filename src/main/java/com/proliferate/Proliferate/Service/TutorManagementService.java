@@ -20,8 +20,6 @@ public interface TutorManagementService {
     List<Feedback> getFeedbackByTutorId(Long tutorId);
 
     double getAverageRating(Long tutorId);
-
-    //Iterable<TutorEntity> getAllTutors();
 	
 	Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId);
 	

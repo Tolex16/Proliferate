@@ -244,9 +244,6 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return studentRepository.findStudentsByTutorPayments(tutorId);
     }
 
-//    public Iterable<StudentEntity> getAllStudents() {
-//        return studentRepository.findAll();
-//    }
 
     public List<AttendanceEntity> getAllAttendanceRecords() {
         return attendanceRepository.findAll();

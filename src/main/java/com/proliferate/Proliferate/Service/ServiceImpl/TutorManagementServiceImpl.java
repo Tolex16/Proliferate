@@ -128,9 +128,6 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 .collect(Collectors.toList());
     }
 
-//    public Iterable<TutorEntity> getAllTutors() {
-//        return tutorRepository.findAll();
-//    }
 	
 	public Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));

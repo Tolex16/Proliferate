@@ -1,8 +1,13 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
+import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorTable;
+import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.Subject;
+import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
@@ -26,6 +31,8 @@ import java.util.Objects;
 public class AdminManagementController {
     @Autowired
     private final AdminManagementService managementService;
+    private final Mapper<TutorEntity, TutorTable> tutorTableMapper;
+    private final Mapper<StudentEntity, StudentTable> studentMapper;
 
     @GetMapping("/documents")
     public ResponseEntity<Map<String, byte[]>> getDocuments(
@@ -98,5 +105,19 @@ public class AdminManagementController {
         } catch (SubjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/get-alltutors")
+    public ResponseEntity<Iterable<TutorTable>> getAllTutors() {
+        Iterable<TutorEntity> tutors = managementService.getAllTutors();
+        Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
+        return ResponseEntity.ok(allTutors);
+    }
+
+    @GetMapping("/get-allstudents")
+    public ResponseEntity<Iterable<StudentTable>> getAllStudents() {
+        Iterable<StudentEntity> students = managementService.getAllStudents();
+        Iterable<StudentTable> allStudent = studentMapper.mapListTo(students);
+        return ResponseEntity.ok(allStudent);
     }
 }
