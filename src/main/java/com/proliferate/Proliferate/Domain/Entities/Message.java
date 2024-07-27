@@ -17,13 +17,33 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-    @Column(name = "sender_id")
-    private Long senderId;
-	
-	@Column(name = "receiver_id")
-    private Long receiverId;
-	
-	@Column(name = "content")
+//    @Column(name = "sender_id")
+//    private Long senderId;
+//
+//	@Column(name = "receiver_id")
+//    private Long receiverId;
+    @Column(name = "sender_name")
+    private String senderFullName;
+
+    @Column(name = "receiver_name")
+    private String receiverFullName;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    @JsonBackReference
+    private StudentEntity student;
+
+    @ManyToOne
+    @JoinColumn(name = "tutor_id")
+    @JsonBackReference
+    private TutorEntity tutor;
+
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    @JsonBackReference
+    private AdminEntity admin;
+
+    @Column(name = "content")
     private String content;
 	
 	@Column(name = "timestamp")

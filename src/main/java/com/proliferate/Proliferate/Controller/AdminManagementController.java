@@ -1,5 +1,7 @@
 package com.proliferate.Proliferate.Controller;
 
+import com.proliferate.Proliferate.Domain.DTO.Admin.StudentList;
+import com.proliferate.Proliferate.Domain.DTO.Admin.TutorList;
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
@@ -31,8 +33,8 @@ import java.util.Objects;
 public class AdminManagementController {
     @Autowired
     private final AdminManagementService managementService;
-    private final Mapper<TutorEntity, TutorTable> tutorTableMapper;
-    private final Mapper<StudentEntity, StudentTable> studentMapper;
+    private final Mapper<TutorEntity, TutorList> tutorListMapper;
+    private final Mapper<StudentEntity, StudentList> studentMapper;
 
     @GetMapping("/documents")
     public ResponseEntity<Map<String, byte[]>> getDocuments(
@@ -108,16 +110,16 @@ public class AdminManagementController {
     }
 
     @GetMapping("/get-alltutors")
-    public ResponseEntity<Iterable<TutorTable>> getAllTutors() {
+    public ResponseEntity<Iterable<TutorList>> getAllTutors() {
         Iterable<TutorEntity> tutors = managementService.getAllTutors();
-        Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
+        Iterable<TutorList> allTutors = tutorListMapper.mapListTo(tutors);
         return ResponseEntity.ok(allTutors);
     }
 
     @GetMapping("/get-allstudents")
-    public ResponseEntity<Iterable<StudentTable>> getAllStudents() {
+    public ResponseEntity<Iterable<StudentList>> getAllStudents() {
         Iterable<StudentEntity> students = managementService.getAllStudents();
-        Iterable<StudentTable> allStudent = studentMapper.mapListTo(students);
+        Iterable<StudentList> allStudent = studentMapper.mapListTo(students);
         return ResponseEntity.ok(allStudent);
     }
 }
