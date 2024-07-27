@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.DTO.Student;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -17,4 +18,6 @@ public class SessionDto {
     private Long studentId;
 	
 	private int frequency;
+
+    private int duration;
 }

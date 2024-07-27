@@ -1,5 +1,6 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.proliferate.Proliferate.Domain.DTO.Chat.MessageType;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -34,5 +35,6 @@ public class Message {
 	
 	@ManyToOne
     @JoinColumn(name = "thread_id", nullable = false)
+    @JsonBackReference
     private ChatThread thread;
 }

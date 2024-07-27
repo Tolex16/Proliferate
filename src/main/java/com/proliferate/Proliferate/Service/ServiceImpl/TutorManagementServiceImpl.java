@@ -198,10 +198,11 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 		
 		// Calculate the price for the session
         int frequency = sessionDto.getFrequency();
-        double pricePerSession = calculatePrice(student,subject, frequency);
+        double pricePerSession = calculatePrice(student,subject);
     
 	
 	    session.setFrequency(frequency);
+        session.setDuration(sessionDto.getDuration());
         double price = pricePerSession * frequency;
 
 		
@@ -221,60 +222,183 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         return new SessionResponse(savedSession.getSessionId(), price);
     }
 	
-  private double calculatePrice(StudentEntity student, Subject subject, int frequency) {
+  private double calculatePrice(StudentEntity student, Subject subject) {
 
      String gradeLevel = determineGradeLevel(student, subject);
 	
 	// Example logic, you may need to refine this to match the exact structure of your pricing table
-    if (gradeLevel.equals("K-5")) {
+    if (gradeLevel.equals("KG")) {
         if (subject.getTitle().equals("Mathematics")) {
-            return frequency == 2 ? 140 : 190;
+            return 140;
         } else if (subject.getTitle().equals("English")) {
-            return frequency == 2 ? 140 : 190;
-        } else if (subject.getTitle().equals("English")) {
-            return frequency == 1 ? 140 : 190;
-        } else if (subject.getTitle().equals("Mathematics")) {
-            return frequency == 1 ? 140 : 190;
+            return 140 ;
+        } else if (subject.getTitle().equals("Biology")) {
+            return 190;
+        } else if (subject.getTitle().equals("Chemistry")) {
+            return 190;
+        }else if (subject.getTitle().equals("Physics")) {
+            return 190;
         }
-    } else if (gradeLevel.equals("6-12")) {
+    }else if (gradeLevel.equals("Grade 1")) {
+          if (subject.getTitle().equals("Mathematics")) {
+              return 140;
+          } else if (subject.getTitle().equals("English")) {
+              return 140 ;
+          } else if (subject.getTitle().equals("Biology")) {
+              return 190;
+          } else if (subject.getTitle().equals("Chemistry")) {
+              return 190;
+          }else if (subject.getTitle().equals("Physics")) {
+              return 190;
+          }
+      }else if (gradeLevel.equals("Grade 2")) {
+        if (subject.getTitle().equals("Mathematics")) {
+            return 140;
+        } else if (subject.getTitle().equals("English")) {
+            return 140 ;
+        } else if (subject.getTitle().equals("Biology")) {
+            return 190;
+        } else if (subject.getTitle().equals("Chemistry")) {
+            return 190;
+        }else if (subject.getTitle().equals("Physics")) {
+            return 190;
+        }
+    }else if (gradeLevel.equals("Grade 3")) {
+        if (subject.getTitle().equals("Mathematics")) {
+            return 140;
+        } else if (subject.getTitle().equals("English")) {
+            return 140 ;
+        } else if (subject.getTitle().equals("Biology")) {
+            return 190;
+        } else if (subject.getTitle().equals("Chemistry")) {
+            return 190;
+        }else if (subject.getTitle().equals("Physics")) {
+            return 190;
+        }
+    }else if (gradeLevel.equals("Grade 4")) {
+        if (subject.getTitle().equals("Mathematics")) {
+            return 140;
+        } else if (subject.getTitle().equals("English")) {
+            return 140 ;
+        } else if (subject.getTitle().equals("Biology")) {
+            return 190;
+        } else if (subject.getTitle().equals("Chemistry")) {
+            return 190;
+        }else if (subject.getTitle().equals("Physics")) {
+            return 190;
+        }
+    }else if (gradeLevel.equals("Grade 5")) {
+        if (subject.getTitle().equals("Mathematics")) {
+            return 140;
+        } else if (subject.getTitle().equals("English")) {
+            return 140 ;
+        } else if (subject.getTitle().equals("Biology")) {
+            return 190;
+        } else if (subject.getTitle().equals("Chemistry")) {
+            return 190;
+        }else if (subject.getTitle().equals("Physics")) {
+            return 190;
+        }
+    } else if (gradeLevel.equals("Grade 6")) {
         if (subject.getTitle().equals(("Mathematics"))) {
-            return frequency == 2 ? 160 : 200;
-        } else if (subject.getTitle().equals(("Mathematics"))) {
-            return frequency == 1 ? 160 : 200;
+            return 160;
         }else if (subject.getTitle().equals(("English"))) {
-            return frequency == 2 ? 160 : 200;
-        } else if (subject.getTitle().equals(("English"))) {
-            return frequency == 1 ? 160 : 200;
-        }
-         else if (subject.getTitle().equals(("Biology"))) {
-            return frequency == 2 ? 160 : 240;
+            return 160;
         } else if (subject.getTitle().equals(("Biology"))) {
-            return frequency == 1 ? 160 : 240;
-        } else if (subject.getTitle().equals(("Chemistry"))) {
-                return frequency == 2 ? 160 : 240;
-         }else if (subject.getTitle().equals(("Chemistry"))) {
-            return frequency == 1 ? 160 : 240;
+            return 200;
+        }else if (subject.getTitle().equals(("Chemistry"))) {
+            return 160;
         }else if (subject.getTitle().equals(("Physics"))) {
-            return frequency == 2 ? 160 : 240;
-        } else if (subject.getTitle().equals(("Physics"))) {
-            return frequency == 1 ? 160 : 240;
+            return 160 ;
         }
-    } else if (gradeLevel.equals("Any Grade")) {
+    }else if (gradeLevel.equals("Grade 7")) {
+        if (subject.getTitle().equals(("Mathematics"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("English"))) {
+            return 160;
+        } else if (subject.getTitle().equals(("Biology"))) {
+            return 200;
+        }else if (subject.getTitle().equals(("Chemistry"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("Physics"))) {
+            return 160 ;
+        }
+    }else if (gradeLevel.equals("Grade 8")) {
+        if (subject.getTitle().equals(("Mathematics"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("English"))) {
+            return 160;
+        } else if (subject.getTitle().equals(("Biology"))) {
+            return 200;
+        }else if (subject.getTitle().equals(("Chemistry"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("Physics"))) {
+            return 160 ;
+        }
+    } else if (gradeLevel.equals("Grade 9")) {
+        if (subject.getTitle().equals(("Mathematics"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("English"))) {
+            return 160;
+        } else if (subject.getTitle().equals(("Biology"))) {
+            return 200;
+        }else if (subject.getTitle().equals(("Chemistry"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("Physics"))) {
+            return 160 ;
+        }
+    } else if (gradeLevel.equals("Grade 10")) {
+        if (subject.getTitle().equals(("Mathematics"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("English"))) {
+            return 160;
+        } else if (subject.getTitle().equals(("Biology"))) {
+            return 200;
+        }else if (subject.getTitle().equals(("Chemistry"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("Physics"))) {
+            return 160 ;
+        }
+    } else if (gradeLevel.equals("Grade 11")) {
+        if (subject.getTitle().equals(("Mathematics"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("English"))) {
+            return 160;
+        } else if (subject.getTitle().equals(("Biology"))) {
+            return 200;
+        }else if (subject.getTitle().equals(("Chemistry"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("Physics"))) {
+            return 160 ;
+        }
+    }else if (gradeLevel.equals("Grade 12")) {
+        if (subject.getTitle().equals(("Mathematics"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("English"))) {
+            return 160;
+        } else if (subject.getTitle().equals(("Biology"))) {
+            return 200;
+        }else if (subject.getTitle().equals(("Chemistry"))) {
+            return 160;
+        }else if (subject.getTitle().equals(("Physics"))) {
+            return 160 ;
+        }
+    }else if (gradeLevel.equals("Any Grade")) {
         if (subject.getTitle().equals(("STEM (Coding & Robotics)"))) {
-            return frequency == 3 ? 200 : 300;
+            return  200 ;
         } else if (subject.getTitle().equals(("French"))) {
-            return frequency == 3 ? 160 : 190;
+            return  160;
         } else if (subject.getTitle().equals(("Spanish"))) {
-            return frequency == 3 ? 160 : 190;
+            return 160;
         }else if (subject.getTitle().equals(("German"))) {
-            return frequency == 3 ? 160 : 190;
-        } if (subject.getTitle().equals(("Mathematics"))) {
-            return frequency == 2 ? 160 : 200;
-        } else if (subject.getTitle().equals(("English"))) {
-            return frequency == 2 ? 160 : 200;
+            return  160 ;
         }
     }
-
+//      if (subject.getTitle().equals(("Mathematics"))) {
+//          return frequency == 2 ? 160 : 200;
+//      } else if (subject.getTitle().equals(("English"))) {
+//          return frequency == 2 ? 160 : 200;
+//      }
     throw new IllegalArgumentException("Invalid subject or grade level");
 }
   private String determineGradeLevel(StudentEntity student, Subject subject) {

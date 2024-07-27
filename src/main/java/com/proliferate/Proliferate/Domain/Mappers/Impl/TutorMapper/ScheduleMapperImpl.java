@@ -41,7 +41,7 @@ public class ScheduleMapperImpl implements Mapper<ClassSchedule, Schedule> {
         dto.setReason(classSchedule.getReason());
         dto.setTutorName(classSchedule.getTutor().getFirstName() + " " + classSchedule.getTutor().getLastName());
         dto.setStudentName(classSchedule.getStudent().getFirstName() + " " + classSchedule.getStudent().getLastName());
-
+        dto.setDate(classSchedule.getDate());
         List<Feedback> feedbacks = feedbackRepository.findByTutorTutorId(classSchedule.getTutor().getTutorId());
         double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
         dto.setRating(averageRating);

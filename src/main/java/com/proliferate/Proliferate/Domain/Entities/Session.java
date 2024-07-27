@@ -33,4 +33,7 @@ public class Session {
 
     @Column(name = "frequency", nullable = false)
 	private int frequency;
+
+    @Column(name = "duration")
+    private int duration;
 }

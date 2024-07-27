@@ -35,4 +35,6 @@ public class Schedule {
 	private String schedule;
 	
 	private double rating;
+
+	private String duration;
 }
