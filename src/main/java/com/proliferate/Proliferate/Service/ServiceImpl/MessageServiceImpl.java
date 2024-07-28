@@ -50,6 +50,7 @@ public class MessageServiceImpl implements MessageService {
           //  throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
         //}
         chatMessage.setSenderFullName(student.getFirstName() + " " + student.getLastName());
+        chatMessage.setReceiverFullName(tutor.getFirstName()+ " " + tutor.getLastName());
         message.setSenderFullName(student.getFirstName() + " " + student.getLastName());
         message.setReceiverFullName(tutor.getFirstName() + " " + tutor.getLastName());
         message.setContent(chatMessage.getContent());
