@@ -1,15 +1,9 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Chat.ChatMessage;
-import com.proliferate.Proliferate.Domain.Entities.ChatThread;
-import com.proliferate.Proliferate.Domain.Entities.Message;
-import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
-import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
-import com.proliferate.Proliferate.Repository.ChatThreadRepository;
-import com.proliferate.Proliferate.Repository.MessageRepository;
-import com.proliferate.Proliferate.Repository.StudentRepository;
-import com.proliferate.Proliferate.Repository.TutorRepository;
+import com.proliferate.Proliferate.Repository.*;
 import com.proliferate.Proliferate.Service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +22,7 @@ public class MessageServiceImpl implements MessageService {
 
     private final TutorRepository tutorRepository;
     private final StudentRepository studentRepository;
+    private final AdminRepository adminRepository;
     private final MessageRepository messageRepository;
     private final ChatThreadRepository chatThreadRepository;
     private final SimpMessagingTemplate messagingTemplate;
@@ -42,19 +37,23 @@ public class MessageServiceImpl implements MessageService {
         newThread.setThreadId(UUID.randomUUID().toString().substring(0, 6));
         return chatThreadRepository.save(newThread);
     });
+        chatMessage.setThreadId(String.valueOf(thread));
 
         TutorEntity tutor = tutorRepository.findById(chatMessage.getReceiverId()).orElseThrow(() -> new UserNotFoundException("Tutor not present"));
         StudentEntity student = studentRepository.findById(chatMessage.getSenderId()).orElseThrow(() -> new UserNotFoundException("Student not present"));
+        AdminEntity admin = adminRepository.findById(chatMessage.getSenderId()).orElseThrow(() -> new UserNotFoundException("Student not present"));
         Message message = new Message();
         message.setStudent(student);
         message.setTutor(tutor);
+        message.setAdmin(admin);
         //if(studentRepository.existsByUserName(chatMessage.getSenderId()) || tutorRepository.exis(chatMessage.getReceiverId())){
           //  throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no account with this username.");
         //}
+        chatMessage.setSenderFullName(student.getFirstName() + " " + student.getLastName());
         message.setSenderFullName(student.getFirstName() + " " + student.getLastName());
         message.setReceiverFullName(tutor.getFirstName() + " " + tutor.getLastName());
         message.setContent(chatMessage.getContent());
-        message.setTimestamp(LocalDateTime.now());
+        //message.setTimestamp(LocalDateTime.now());
 		message.setThread(thread);
         return messageRepository.save(message);
     }

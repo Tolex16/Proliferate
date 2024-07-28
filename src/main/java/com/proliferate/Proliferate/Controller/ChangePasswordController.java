@@ -6,6 +6,7 @@ import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.ExeceptionHandler.InvalidPasswordException;
 import com.proliferate.Proliferate.ExeceptionHandler.SamePasswordException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.Repository.AdminRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.ChangePasswordService;
@@ -31,7 +32,7 @@ public class ChangePasswordController {
     @Autowired
     private final JwtService jwtService;
     private final TutorRepository tutorRepository;
-
+    private final AdminRepository adminRepository;
     private final StudentRepository studentRepository;
 
     @PostMapping("/change-password")
@@ -51,6 +52,13 @@ public class ChangePasswordController {
             if (tutorOpt.isPresent()) {
                 var tutor = tutorOpt.get();
                 return authenticationService.changeTutorPassword(tutor, request);
+            }
+
+            // Check tutor repository if not found in student repository
+            var adminOpt = adminRepository.findById(userId);
+            if (adminOpt.isPresent()) {
+                var admin = adminOpt.get();
+                return authenticationService.changeAdminPassword(admin, request);
             }
 
             // If neither found, throw an exception

@@ -5,13 +5,17 @@ import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.AvailabilityPreference;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.GradeSubjects;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDisplay;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Service.StudentManagementService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -107,6 +111,16 @@ public class StudentManagementController {
             return ResponseEntity.ok(tutorDisplay);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @PostMapping("/grade-subjects")
+    public ResponseEntity<?> updateGradeSubjects(@RequestBody GradeSubjects gradeSubjects){
+        try {
+            authenticationService.updateGradeSubjects(gradeSubjects);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 

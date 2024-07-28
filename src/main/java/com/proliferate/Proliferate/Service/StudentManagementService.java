@@ -4,6 +4,7 @@ import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Student.ReportDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.GradeSubjects;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import org.springframework.http.ResponseEntity;
 
@@ -14,7 +15,7 @@ public interface StudentManagementService {
     ResponseEntity createAssignment(AssignmentDto assignmentDto);
 
     List<AssignmentDto> getAllAssignments();
-
+	ResponseEntity<?> updateGradeSubjects(GradeSubjects gradeSubjects);
 	void cancelSession(Long sessionId);
 
 	Iterable<StudentEntity> getStudentsByTutorPayments();

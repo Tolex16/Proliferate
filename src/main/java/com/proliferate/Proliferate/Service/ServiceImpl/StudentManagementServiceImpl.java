@@ -4,6 +4,8 @@ import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Student.ReportDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.EducationExperience;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.GradeSubjects;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
@@ -37,6 +39,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
     private final AttendanceRepository attendanceRepository;
 
+    private final Mapper<TutorEntity, GradeSubjects> gradeSubjectsMapper;
     private final ClassScheduleRepository classScheduleRepository;
     private final StudentRepository studentRepository;
     private final SessionRepository sessionRepository;
@@ -293,6 +296,28 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             notificationRepository.deleteById(notificationId);
         } else {
             throw new SubjectNotFoundException("Notification not found with id: " + notificationId);
+        }
+    }
+
+    public ResponseEntity<?> updateGradeSubjects(GradeSubjects gradeSubjects) {
+        try {
+            Long userId = jwtService.getUserId();
+            if (tutorRepository.existsById(userId)) {
+                return tutorRepository.findById(userId).map(
+                        existingUser -> {
+                            Optional.ofNullable(gradeSubjects.getTeachingGrade()).ifPresent(existingUser::setTeachingGrade);
+                            Optional.ofNullable(gradeSubjects.getPreferredSubjects()).ifPresent(existingUser::setPreferredSubjects);
+
+                            GradeSubjects gradeSubject = gradeSubjectsMapper.mapTo(tutorRepository.save(existingUser));
+
+                            return new ResponseEntity<>(HttpStatus.CREATED);
+                        }
+                ).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception error) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 }
