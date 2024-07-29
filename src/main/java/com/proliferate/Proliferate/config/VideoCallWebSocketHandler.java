@@ -1,12 +1,9 @@
 package com.proliferate.Proliferate.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proliferate.Proliferate.Domain.DTO.Chat.SignalRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Configuration;
+import com.proliferate.Proliferate.Domain.DTO.Video.SignalRequest;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.socket.CloseStatus;
 import java.util.HashMap;

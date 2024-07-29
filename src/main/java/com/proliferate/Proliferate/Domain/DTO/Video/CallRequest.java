@@ -1,17 +1,11 @@
-package com.proliferate.Proliferate.Domain.DTO.Chat;
+package com.proliferate.Proliferate.Domain.DTO.Video;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class CallRequest {
-	
     private String caller;
-    
-	private String callee;
-    
+    private String callee;
 }

@@ -1,13 +1,10 @@
-package com.proliferate.Proliferate.Domain.DTO.Chat;
+package com.proliferate.Proliferate.Domain.DTO.Video;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class SignalRequest {
     private String from;
     private String to;
@@ -16,4 +13,3 @@ public class SignalRequest {
     private String candidate;
     private String recipientId; // ID of the recipient user
 }
-
