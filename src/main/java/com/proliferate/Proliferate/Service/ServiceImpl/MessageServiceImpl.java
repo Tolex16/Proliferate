@@ -37,7 +37,7 @@ public class MessageServiceImpl implements MessageService {
         newThread.setThreadId(UUID.randomUUID().toString().substring(0, 6));
         return chatThreadRepository.save(newThread);
     });
-        chatMessage.setThreadId(String.valueOf(thread));
+        chatMessage.setThreadId(thread.getThreadId());
 
         TutorEntity tutor = tutorRepository.findById(chatMessage.getReceiverId()).orElseThrow(() -> new UserNotFoundException("Tutor not present"));
         StudentEntity student = studentRepository.findById(chatMessage.getSenderId()).orElseThrow(() -> new UserNotFoundException("Student not present"));
