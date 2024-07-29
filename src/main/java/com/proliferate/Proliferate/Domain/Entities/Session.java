@@ -1,7 +1,6 @@
 package com.proliferate.Proliferate.Domain.Entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,5 +34,5 @@ public class Session {
 	private int frequency;
 
     @Column(name = "duration")
-    private int duration;
+    private String duration;
 }

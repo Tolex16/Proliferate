@@ -54,7 +54,7 @@ public class MessageServiceImpl implements MessageService {
         message.setSenderFullName(student.getFirstName() + " " + student.getLastName());
         message.setReceiverFullName(tutor.getFirstName() + " " + tutor.getLastName());
         message.setContent(chatMessage.getContent());
-        //message.setTimestamp(LocalDateTime.now());
+        message.setTimestamp(LocalDateTime.now());
 		message.setThread(thread);
         return messageRepository.save(message);
     }

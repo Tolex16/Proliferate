@@ -31,7 +31,7 @@ public class ChatController {
     //@SendTo("/topic/public")
 	@PostMapping("/sendMessage")
     public ChatMessage sendMessage(@RequestBody ChatMessage chatMessage) {
-        chatMessage.setTimestamp(LocalDateTime.now().toString());
+       // chatMessage.setTimestamp(LocalDateTime.now().toString());
 		chatMessage.setType(MessageType.CHAT);
         messageService.sendMessage(chatMessage);
         return chatMessage;
