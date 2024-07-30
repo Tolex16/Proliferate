@@ -233,7 +233,7 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         }
     }
 
-       public Iterable<TutorEntity> getAllTutors() {
+    public Iterable<TutorEntity> getAllTutors() {
         return tutorRepository.findAll();
 }
 

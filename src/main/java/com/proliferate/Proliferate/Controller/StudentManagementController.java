@@ -4,10 +4,7 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.AvailabilityPreference;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.GradeSubjects;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.TutorDisplay;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
@@ -92,16 +89,15 @@ public class StudentManagementController {
         return ResponseEntity.ok(allStudent);
     }
 
-//    @GetMapping("/get-studentProfile/{studentId}")
-//    public ResponseEntity<StudentProfile> getStudentProfile(@PathVariable Long studentId) {
-//        Optional<StudentEntity> studentEntityOptional = authenticationService.getStudentProfile(studentId);
-//        if (studentEntityOptional.isPresent()) {
-//            StudentProfile studentProfile = studentProfileMapper.mapTo(studentEntityOptional.get());
-//            return ResponseEntity.ok(studentProfile);
-//        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-//        }
-//    }
+    @GetMapping("/feedback")
+    public List<FeedbackDto> getFeedbackByTutorName() {
+        return authenticationService.getFeedbackByTutorId();
+    }
+
+    @GetMapping("/feedback/average")
+    public double getAverageRating() {
+        return authenticationService.getAverageRating();
+    }
 
     @GetMapping("/get-bio")
     public ResponseEntity<TutorDisplay> getTutorDisplay() {

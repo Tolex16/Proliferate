@@ -26,6 +26,6 @@ public interface TutorRepository extends JpaRepository<TutorEntity, Long>{
     //List<TutorEntity> findTutorsByPreferredSubject(@Param("subjectTitle") String subjectTitle);
 
     @Query("SELECT t FROM TutorEntity t JOIN t.preferredSubjects s WHERE s = :subjectTitle")
-    List<TutorEntity> findTutorsByPreferredSubject(@Param("subjectTitle") String subjectTitle);
+    List<TutorEntity> findTutorsByPreferredSubjectContainingIgnoreCase(@Param("subjectTitle") String subjectTitle);
 }
 

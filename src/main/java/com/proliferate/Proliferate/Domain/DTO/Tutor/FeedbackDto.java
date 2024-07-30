@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 public class FeedbackDto {
     private Long tutorId;
 
-    private String subject;
+    private Long subjectId;
+
+    private String studentName;
 
     private String sessionDate;
 

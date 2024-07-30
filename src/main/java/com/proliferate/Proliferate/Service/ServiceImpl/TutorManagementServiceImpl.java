@@ -54,8 +54,11 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 
     public Feedback saveFeedback(FeedbackDto feedbackDto) {
         Feedback feedback = new Feedback();
+
+        Long studentId = jwtService.getUserId();
+        feedback.setStudent(studentRepository.findById(studentId).orElseThrow(() -> new  UserNotFoundException("Student not found")));
         feedback.setTutor(tutorRepository.findById(feedbackDto.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
-        feedback.setSubject(feedbackDto.getSubject());
+        feedback.setSubject(subjectRepository.findById(feedbackDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found")));
         feedback.setSessionDate(feedbackDto.getSessionDate());
         feedback.setRating(feedbackDto.getRating());
         feedback.setComments(feedbackDto.getComments());
@@ -63,14 +66,6 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         return feedbackRepository.save(feedback);
     }
 
-    public List<Feedback> getFeedbackByTutorId(Long tutorId) {
-        return feedbackRepository.findByTutorTutorId(tutorId);
-    }
-
-    public double getAverageRating(Long tutorId) {
-        List<Feedback> feedbacks = getFeedbackByTutorId(tutorId);
-        return feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
-    }
 
     public Optional<StudentEntity> getStudentDisplay() {
         Long studentId = jwtService.getUserId();
@@ -132,7 +127,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 	public Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
         String subjectTitle = subject.getTitle();
-        return tutorRepository.findTutorsByPreferredSubject(subjectTitle);
+        return tutorRepository.findTutorsByPreferredSubjectContainingIgnoreCase(subjectTitle);
     }
 	
 	public Iterable<TutorEntity> getTutorsByStudentPayments() {
@@ -228,21 +223,21 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
     double basePrice;
 
     // Handle pricing for KG to Grade 5
-    if (gradeLevel.equals("KG") || gradeLevel.equals("Grade 1") || gradeLevel.equals("Grade 2") ||
-        gradeLevel.equals("Grade 3") || gradeLevel.equals("Grade 4") || gradeLevel.equals("Grade 5")) {
+    if (gradeLevel.equals("KG") || gradeLevel.equals("1") || gradeLevel.equals("2") ||
+        gradeLevel.equals("3") || gradeLevel.equals("4") || gradeLevel.equals("5")) {
 
-        if (subject.getTitle().equals("Mathematics") || subject.getTitle().equals("English")) {
-            if (duration.equals("1 hour")) {
+        if (subject.getTitle().equalsIgnoreCase("Mathematics") || subject.getTitle().equalsIgnoreCase("English")) {
+            if (duration.equalsIgnoreCase("1 hour")) {
                 basePrice = 14;
-            } else if (duration.equals("1.5 hours")) {
+            } else if (duration.equalsIgnoreCase("1.5 hours")) {
                 basePrice = 21;
             } else {
                 throw new IllegalArgumentException("Invalid duration for KG to Grade 5 Mathematics or English");
             }
-        } else if (subject.getTitle().equals("Biology") || subject.getTitle().equals("Chemistry") || subject.getTitle().equals("Physics")) {
-            if (duration.equals("1 hour")) {
+        } else if (subject.getTitle().equalsIgnoreCase("Biology") || subject.getTitle().equalsIgnoreCase("Chemistry") || subject.getTitle().equalsIgnoreCase("Physics")) {
+            if (duration.equalsIgnoreCase("1 hour")) {
                 basePrice = 19;
-            } else if (duration.equals("1.5 hours")) {
+            } else if (duration.equalsIgnoreCase("1.5 hours")) {
                 basePrice = 28.5;
             } else {
                 throw new IllegalArgumentException("Invalid duration for KG to Grade 5 Science subjects");
@@ -252,30 +247,30 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
         }
 
     // Handle pricing for Grades 6 to 12
-    } else if (gradeLevel.equals("Grade 6") || gradeLevel.equals("Grade 7") || gradeLevel.equals("Grade 8") ||
-               gradeLevel.equals("Grade 9") || gradeLevel.equals("Grade 10") || gradeLevel.equals("Grade 11") ||
-               gradeLevel.equals("Grade 12")) {
+    } else if (gradeLevel.equals("6") || gradeLevel.equals("7") || gradeLevel.equals("8") ||
+               gradeLevel.equals("9") || gradeLevel.equals("10") || gradeLevel.equals("11") ||
+               gradeLevel.equals("12")) {
 
-        if (subject.getTitle().equals("Mathematics") || subject.getTitle().equals("English")) {
-            if (duration.equals("1 hour")) {
+        if (subject.getTitle().equalsIgnoreCase("Mathematics") || subject.getTitle().equalsIgnoreCase("English")) {
+            if (duration.equalsIgnoreCase("1 hour")) {
                 basePrice = 16;
-            } else if (duration.equals("1.5 hours")) {
+            } else if (duration.equalsIgnoreCase("1.5 hours")) {
                 basePrice = 24;
             } else {
                 throw new IllegalArgumentException("Invalid duration for Grades 6 to 12 Mathematics or English");
             }
-        } else if (subject.getTitle().equals("Biology")) {
-            if (duration.equals("1 hour")) {
+        } else if (subject.getTitle().equalsIgnoreCase("Biology")) {
+            if (duration.equalsIgnoreCase("1 hour")) {
                 basePrice = 20;
-            } else if (duration.equals("1.5 hours")) {
+            } else if (duration.equalsIgnoreCase("1.5 hours")) {
                 basePrice = 30;
             } else {
                 throw new IllegalArgumentException("Invalid duration for Grades 6 to 12 Biology");
             }
-        } else if (subject.getTitle().equals("Chemistry") || subject.getTitle().equals("Physics")) {
-            if (duration.equals("1 hour")) {
+        } else if (subject.getTitle().equalsIgnoreCase("Chemistry") || subject.getTitle().equalsIgnoreCase("Physics")) {
+            if (duration.equalsIgnoreCase("1 hour")) {
                 basePrice = 16;
-            } else if (duration.equals("1.5 hours")) {
+            } else if (duration.equalsIgnoreCase("1.5 hours")) {
                 basePrice = 24;
             } else {
                 throw new IllegalArgumentException("Invalid duration for Grades 6 to 12 Chemistry or Physics");
@@ -285,19 +280,19 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
         }
 
     // Handle pricing for "Any Grade" subjects
-    } else if (gradeLevel.equals("Any Grade")) {
-        if (subject.getTitle().equals("STEM (Coding & Robotics)")) {
-            if (duration.equals("1 hour")) {
+    } else if (gradeLevel.equalsIgnoreCase("Any Grade")) {
+        if (subject.getTitle().equalsIgnoreCase("STEM (Coding & Robotics)")) {
+            if (duration.equalsIgnoreCase("1 hour")) {
                 basePrice = 20;
-            } else if (duration.equals("1.5 hours")) {
+            } else if (duration.equalsIgnoreCase("1.5 hours")) {
                 basePrice = 30;
             } else {
                 throw new IllegalArgumentException("Invalid duration for Any Grade STEM (Coding & Robotics)");
             }
-        } else if (subject.getTitle().equals("French") || subject.getTitle().equals("Spanish") || subject.getTitle().equals("German")) {
-            if (duration.equals("1 hour")) {
+        } else if (subject.getTitle().equalsIgnoreCase("French") || subject.getTitle().equalsIgnoreCase("Spanish") || subject.getTitle().equalsIgnoreCase("German")) {
+            if (duration.equalsIgnoreCase("1 hour")) {
                 basePrice = 16;
-            } else if (duration.equals("1.5 hours")) {
+            } else if (duration.equalsIgnoreCase("1.5 hours")) {
                 basePrice = 24;
             } else {
                 throw new IllegalArgumentException("Invalid duration for Any Grade language subjects");

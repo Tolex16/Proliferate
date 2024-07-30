@@ -15,11 +15,19 @@ public class Feedback {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "student_id")
+    @JsonBackReference
+    private StudentEntity student;
+
+    @ManyToOne
     @JoinColumn(name = "tutor_id", nullable = false)
     @JsonBackReference
     private TutorEntity tutor;
 
-    private String subject;
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
+    @JsonBackReference
+    private Subject subject;
 
     private String sessionDate;
 

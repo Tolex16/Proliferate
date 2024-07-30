@@ -5,6 +5,7 @@ import com.proliferate.Proliferate.Domain.DTO.Student.ReportDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.EducationExperience;
+import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.GradeSubjects;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
@@ -45,6 +46,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private final SessionRepository sessionRepository;
     private final AdminRepository adminRepository;
     private final ScoreRepository scoreRepository;
+
+    private final FeedbackRepository feedbackRepository;
     private final SubjectRepository subjectRepository;
     @Autowired
     private final JwtService jwtService;
@@ -69,7 +72,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             assignment.setTutor(tutor);
             assignment.setSubject(subject);
             assignment.setAssignedStudent(student);
-			
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate dueDate = LocalDate.parse(assignmentDto.getDueDate(), formatter);
             assignment.setDueDate(dueDate);
@@ -121,20 +124,6 @@ public class StudentManagementServiceImpl implements StudentManagementService {
                 .collect(Collectors.toList());
     }
 
-//    private String determineFileType(String base64File) {
-//        // This is a simplified method to determine the file type based on its content
-//        // You may want to use a more robust method in a real-world application
-//        if (base64File.startsWith("JVBERi0")) {
-//            return "application/pdf";
-//        } else if (base64File.startsWith("/9j/")) {
-//            return "image/jpeg";
-//        } else if (base64File.startsWith("iVBORw0KGgo")) {
-//            return "image/png";
-//        } else {
-//            return "application/octet-stream"; // Default fallback
-//        }
-//    }
-
     public void deleteAssignment(Long assignmentId) {
         Optional<Assignment> assignment = assignmentRepository.findById(assignmentId);
         if (assignment.isPresent()) {
@@ -154,7 +143,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
     return file.getSize() <= MAX_FILE_SIZE;
     }
-	
+
     @Scheduled(cron = "0 0 * * * *") // This cron expression runs every hour
     public void clearAssignmentsAfterDueDate() {
         List<Assignment> assignments = assignmentRepository.findAll();
@@ -173,8 +162,29 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             }
         }
     }
-	
-	
+
+    public List<FeedbackDto> getFeedbackByTutorId() {
+        Long tutorId = jwtService.getUserId();
+        List<Feedback> feedbacks =feedbackRepository.findByTutorTutorId(tutorId);
+        return feedbacks.stream()
+                .map(this::convertToFeedback)
+                .collect(Collectors.toList());
+    }
+    private FeedbackDto convertToFeedback(Feedback feedback) {
+        FeedbackDto dto = new FeedbackDto();
+        dto.setStudentName(feedback.getStudent().getFirstName() + " " + feedback.getStudent().getLastName());
+        dto.setSessionDate(feedback.getSessionDate());
+        dto.setRating(feedback.getRating());
+        dto.setComments(feedback.getComments());
+
+        return dto;
+    }
+
+    public double getAverageRating() {
+        List<FeedbackDto> feedbacks = getFeedbackByTutorId();
+        return feedbacks.stream().mapToInt(FeedbackDto::getRating).average().orElse(0);
+    }
+
     public List<NotificationDTO> getNotificationsForTutor() {
         Long tutorId = jwtService.getUserId();
         List<Notifications> notifications = notificationRepository.findByTutorTutorId(tutorId);
@@ -210,7 +220,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             return months + (months == 1 ? " month ago" : " months ago");
         }
     }
-	
+
     public void cancelSession(Long sessionId) {
         Optional<Session> session = sessionRepository.findById(sessionId);
         Long tutorId = jwtService.getUserId();
@@ -273,7 +283,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
         return scoreRepository.save(score);
     }
-	
+
 	private final ReportRepository reportRepository;
 
     public List<Report> getAllReports() {
@@ -285,7 +295,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 		report.setStudent(studentRepository.findById(reportDto.getStudentId()).orElseThrow(() -> new UserNotFoundException("Student not found")));
         report.setSubject(subjectRepository.findById(reportDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not present")));
 		report.setStatus(reportDto.getStatus());
-		
+
         return reportRepository.save(report);
     }
 

@@ -16,10 +16,6 @@ import java.util.Optional;
 
 public interface TutorManagementService {
     Feedback saveFeedback(FeedbackDto feedbackDto);
-
-    List<Feedback> getFeedbackByTutorId(Long tutorId);
-
-    double getAverageRating(Long tutorId);
 	
 	Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId);
 	

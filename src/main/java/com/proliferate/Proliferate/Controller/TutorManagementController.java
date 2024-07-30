@@ -40,17 +40,6 @@ public class TutorManagementController {
         return feedbackService.saveFeedback(feedback);
     }
 
-    @GetMapping("/feedback/{tutorId}")
-    public List<Feedback> getFeedbackByTutorName(@PathVariable Long tutorId) {
-        return feedbackService.getFeedbackByTutorId(tutorId);
-    }
-
-    @GetMapping("/feedback/{tutorId}/average")
-    public double getAverageRating(@PathVariable Long tutorId) {
-        return feedbackService.getAverageRating(tutorId);
-    }
-
-
     @GetMapping("/get-tutors/paid")
     public ResponseEntity<Iterable<TutorTable>> getAllTutors() {
         Iterable<TutorEntity> tutors = feedbackService.getTutorsByStudentPayments();
@@ -157,8 +146,6 @@ public class TutorManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-	
-
     @GetMapping("/assignments")
     public ResponseEntity<List<AssignmentDto>> getStudentAssignments() {
             List<AssignmentDto> assignments = feedbackService.getStudentAssignments();
