@@ -36,7 +36,7 @@ public class StudentManagementController {
 
     private final Mapper<TutorEntity, TutorDisplay> tutorDisplayMapper;
 
-    private final Mapper<StudentEntity, StudentProfile> studentProfileMapper;
+    private final Mapper<ClassSchedule, Schedule> classScheduleMapper;
 
     @PostMapping(path = "/create-assignment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addAssignment(@ModelAttribute AssignmentDto assignmentDto, BindingResult result){
@@ -99,6 +99,16 @@ public class StudentManagementController {
         return authenticationService.getAverageRating();
     }
 
+    @DeleteMapping("/delete-feedback/{feedbackId}")
+    public ResponseEntity<?> deleteFeedback(@PathVariable Long feedbackId) {
+        try {
+            authenticationService.deleteFeedback(feedbackId);
+            return ResponseEntity.ok("Feedback deleted successfully.");
+        } catch (SubjectNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/get-bio")
     public ResponseEntity<TutorDisplay> getTutorDisplay() {
         Optional<TutorEntity> tutorEntityOptional = authenticationService.getTutorDisplay();
@@ -143,8 +153,10 @@ public class StudentManagementController {
     }
 	
 	@GetMapping("/schedule")
-    public List<ClassSchedule> getTutorSchedule() {
-        return authenticationService.getTutorSchedule();
+    public ResponseEntity<Iterable<Schedule>> getTutorSchedule() {
+        Iterable<ClassSchedule> classSchedules = authenticationService.getTutorSchedule();
+        Iterable<Schedule> tutorSchedules = classScheduleMapper.mapListTo(classSchedules);
+        return ResponseEntity.ok(tutorSchedules);
     }
 
     @PostMapping("/add-score")

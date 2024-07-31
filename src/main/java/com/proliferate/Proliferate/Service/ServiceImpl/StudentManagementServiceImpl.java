@@ -185,6 +185,15 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return feedbacks.stream().mapToInt(FeedbackDto::getRating).average().orElse(0);
     }
 
+    public void deleteFeedback(Long feedbackId) {
+        Optional<Feedback> feedback = feedbackRepository.findById(feedbackId);
+        if (feedback.isPresent()) {
+            feedbackRepository.deleteById(feedbackId);
+        } else {
+            throw new SubjectNotFoundException("Feedback not found with id: " + feedbackId);
+        }
+    }
+
     public List<NotificationDTO> getNotificationsForTutor() {
         Long tutorId = jwtService.getUserId();
         List<Notifications> notifications = notificationRepository.findByTutorTutorId(tutorId);

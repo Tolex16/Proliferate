@@ -18,6 +18,7 @@ public interface StudentManagementService {
     List<AssignmentDto> getAllAssignments();
 	List<FeedbackDto> getFeedbackByTutorId();
 	double getAverageRating();
+	void deleteFeedback(Long feedbackId);
 	ResponseEntity<?> updateGradeSubjects(GradeSubjects gradeSubjects);
 	void cancelSession(Long sessionId);
 

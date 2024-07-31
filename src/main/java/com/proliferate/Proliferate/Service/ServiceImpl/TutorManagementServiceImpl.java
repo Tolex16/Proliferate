@@ -200,8 +200,10 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         session.setDuration(sessionDto.getDuration());
 
         double price = pricePerSession * frequency;
+        double HSTTax = price * 0.13;
 
-		
+        double pricePlusTaxes = price + HSTTax;
+
 		 // Save the session
         Session savedSession = sessionRepository.save(session);
 	
@@ -215,7 +217,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         notificationRepository.save(notification);
 
 		    // Prepare the response with session ID and calculated price
-        return new SessionResponse(savedSession.getSessionId(), price);
+        return new SessionResponse(savedSession.getSessionId(), pricePlusTaxes);
     }
 	
 private double calculatePrice(StudentEntity student, Subject subject, String duration) {
