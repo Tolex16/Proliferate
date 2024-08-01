@@ -25,7 +25,13 @@ public interface TutorRepository extends JpaRepository<TutorEntity, Long>{
     //@Query("SELECT t FROM TutorEntity t WHERE :subjectTitle IN elements(t.preferredSubjects)")
     //List<TutorEntity> findTutorsByPreferredSubject(@Param("subjectTitle") String subjectTitle);
 
-    @Query("SELECT t FROM TutorEntity t JOIN t.preferredSubjects s WHERE s = :subjectTitle")
-    List<TutorEntity> findTutorsByPreferredSubjectContainingIgnoreCase(@Param("subjectTitle") String subjectTitle);
+    //@Query("SELECT t FROM TutorEntity t JOIN t.preferredSubjects s WHERE s = :subjectTitle")
+    //List<TutorEntity> findTutorsByPreferredSubjectContainingIgnoreCase(@Param("subjectTitle") String subjectTitle);
+	
+	//@Query("SELECT t FROM TutorEntity t WHERE LOWER(:subjectTitle) IN (SELECT LOWER(subject) FROM TutorEntity tut JOIN tut.preferredSubjects subject WHERE tut = t)")
+    //List<TutorEntity> findTutorsByPreferredSubjectContainingIgnoreCase(@Param("subjectTitle") String subjectTitle);
+	
+	@Query("SELECT t FROM TutorEntity t WHERE LOWER(:subjectTitle) IN (SELECT LOWER(subject) FROM TutorEntity tut JOIN tut.preferredSubjects subject WHERE tut = t) AND t.teachingGrade = :gradeLevel")
+    List<TutorEntity> findTutorsBySubjectAndGrade(@Param("subjectTitle") String subjectTitle, @Param("gradeLevel") String gradeLevel);
 }
 

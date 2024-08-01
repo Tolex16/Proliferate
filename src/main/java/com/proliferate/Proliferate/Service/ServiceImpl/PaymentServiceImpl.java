@@ -176,7 +176,7 @@ public class PaymentServiceImpl implements PaymentService {
             Notifications notification = new Notifications();
             notification.setAdmin(admin);
             notification.setType("Payment Confirmation");
-            notification.setMessage("Payment received: Your payment for the tutoring session with " + tutor.getFirstName() + " " + tutor.getLastName() + " has successfully paid for the tutoring session with " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + ".");
+            notification.setMessage("Payment received: " + student.getFirstName() + " " + student.getLastName() + " has successfully paid for the tutoring session with " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + ".");
             notification.setCreatedAt(LocalDateTime.now());
 
             notificationRepository.save(notification);

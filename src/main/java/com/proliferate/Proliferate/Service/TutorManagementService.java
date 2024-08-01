@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface TutorManagementService {
     Feedback saveFeedback(FeedbackDto feedbackDto);
 	
-	Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId);
+	Iterable<TutorEntity> getTutorsBySubjectTitleAndGrade(Long subjectId);
 	
     SessionResponse createSession(SessionDto sessionDto);
     void cancelSession(Long sessionId);

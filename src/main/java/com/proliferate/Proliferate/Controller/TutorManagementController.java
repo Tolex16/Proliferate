@@ -48,8 +48,8 @@ public class TutorManagementController {
     }
 	
 	@GetMapping("/get-all-tutors/{subjectId}")
-    public ResponseEntity<Iterable<TutorTable>> getTutorsBySubject(@PathVariable Long subjectId) {
-        Iterable<TutorEntity> tutors = feedbackService.getTutorsBySubjectTitle(subjectId);
+    public ResponseEntity<Iterable<TutorTable>> getTutorsBySubjectAndGrade(@PathVariable Long subjectId) {
+        Iterable<TutorEntity> tutors = feedbackService.getTutorsBySubjectTitleAndGrade(subjectId);
         Iterable<TutorTable> allTutors = tutorTableMapper.mapListTo(tutors);
         return ResponseEntity.ok(allTutors);
     }

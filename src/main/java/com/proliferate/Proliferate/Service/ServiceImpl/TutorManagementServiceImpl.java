@@ -39,7 +39,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     @Autowired
     private final JwtService jwtService;
     private final TutorRepository tutorRepository;
-
+    private  final AdminRepository adminRepository;
 	private final StudentRepository studentRepository;
 	private final ScoreRepository scoreRepository;
 
@@ -63,6 +63,17 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         feedback.setRating(feedbackDto.getRating());
         feedback.setComments(feedbackDto.getComments());
 
+        List<AdminEntity> admins = adminRepository.findAll();
+        for (AdminEntity admin : admins) {
+            Notifications notification = new Notifications();
+
+            notification.setAdmin(admin);
+            notification.setType("Review and Rating Received");
+            notification.setMessage("New review and rating: " + feedback.getStudent().getFirstName() + " " + feedback.getStudent().getLastName() + "has provided a review and rating for the session with " + feedback.getTutor().getFirstName() + " " + feedback.getTutor().getLastName() + ".");
+            notification.setCreatedAt(LocalDateTime.now());
+
+            notificationRepository.save(notification);
+        }
         return feedbackRepository.save(feedback);
     }
 
@@ -124,10 +135,15 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     }
 
 	
-	public Iterable<TutorEntity> getTutorsBySubjectTitle(Long subjectId) {
+	public Iterable<TutorEntity> getTutorsBySubjectTitleAndGrade(Long subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
         String subjectTitle = subject.getTitle();
-        return tutorRepository.findTutorsByPreferredSubjectContainingIgnoreCase(subjectTitle);
+		
+		Long studentId = jwtService.getUserId();
+		StudentEntity student = studentRepository.findById(studentId)
+                            .orElseThrow(() -> new UserNotFoundException("Student not found"));
+        String gradeLevel = student.getGradeYear();
+         return tutorRepository.findTutorsBySubjectAndGrade(subjectTitle, gradeLevel);
     }
 	
 	public Iterable<TutorEntity> getTutorsByStudentPayments() {
@@ -204,6 +220,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
 
         double pricePlusTaxes = price + HSTTax;
 
+        double monthlyPrice = pricePlusTaxes * calculateMonthlyRate(frequency);
+
 		 // Save the session
         Session savedSession = sessionRepository.save(session);
 	
@@ -217,7 +235,7 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         notificationRepository.save(notification);
 
 		    // Prepare the response with session ID and calculated price
-        return new SessionResponse(savedSession.getSessionId(), pricePlusTaxes);
+        return new SessionResponse(savedSession.getSessionId(), monthlyPrice);
     }
 	
 private double calculatePrice(StudentEntity student, Subject subject, String duration) {
@@ -322,14 +340,21 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
     return student.getGradeYear(); // Assuming this field exists in StudentEntity
   }
 
-    //private boolean isPrimaryGrade(String gradeLevel) {
-     //   return gradeLevel.equals("KG") || 
-      //         gradeLevel.equals("Grade 1") || 
-    //           gradeLevel.equals("Grade 2") || 
-    //           gradeLevel.equals("Grade 3") || 
-    //           gradeLevel.equals("Grade 4") || 
-     //          gradeLevel.equals("Grade 5");
-  // }
+    private int calculateMonthlyRate(int frequency) {
+         int rate;
+
+        if (frequency == 1 ){
+            rate = 4;
+        } else if (frequency == 2){
+            rate = 8;
+        } else if (frequency == 3){
+            rate = 24;
+        } else {
+            throw new IllegalArgumentException("Invalid frequency");
+        }
+
+        return rate;
+   }
 
     public void cancelSession(Long sessionId) {
         Optional<Session> session = sessionRepository.findById(sessionId);

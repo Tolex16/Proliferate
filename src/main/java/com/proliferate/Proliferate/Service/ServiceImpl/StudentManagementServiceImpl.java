@@ -241,15 +241,22 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             Notifications notification = new Notifications();
 
             notification.setStudent(session.get().getStudent());
-//            if (session.get().getStudent().getStudentImage() != null) {
-//                notification.setProfileImage(Base64.getEncoder().encodeToString(session.get().getStudent().getStudentImage()));
-//            } else {
-//                notification.setProfileImage(null); // or set a default image, if applicable
-//            }
             notification.setType("Session Request Declined by Tutor");
             notification.setMessage( "Session declined: Unfortunately, " + tutor.getFirstName() + " " + tutor.getLastName() + " has declined your tutoring session request. Consider choosing another available tutor.");
             notification.setCreatedAt(LocalDateTime.now());
             notificationRepository.save(notification);
+
+            List<AdminEntity> admins = adminRepository.findAll();
+            for (AdminEntity admin : admins) {
+                Notifications notification1 = new Notifications();
+
+                notification1.setAdmin(admin);
+                notification1.setType("Session Rescheduled by Tutor");
+                notification1.setMessage("Session Rescheduled: " + tutor.getFirstName() + " " + tutor.getLastName() + "has canceled the tutoring session with " + session.get().getStudent().getFirstName() + " " + session.get().getStudent().getLastName() + " on "+ session.get().getStudent().getAvailability() +".");
+                notification1.setCreatedAt(LocalDateTime.now());
+
+                notificationRepository.save(notification1);
+            }
         } else {
             throw new SubjectNotFoundException("Session not found with id: " + sessionId);
         }
