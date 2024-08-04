@@ -220,8 +220,10 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
         return new ResponseEntity<>(error.getMessage(), HttpStatus.NOT_FOUND);
     } catch (Exception error) {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (EmailSendingException e) {
+        throw new RuntimeException(e);
     }
-}
+   }
 
   @Override
   public ResponseEntity<?> verifyToken(String token) {

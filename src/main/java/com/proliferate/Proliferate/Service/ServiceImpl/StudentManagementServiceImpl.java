@@ -9,11 +9,9 @@ import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.GradeSubjects;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
-import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.*;
 import com.proliferate.Proliferate.Repository.*;
+import com.proliferate.Proliferate.Service.EmailService;
 import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.StudentManagementService;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +49,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private final SubjectRepository subjectRepository;
     @Autowired
     private final JwtService jwtService;
+    @Autowired
+    private EmailService emailService;
     private final TutorRepository tutorRepository;
     private final NotificationRepository notificationRepository;
     private final Mapper<Assignment, AssignmentDto> assignmentMapper;
@@ -79,6 +79,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
             assignmentRepository.save(assignment);
 
+            emailService.sendNewAssignmentNotificationEmail(student.getEmail(),student.getFirstName(),student.getLastName(),assignment.getTitle(),assignment.getSubject().getTitle(), assignment.getDueDate());
             List<AdminEntity> admins = adminRepository.findAll();
             for (AdminEntity admin : admins) {
                 Notifications notification = new Notifications();
@@ -101,6 +102,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (AssignmentNotCreatedException | IOException error) {
             throw new AssignmentNotCreatedException("Assignment could not be created");
+        } catch (EmailSendingException e) {
+            throw new RuntimeException(e);
         }
     }
 

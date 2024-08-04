@@ -127,6 +127,16 @@ public class StudentEntity implements UserDetails {
 //
 //    @Column(name = "2fa_code_expiry")
 //    private LocalDateTime twoFactorCodeExpiry;
+
+    @Column(name = "friend_name")
+    @NotNull(message = "Friend Name cannot be empty")
+    @NotBlank(message = "Friend Name cannot be Blank")
+    private String friendName;
+
+    @Column(name = "friend_email")
+    @NotBlank(message = "Email cannot be blank")
+    @Email
+    private String friendEmail;
 	
     @Column(name = "role")
     @Enumerated(EnumType.STRING)

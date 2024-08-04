@@ -19,6 +19,8 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long>{
     Optional<StudentEntity> findByVerificationToken(String token);
     Optional<StudentEntity> findByEmail(String email);
 
+    Optional<StudentEntity> findByFriendEmail(String email);
+
     Boolean existsByUserName(String userName);
 
     StudentEntity findByRole(Role role);

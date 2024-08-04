@@ -4,7 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.proliferate.Proliferate.Domain.DTO.Video.CallRequest;
 import com.proliferate.Proliferate.Domain.DTO.Video.SignalRequest;
+import com.proliferate.Proliferate.Domain.Entities.Notifications;
+import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
+import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
+import com.proliferate.Proliferate.Repository.NotificationRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.JwtService;
@@ -19,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +35,7 @@ public class VideoCallController {
 
     private final TutorRepository tutorRepository;
     private final StudentRepository studentRepository;
+    private final NotificationRepository notificationRepository;
     private final VideoCallWebSocketHandler videoCallWebSocketHandler;
 
     private Map<String, CallRequest> ongoingCalls = new HashMap<>();
@@ -77,6 +84,14 @@ public class VideoCallController {
         if (!studentRepository.existsByUserName(request.getCallee()) && !tutorRepository.existsByEmail(request.getCallee())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Callee not found");
         }
+        
+        Notifications notification = new Notifications();
+        StudentEntity student = studentRepository.findByUserName(request.getCaller()).orElseThrow(() -> new UserNotFoundException("Student not present"));
+        TutorEntity tutor = tutorRepository.findByEmail(request.getCallee()).orElseThrow(() -> new UserNotFoundException("Tutor not present"));
+        notification.setStudent(student);
+        notification.setType("Review and Rating Request");
+        notification.setMessage( "Feedback requested: Please provide a review and rating for your recent tutoring session with " + tutor.getFirstName() + " " + tutor.getLastName() + ". Your feedback is valuable.");
+        notificationRepository.save(notification);
 
         // Notify both parties that the call has ended
         CallRequest call = ongoingCalls.remove(request.getCaller());
@@ -99,6 +114,7 @@ public class VideoCallController {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No ongoing call found");
         }
+
     }
 
     @PostMapping("/signal")

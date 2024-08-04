@@ -11,6 +11,7 @@ import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedExcepti
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.Response.SessionResponse;
 import com.proliferate.Proliferate.Service.TutorManagementService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -155,4 +156,13 @@ public class TutorManagementController {
             return new ResponseEntity<>(assignments, HttpStatus.OK);
     }
 
+
+
+    @PostMapping("/friend-invite")
+    public ResponseEntity<?> sendFriendInvite(@Valid @RequestBody FriendInvite friendInvite, BindingResult result){
+        System.out.println("Has errors?" + result.hasErrors());
+        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
+
+        return feedbackService.friendInvite(friendInvite);
+    }
 }

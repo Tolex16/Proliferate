@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
+import com.proliferate.Proliferate.Domain.DTO.Student.FriendInvite;
 import com.proliferate.Proliferate.Domain.DTO.Student.SessionDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
@@ -9,10 +10,12 @@ import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
+import com.proliferate.Proliferate.ExeceptionHandler.EmailSendingException;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.*;
 import com.proliferate.Proliferate.Response.SessionResponse;
+import com.proliferate.Proliferate.Service.EmailService;
 import com.proliferate.Proliferate.Service.JwtService;
 import com.proliferate.Proliferate.Service.TutorManagementService;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +45,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
     private  final AdminRepository adminRepository;
 	private final StudentRepository studentRepository;
 	private final ScoreRepository scoreRepository;
-
+    private final Mapper<StudentEntity, FriendInvite> friendInviteMapper;
+    private final EmailService emailService;
     private final SessionRepository sessionRepository;
     private final NotificationRepository notificationRepository;
 	private final AssignmentRepository assignmentRepository;
@@ -94,12 +98,13 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 }
 
                 assignmentRepository.save(assignment);
-
                 Long studentId = jwtService.getUserId();
+                StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
+
+                emailService.sendAssignmentSubmissionEmail(student.getEmail(),student.getFirstName(),student.getLastName(),assignment.getTitle(),assignment.getSubject().getTitle());
                 Notifications notification = new Notifications();
 
-                //StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
-                notification.setTutor(assignment.getTutor());
+               notification.setTutor(assignment.getTutor());
 
                 notification.setType("Uploaded Answers by Student");
                 notification.setMessage("Assignment Solution uploaded: " + assignment.getAssignedStudent().getFirstName() + " "+ assignment.getAssignedStudent().getLastName() + " " + "has uploaded the study's " +
@@ -112,6 +117,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             }
         } catch (IOException e) {
             return new ResponseEntity<>("Error uploading solution", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (EmailSendingException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -180,12 +187,31 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 Long studentId = jwtService.getUserId();
                 StudentEntity student = studentRepository.findById(studentId).orElseThrow(() -> new UserNotFoundException("Student not found"));
                 classSchedule.setStudent(student);
-
+//                TutorEntity tutor = tutorRepository.findById(schedule.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found"));
+//                classSchedule.setTutor(tutor);
                 classSchedule.setDate(schedule.getDate());
                 classSchedule.setTime(schedule.getTime());
                 classSchedule.setReason(schedule.getReason());
+
+                try {
+                    emailService.sendClassRescheduledNotificationEmail(classSchedule.getTutor().getEmail(), student.getFirstName(),student.getLastName(), classSchedule.getTutor().getFirstName(),classSchedule.getTutor().getLastName(), schedule.getReason(), classScheduleOpt.get().getDate(), classScheduleOpt.get().getDate());
+                } catch (EmailSendingException e) {
+                    throw new RuntimeException(e);
+                }
+                Notifications notification = new Notifications();
+
+                notification.setTutor(classSchedule.getTutor());
+
+                notification.setType("Session Rescheduled by Student");
+                notification.setMessage("Session rescheduled: " + student.getFirstName() + " " + student.getLastName() + "  has rescheduled the tutoring session with" + classSchedule.getTutor().getFirstName()
+                        + " " + classSchedule.getTutor().getLastName() + " from "+ classScheduleOpt.get().getDate() + " and " + classScheduleOpt.get().getTime() + " to " + schedule.getDate() + " and " + schedule.getTime() + " due to " + schedule.getReason() + ".");
+                notification.setCreatedAt(LocalDateTime.now());
+                notificationRepository.save(notification);
+
                 return classScheduleRepository.save(classSchedule);
+
             }
+
             return new ResponseEntity<ClassSchedule>(HttpStatus.CREATED).getBody();
     }
 
@@ -445,4 +471,19 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
             throw new SubjectNotFoundException("Notification not found with id: " + notificationId);
         }
     }
+
+    public ResponseEntity<?> friendInvite(FriendInvite friendInvite){
+
+        try {
+            Long userId = jwtService.getUserId();;
+            StudentEntity existingStudent = studentRepository.findById(userId).orElse(null);
+            StudentEntity invitationEmail = friendInviteMapper.mapFrom(friendInvite);
+            studentRepository.save(invitationEmail);
+            emailService.sendInvitationEmail(friendInvite.getEmail(), friendInvite.getFriendName(), existingStudent.getFirstName());
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

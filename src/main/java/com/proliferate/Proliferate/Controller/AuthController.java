@@ -3,7 +3,6 @@ package com.proliferate.Proliferate.Controller;
 import com.proliferate.Proliferate.Domain.DTO.*;
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.ExeceptionHandler.*;
-import com.proliferate.Proliferate.Service.InviteService;
 import com.proliferate.Proliferate.Service.StudentAuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -29,9 +28,6 @@ public class AuthController {
 
     @Autowired
     private final StudentAuthenticationService authenticationService;
-
-    @Autowired
-    private final InviteService inviteService;
 
     @PostMapping("/studentPersonalDetails")
     public ResponseEntity<?> registerPersonalDetails(@Valid @RequestBody StudentRegisterPersDeets studentRegisterPersDeets, BindingResult result){
@@ -145,15 +141,6 @@ public class AuthController {
         // In case of any unexpected exceptions, return an internal server error
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
-
-
-    @PostMapping("/friend-invite")
-    public ResponseEntity<?> sendFriendInvite(@Valid @RequestBody FriendInvite friendInvite, BindingResult result){
-        System.out.println("Has errors?" + result.hasErrors());
-        if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
-
-        return inviteService.friendInvite(friendInvite);
     }
 
     @PostMapping(path = "/update-student", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

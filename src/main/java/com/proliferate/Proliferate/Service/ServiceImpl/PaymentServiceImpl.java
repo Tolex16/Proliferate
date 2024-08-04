@@ -2,6 +2,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Payment.PaymentRequest;
 import com.proliferate.Proliferate.Domain.Entities.*;
+import com.proliferate.Proliferate.ExeceptionHandler.EmailSendingException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.*;
 import com.proliferate.Proliferate.Response.EarningsHistoryResponse;
@@ -171,6 +172,8 @@ public class PaymentServiceImpl implements PaymentService {
 		payment.setDescription(paymentRequest.getDescription());
         paymentRepository.save(payment);
 
+        emailService.sendPaymentConfirmationEmail(student.getEmail(), student.getFirstName(), student.getLastName(), payment.getAmount(), payment.getDate(), payment.getPaymentMethod());
+
         List<AdminEntity> admins = adminRepository.findAll();
         for (AdminEntity admin : admins) {
             Notifications notification = new Notifications();
@@ -181,7 +184,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             notificationRepository.save(notification);
         }
-
+        emailService.sendClassEnrollmentConfirmationEmail(student.getEmail(),student.getFirstName(),student.getLastName(),session.getSubject().getTitle(),student.getAvailability(),tutor.getFirstName(),tutor.getLastName());
         Notifications notification1 = new Notifications();
 
         notification1.setStudent(student);
@@ -200,8 +203,10 @@ public class PaymentServiceImpl implements PaymentService {
         } catch (NoSuchElementException e) {
         logger.error("Entity not found", e);
         throw e;
+    } catch (EmailSendingException e) {
+            throw new RuntimeException(e);
+        }
     }
-}
 	
 
 	
@@ -211,7 +216,11 @@ public class PaymentServiceImpl implements PaymentService {
         if (payment != null) {
             payment.setStatus(Status.FAILED);
             paymentRepository.save(payment);
-
+            try {
+                emailService.sendPaymentFailureEmail(payment.getStudent().getEmail(), payment.getStudent().getFirstName(), payment.getStudent().getLastName());
+            } catch (EmailSendingException e) {
+                throw new RuntimeException(e);
+            }
             List<AdminEntity> admins = adminRepository.findAll();
             for (AdminEntity admin : admins) {
                 Notifications notification = new Notifications();

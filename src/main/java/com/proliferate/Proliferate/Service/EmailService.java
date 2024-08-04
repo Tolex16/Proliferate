@@ -1,19 +1,21 @@
 package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.Gender;
+import com.proliferate.Proliferate.ExeceptionHandler.EmailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 
@@ -27,7 +29,7 @@ public class EmailService {
    public void studentRegistrationConfirmationEmail(
             String to, String studentFirstName, String studentLastName, String email, Gender gender, String contactNumber, 
             int age, String grade, String subjects, String tutoringFormat, String availability, 
-            String additionalPreferences, String shortTermGoals, String longTermGoals, String token) {
+            String additionalPreferences, String shortTermGoals, String longTermGoals, String token) throws EmailSendingException {
         
         String subject = "Welcome to Proliferate!";
         String body = buildEmailBody(studentFirstName, studentLastName, email, gender, contactNumber, age, grade, subjects, 
@@ -42,64 +44,88 @@ public class EmailService {
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 
+        // Add the logo as an inline resource
+        FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+        helper.addInline("proliferateLogo", logoResource);
+        
+        // Add the drawing as an inline resource
+        FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.jpg"));
+        helper.addInline("signature", signatureResource);
+		
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             e.printStackTrace();
             // Optionally log the exception or rethrow it as a custom exception
-            // throw new EmailSendingException("Failed to send email", e);
+        throw new EmailSendingException("Failed to send email", e);
         }
     }
 
     private String buildEmailBody(
-            String studentFirstName, String studentLastName, String email, Gender gender, String contactNumber, 
-            int age, String grade, String subjects, String tutoringFormat, String availability, 
-            String additionalPreferences, String shortTermGoals, String longTermGoals, String token) {
-        
-        StringBuilder bodyBuilder = new StringBuilder();
-        bodyBuilder.append("<html>");
-        bodyBuilder.append("<body style=\"font-family: Arial, sans-serif; line-height: 1.6;\">");
-        bodyBuilder.append("<div style=\"max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;\">");
-        bodyBuilder.append("<h2 style=\"color: #333;\">Dear ").append(studentFirstName).append(",</h2>");
-        bodyBuilder.append("<p>Congratulations on successfully registering with Proliferate! We're excited to have you join our community of learners and tutors.</p>");
-        bodyBuilder.append("<p>Here's a summary of the information you provided during registration:</p>");
-        bodyBuilder.append("<h3>Personal Information:</h3>");
-        bodyBuilder.append("<ul>");
-        bodyBuilder.append("<li>Full Name: ").append(studentFirstName).append(" ").append(studentLastName).append("</li>");
-        bodyBuilder.append("<li>Email Address: ").append(email).append("</li>");
-        bodyBuilder.append("<li>Gender: ").append(gender).append("</li>");
-        bodyBuilder.append("<li>Contact Number: ").append(contactNumber).append("</li>");
-        bodyBuilder.append("<li>Age: ").append(age).append("</li>");
-        bodyBuilder.append("</ul>");
-        bodyBuilder.append("<h3>Academic Details:</h3>");
-        bodyBuilder.append("<ul>");
-        bodyBuilder.append("<li>Grade/Year: ").append(grade).append("</li>");
-        bodyBuilder.append("<li>Subjects Needing Tutoring: ").append(subjects).append("</li>");
-        bodyBuilder.append("</ul>");
-        bodyBuilder.append("<h3>Tutoring Preferences:</h3>");
-        bodyBuilder.append("<ul>");
-        bodyBuilder.append("<li>Preferred Tutoring Format: ").append(tutoringFormat).append("</li>");
-        bodyBuilder.append("<li>Availability: ").append(availability).append("</li>");
-        bodyBuilder.append("<li>Additional Preferences/Requirements: ").append(additionalPreferences).append("</li>");
-        bodyBuilder.append("</ul>");
-        bodyBuilder.append("<h3>Learning Goals:</h3>");
-        bodyBuilder.append("<ul>");
-        bodyBuilder.append("<li>Short-term Goals: ").append(shortTermGoals).append("</li>");
-        bodyBuilder.append("<li>Long-term Goals: ").append(longTermGoals).append("</li>");
-        bodyBuilder.append("</ul>");
-        bodyBuilder.append("<p>Thank you for providing this information. It will help us match you with the most suitable tutors and tailor your learning experience to meet your needs and goals.</p>");
-        bodyBuilder.append("<p>If you have any questions or need assistance, please don't hesitate to <a href=\"https://proliferate.ai/contact\">contact us</a>. Our team is here to help you every step of the way.</p>");
-        bodyBuilder.append("<p>We are excited to see you grow and excel with Proliferate.</p>");
-        bodyBuilder.append("<p>Welcome aboard, and happy learning!</p>");
-        bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
-        bodyBuilder.append("<p style=\"text-align: center; margin-top: 30px;\"><a style=\"background-color: #0000ff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;\" href=\"").append(token).append("\">Verify Your Account</a></p>");
-        bodyBuilder.append("<hr style=\"margin: 20px 0;\">");
-        bodyBuilder.append("<p style=\"font-size: 12px; color: #999;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\">Contact Us</a> page.</p>");
-        bodyBuilder.append("</div>");
-        bodyBuilder.append("</body>");
-        bodyBuilder.append("</html>");
+        String studentFirstName, String studentLastName, String email, Gender gender, String contactNumber, 
+        int age, String grade, String subjects, String tutoringFormat, String availability, 
+        String additionalPreferences, String shortTermGoals, String longTermGoals, String token) {
+    
+    StringBuilder bodyBuilder = new StringBuilder();
+    bodyBuilder.append("<html>");
+    bodyBuilder.append("<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">");
+    bodyBuilder.append("<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">");
+    bodyBuilder.append("<h1 style=\"text-align: center; color: #4CAF50;\">Congratulations</h1>");
+    bodyBuilder.append("<p style=\"text-align: center;\">Congratulations on successfully registering with Proliferate! We're excited to have you join our community of learners and tutors.</p>");
+    bodyBuilder.append("<p>Here's a summary of the information you provided during registration:</p>");
 
-        return bodyBuilder.toString();
-    }
+    bodyBuilder.append("<h2 style=\"color: #333;\">Personal Information:</h2>");
+    bodyBuilder.append("<ul>");
+    bodyBuilder.append("<li>Full Name: ").append(studentLastName).append(" ").append(studentFirstName).append("</li>");
+    bodyBuilder.append("<li>Email Address: ").append(email).append("</li>");
+    bodyBuilder.append("<li>Gender: ").append(gender).append("</li>");
+    bodyBuilder.append("<li>Contact Number: ").append(contactNumber).append("</li>");
+    bodyBuilder.append("<li>Age: ").append(age).append("</li>");
+    bodyBuilder.append("</ul>");
+    
+    bodyBuilder.append("<h2 style=\"color: #333;\">Academic Details:</h2>");
+    bodyBuilder.append("<ul>");
+    bodyBuilder.append("<li>Grade/Year: ").append(grade).append("</li>");
+    bodyBuilder.append("<li>Subjects Needing Tutoring: ").append(subjects).append("</li>");
+    bodyBuilder.append("</ul>");
+    
+    bodyBuilder.append("<h2 style=\"color: #333;\">Tutoring Preferences:</h2>");
+    bodyBuilder.append("<ul>");
+    bodyBuilder.append("<li>Preferred Tutoring Format: ").append(tutoringFormat).append("</li>");
+    bodyBuilder.append("<li>Availability: ").append(availability).append("</li>");
+    bodyBuilder.append("<li>Additional Preferences/Requirements: ").append(additionalPreferences).append("</li>");
+    bodyBuilder.append("</ul>");
+    
+    bodyBuilder.append("<h2 style=\"color: #333;\">Learning Goals:</h2>");
+    bodyBuilder.append("<ul>");
+    bodyBuilder.append("<li>Short-term Goals: ").append(shortTermGoals).append("</li>");
+    bodyBuilder.append("<li>Long-term Goals: ").append(longTermGoals).append("</li>");
+    bodyBuilder.append("</ul>");
+    
+	bodyBuilder.append("<p style=\"text-align: left; margin-top: 30px;\"><a href=\"").append(token).append("\" style=\"background-color: #0000ff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;\">Login</a></p>");
+	
+    bodyBuilder.append("<p>Thank you for providing this information. It will help us match you with the most suitable tutors and tailor your learning experience to meet your needs and goals.</p>");
+    bodyBuilder.append("<p>If you have any questions or need assistance, please don't hesitate to <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">contact us</a>. Our team is here to help you every step of the way.</p>");
+    
+	bodyBuilder.append("<p style=\"margin-top: 40px ;\"> We are excited to see you grow and excel with Proliferate.</p>");
+    bodyBuilder.append("<p>Welcome aboard, and happy learning!</p>");
+    
+    
+    // Add the drawing image
+    bodyBuilder.append("<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100%; max-width: 400px;\"></div>");
+    
+    bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
+    bodyBuilder.append("<div style=\"text-align: right; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>");
+    bodyBuilder.append("<hr style=\"margin: 20px 0;\">");
+    bodyBuilder.append("<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>");
+    bodyBuilder.append("</div>");
+    bodyBuilder.append("</body>");
+    bodyBuilder.append("</html>");
+
+    return bodyBuilder.toString();
+}
+
+	
+	//"<img src=\"src\\main\\resources\\logo\\proliferate-logo.png\" alt=\"Proliferate Logo\">"
 
 
 public void sendInvitationEmail(String to, String friendName, String senderName) {
@@ -129,8 +155,12 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             "<a href=\"https://proliferate.ai\" style=\"background-color: #007BFF; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;\">Join Proliferate</a>" +
             "</div>" +
             "<p>I look forward to seeing you on Proliferate and exploring all the amazing learning opportunities together!</p>" +
-            "<p>Best regards,</p>" +
-            "<p>" + senderName + "</p>" +
+             "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100%; max-width: 400px;\"></div>"
+    
+            + "<p>Best regards,</p>" +
+			"<p>" + senderName + "</p>"
+            + "<div style=\"text-align: right; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
+            
             "<hr style=\"border-top: 1px solid #ddd;\">" +
             "<p style=\"font-size: 12px; color: #555; text-align: center;\">© 2024 proliferate.ai All rights reserved.</p>" +
             "<p style=\"font-size: 12px; color: #555; text-align: center;\">For any questions, please visit our <a href=\"https://proliferate.ai/contact\">contact us</a> page or call us at 1-289-952-2596.</p>" +
@@ -148,6 +178,14 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         helper.setFrom(new InternetAddress("noreply@proliferate.ai", "The Proliferate Team"));
         helper.setReplyTo(new InternetAddress("noreply@proliferate.ai"));
 
+        // Add the logo as an inline resource
+        FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+        helper.addInline("proliferateLogo", logoResource);
+        
+        // Add the drawing as an inline resource
+        FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.jpg"));
+        helper.addInline("signature", signatureResource);
+		
         javaMailSender.send(message);
     } catch (MessagingException | UnsupportedEncodingException e) {
         // Handle exception
@@ -168,8 +206,15 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             + "<p>Please use the following OTP to reset your password:</p>"
             + "<p><strong style=\"font-size: 24px;\">" + token + "</strong></p>"
             + "<p>If you did not request this password reset, please ignore this email.</p>"
-            + "<p>Best regards,<br>"
-            + "The Proliferate Team</p>"
+            
+			
+            + "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100%; max-width: 400px;\"></div>"
+    
+            + "<p>Best regards,<br>The Proliferate Team</p>"
+			
+            + "<div style=\"text-align: right; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>"
+    
+			
             + "<hr style=\"margin: 20px 0;\">"
             + "<p style=\"font-size: 12px; color: #999;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\">Contact Us</a> page.</p>"
             + "</div>"
@@ -184,7 +229,15 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         helper.setText(body, true); // Enable HTML content
         helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "The Proliferate Team"));
         helper.setReplyTo("noreply@yourdomain.com");
-
+		
+        // Add the logo as an inline resource
+        FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+        helper.addInline("proliferateLogo", logoResource);
+        
+        // Add the drawing as an inline resource
+        FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.jpg"));
+        helper.addInline("signature", signatureResource);
+		
         javaMailSender.send(message);
     } catch (MessagingException | UnsupportedEncodingException e) {
         e.printStackTrace();
@@ -214,6 +267,14 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 
+            // Add the logo as an inline resource
+            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+            helper.addInline("proliferateLogo", logoResource);
+
+            // Add the signature as an inline resource
+            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
+            helper.addInline("signature", signatureResource);
+
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -229,15 +290,17 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
 
         StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append("<html>");
-        bodyBuilder.append("<body style=\"font-family: Arial, sans-serif; line-height: 1.6;\">");
-        bodyBuilder.append("<div style=\"max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;\">");
-        bodyBuilder.append("<h2 style=\"color: #333;\">Dear ").append(tutorFirstName).append(",</h2>");
+        bodyBuilder.append("<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">");
+        bodyBuilder.append("<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">");
+        bodyBuilder.append("<h1 style=\"text-align: center; color: #4CAF50;\">Congratulations</h1>");
+
+        bodyBuilder.append("<h2 style=\"color: #333;\">Dear ").append(tutorLastName).append(" ").append(tutorFirstName).append(",</h2>");
         bodyBuilder.append("<p>Congratulations on successfully registering with Proliferate! We're excited to have you join our community of learners and tutors.</p>");
         bodyBuilder.append("<p>Here's a summary of the information you provided during registration:</p>");
 
         bodyBuilder.append("<h3>Personal Information:</h3>");
         bodyBuilder.append("<ul>");
-        bodyBuilder.append("<li>Full Name: ").append(tutorFirstName).append(" ").append(tutorLastName).append("</li>");
+        bodyBuilder.append("<li>Full Name: ").append(tutorLastName).append(" ").append(tutorFirstName).append("</li>");
         bodyBuilder.append("<li>Email Address: ").append(email).append("</li>");
         bodyBuilder.append("<li>Gender: ").append(gender).append("</li>");
         bodyBuilder.append("<li>Contact Number: ").append(contactNumber).append("</li>");
@@ -266,8 +329,12 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         bodyBuilder.append("<p>We are confident that you will make a valuable contribution to our platform and positively impact the learning journey of our students. If you have any questions or need assistance, please feel free to reach out to us at <a href=\"mailto:support@proliferate.ai\">support@proliferate.ai</a>. Our team is here to support you every step of the way.</p>");
         bodyBuilder.append("<p>We are excited to support you as you help shape the futures of learners around the world. Our support team is always here to help.</p>");
         bodyBuilder.append("<p>Welcome aboard, and we're excited to start this journey together!</p>");
-        bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
+
         bodyBuilder.append("<p style=\"text-align: center; margin-top: 30px;\"><a style=\"background-color: #0000ff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;\" href=\"").append(token).append("\">Setup Your Tutor Profile Now</a></p>");
+        bodyBuilder.append("<div style=\"text-align: left; margin: 40px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\"></div>");
+
+        bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
+        bodyBuilder.append("<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>");
         bodyBuilder.append("<hr style=\"margin: 20px 0;\">");
         bodyBuilder.append("<p style=\"font-size: 12px; color: #999;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\">Contact Us</a> page.</p>");
         bodyBuilder.append("</div>");
@@ -276,24 +343,343 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
 
         return bodyBuilder.toString();
     }
-	
-	public void sendEnrollmentConfirmation(String to, String subjectTitle) {
-		SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Enrollment Confirmation");
-        message.setText("Dear Student,\n\nYou have been successfully enrolled in the subject: " + subjectTitle + ".\n\nThank you!");
-        javaMailSender.send(message);
-        //logger.info("Enrollment confirmation sent to student: {}", to);
+ 	
+    public void sendClassEnrollmentConfirmationEmail(
+            String to, String studentFirstName, String studentLastName, String className, String startDate,String tutorFirstName, String tutorLastName) throws EmailSendingException {
+
+        String subject = "Class Enrollment Confirmation";
+        String body = buildEnrollmentEmailBody(studentFirstName, studentLastName, className, startDate, tutorFirstName, tutorLastName);
+
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true); // Enable HTML content
+            helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
+            helper.setReplyTo("noreply@yourdomain.com");
+			
+			// Add the logo as an inline resource
+            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+             helper.addInline("proliferateLogo", logoResource);
+ 
+            // Add the signature as an inline resource
+            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
+            helper.addInline("signature", signatureResource);
+
+            javaMailSender.send(message);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            // Optionally log the exception or rethrow it as a custom exception
+            throw new EmailSendingException("Failed to send email", e);
+        }
     }
 
-    public void notifyTutor(String tutorEmail, String studentEmail, String subjectTitle) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(tutorEmail);
-		message.setSubject("New Enrollment Notification");
-        message.setText( "Dear Tutor,\n\nA new student (" + studentEmail + ") has enrolled in your subject: " + subjectTitle + ".\n\nThank you!");
-        javaMailSender.send(message);
+    private String buildEnrollmentEmailBody(String studentFirstName, String studentLastName, String className, String startDate,String tutorFirstName, String tutorLastName) {
+        return "<html>" +
+                "<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">" +
+                "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
+                "<h2 style=\"text-align: center; color: #333;\">Class Enrollment <br> Confirmation</h2>" +
+                "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
+                "<p>Congratulations! You are now enrolled in <strong>" + className + "</strong> on Proliferate.ai.</p>" +
+                "<p><strong>Class Start Date:</strong> " + startDate + "<br>" +
+                "<strong>Tutor:</strong> " + tutorLastName + " " + tutorFirstName +  "</p>" +
+                "<p>We're excited to have you in the class and look forward to your participation.</p>" +
+                "<p>Happy learning!</p>" +
+                "<div style=\"text-align: left; margin: 20px 0;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "</div>" +
+                "<p>Best regards,<br>The Proliferate Team</p>" +
+                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
+                "<hr style=\"margin: 20px 0;\">" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    }
+	
+ public void sendPaymentConfirmationEmail(
+            String to, String studentFirstName, String studentLastName, double amount, LocalDate date,String paymentMethod) throws EmailSendingException {
 
-       // logger.info("Tutor notified: {} about student: {} for course: {}", tutorEmail, studentEmail, courseTitle);
+        String subject = "Payment Confirmation";
+        String body = buildPaymentConfirmationEmailBody(studentFirstName, studentLastName,amount, String.valueOf(date), paymentMethod);
+
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true); // Enable HTML content
+            helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
+            helper.setReplyTo("noreply@yourdomain.com");
+			
+			// Add the logo as an inline resource
+            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+             helper.addInline("proliferateLogo", logoResource);
+ 
+            // Add the signature as an inline resource
+            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
+            helper.addInline("signature", signatureResource);
+
+            javaMailSender.send(message);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            // Optionally log the exception or rethrow it as a custom exception
+            throw new EmailSendingException("Failed to send email", e);
+        }
+    }
+
+    private String buildPaymentConfirmationEmailBody(String studentFirstName, String studentLastName, double amount, String date,String paymentMethod) {
+        return "<html>" +
+                "<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">" +
+                "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
+                "<h2 style=\"text-align: center; color: #333;\">Payment Confirmation</h2>" +
+                "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
+                "<p>Thank you for your payment! We have successfully received your monthly subscription payment for Proliferate.ai.</p>" +
+                
+				"<p><strong>Transaction Details:</strong>" +
+                "<p> Amount: </p> " + amount +  "</p>" +
+				"<p> Date: </p> " + date +  "</p>" +
+				"<p> Payment Method: </p> " + paymentMethod +  "</p>" +
+				
+                "<p>Your subscription is now active for another month. Enjoy learning with us!</p>" +
+                
+                "<div style=\"text-align: left; margin: 40px 0;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "</div>" +
+                "<p>Best regards,<br>The Proliferate Team</p>" +
+                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
+                "<hr style=\"margin: 20px 0;\">" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    }
+
+public void sendPaymentFailureEmail(
+            String to, String studentFirstName, String studentLastName) throws EmailSendingException {
+
+        String subject = "Payment Failure Notification";
+        String body = buildPaymentFailureEmailBody(studentFirstName, studentLastName);
+
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true); // Enable HTML content
+            helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
+            helper.setReplyTo("noreply@yourdomain.com");
+			
+			// Add the logo as an inline resource
+            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+             helper.addInline("proliferateLogo", logoResource);
+ 
+            // Add the signature as an inline resource
+            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
+            helper.addInline("signature", signatureResource);
+
+            javaMailSender.send(message);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            // Optionally log the exception or rethrow it as a custom exception
+            throw new EmailSendingException("Failed to send email", e);
+        }
+    }
+
+    private String buildPaymentFailureEmailBody(String studentFirstName, String studentLastName) {
+        return "<html>" +
+                "<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">" +
+                "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
+                "<h2 style=\"text-align: center; color: #333;\">Payment Failure  <br> Notification</h2>" +
+                "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
+				
+                "<p>We were unable to process your monthly subscription payment for Proliferate.ai. This could be due to an issue with your payment method.</p>" +
+				"<p>Please update your payment information to ensure uninterrupted access to our classs and resources.</p>" +
+
+				
+                "<p>If you have any questions or need assistance, feel free to contact our support team at support@proliferate.ai.</p>" +
+                
+                "<div style=\"text-align: left; margin: 40px 0;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "</div>" +
+                "<p>Best regards,<br>The Proliferate Team</p>" +
+                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
+                "<hr style=\"margin: 20px 0;\">" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    }
+	
+	public void sendNewAssignmentNotificationEmail(
+            String to, String studentFirstName, String studentLastName, String assignmentTitle, String className, LocalDate dueDate) throws EmailSendingException {
+
+        String subject = "New Assignment Notification";
+        String body = buildNewAssignmentNotificationEmailBody(studentFirstName,studentLastName, assignmentTitle, className, dueDate);
+
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true); // Enable HTML content
+            helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
+            helper.setReplyTo("noreply@yourdomain.com");
+			
+			// Add the logo as an inline resource
+            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+             helper.addInline("proliferateLogo", logoResource);
+ 
+            // Add the signature as an inline resource
+            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
+            helper.addInline("signature", signatureResource);
+
+            javaMailSender.send(message);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            // Optionally log the exception or rethrow it as a custom exception
+            throw new EmailSendingException("Failed to send email", e);
+        }
+    }
+
+    private String buildNewAssignmentNotificationEmailBody(String studentFirstName, String studentLastName, String assignmentTitle, String className, LocalDate dueDate) {
+        return "<html>" +
+                "<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">" +
+                "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
+                "<h2 style=\"text-align: center; color: #333;\">New Assignment <br>  Notification</h2>" +
+                "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
+				
+                "<p>A new assignment, " + assignmentTitle + " , has been posted in " + className+"</p>" +
+				
+				"<p>Due Date: </p> " + dueDate +  "</p>" +
+				
+				"<p>Please log in to your account to review the assignment details and submit your work by the due date.</p>" +
+
+				     
+                "<div style=\"text-align: left; margin: 40px 0;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "</div>" +
+                "<p>Best regards,<br>The Proliferate Team</p>" +
+                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
+                "<hr style=\"margin: 20px 0;\">" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    }
+	
+		public void sendAssignmentSubmissionEmail(
+            String to, String studentFirstName, String studentLastName, String assignmentTitle, String className) throws EmailSendingException {
+
+        String subject = "Assignment Submission Confirmation";
+        String body = buildAssignmentSubmissionEmailBody(studentFirstName, studentLastName, assignmentTitle, className);
+
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true); // Enable HTML content
+            helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
+            helper.setReplyTo("noreply@yourdomain.com");
+			
+			// Add the logo as an inline resource
+            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+             helper.addInline("proliferateLogo", logoResource);
+ 
+            // Add the signature as an inline resource
+            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
+            helper.addInline("signature", signatureResource);
+
+            javaMailSender.send(message);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            // Optionally log the exception or rethrow it as a custom exception
+            throw new EmailSendingException("Failed to send email", e);
+        }
+    }
+
+    private String buildAssignmentSubmissionEmailBody(String studentFirstName, String studentLastName, String assignmentTitle, String className) {
+        return "<html>" +
+                "<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">" +
+                "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
+                "<h2 style=\"text-align: center; color: #333;\">Assignment Submission <br> Confirmation</h2>" +
+                "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
+				
+                "<p>We have received your assignment submission for  " + assignmentTitle + " , in " + className +"</p>" +
+				
+				"<p> Our instructors will review your submission and provide feedback shortly </p>" +
+				
+				"<p>Thank you for your hard work and dedication.</p>" +
+
+				     
+                "<div style=\"text-align: left; margin: 40px 0;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "</div>" +
+                "<p>Best regards,<br>The Proliferate Team</p>" +
+                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
+                "<hr style=\"margin: 20px 0;\">" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    }
+	
+		public void sendClassRescheduledNotificationEmail(
+            String to, String studentFirstName, String studentLastName, String tutorFirstName, String tutorLastName, String reason, String oldDate, String newDate) throws EmailSendingException {
+
+        String subject = "Class Rescheduled Notification";
+        String body = buildClassRescheduleNotificationEmailBody(studentFirstName, studentLastName, tutorFirstName, tutorLastName, reason, oldDate, newDate);
+
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true); // Enable HTML content
+            helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
+            helper.setReplyTo("noreply@yourdomain.com");
+			
+			// Add the logo as an inline resource
+            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+             helper.addInline("proliferateLogo", logoResource);
+ 
+            // Add the signature as an inline resource
+            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
+            helper.addInline("signature", signatureResource);
+
+            javaMailSender.send(message);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            // Optionally log the exception or rethrow it as a custom exception
+            throw new EmailSendingException("Failed to send email", e);
+        }
+    }
+
+    private String buildClassRescheduleNotificationEmailBody(String studentFirstName, String studentLastName, String tutorFirstName, String tutorLastName, String reason, String oldDate, String newDate) {
+        return "<html>" +
+                "<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">" +
+                "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
+                "<h2 style=\"text-align: center; color: #333;\">Class Rescheduled Notification <br> Confirmation</h2>" +
+                "<p>Dear " + tutorLastName + " " + tutorFirstName + ",</p>" +
+				
+                "<p>Session rescheduled: " + studentLastName + " " + studentFirstName + "has rescheduled the tutoring session with you from "  + oldDate + " to "  + newDate + ". </p>"+
+				
+				"<p>Reason: " + reason + "</p>" +
+				
+				"<p>Thank you for your understanding.</p>" +
+
+                "<div style=\"text-align: left; margin: 40px 0;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "</div>" +
+                "<p>Best regards,<br>The Proliferate Team</p>" +
+                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
+                "<hr style=\"margin: 20px 0;\">" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
     }
 
 }
