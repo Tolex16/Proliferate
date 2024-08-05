@@ -129,12 +129,9 @@ public class StudentEntity implements UserDetails {
 //    private LocalDateTime twoFactorCodeExpiry;
 
     @Column(name = "friend_name")
-    @NotNull(message = "Friend Name cannot be empty")
-    @NotBlank(message = "Friend Name cannot be Blank")
     private String friendName;
 
     @Column(name = "friend_email")
-    @NotBlank(message = "Email cannot be blank")
     @Email
     private String friendEmail;
 	
