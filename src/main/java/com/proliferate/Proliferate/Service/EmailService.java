@@ -7,7 +7,9 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -45,12 +47,20 @@ public class EmailService {
             helper.setReplyTo("noreply@yourdomain.com");
 
         // Add the logo as an inline resource
-        FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
         helper.addInline("proliferateLogo", logoResource);
-        
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
         // Add the drawing as an inline resource
-        FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.jpg"));
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
         helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 		
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
@@ -179,12 +189,20 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         helper.setReplyTo(new InternetAddress("noreply@proliferate.ai"));
 
         // Add the logo as an inline resource
-        FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
         helper.addInline("proliferateLogo", logoResource);
-        
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
         // Add the drawing as an inline resource
-        FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.jpg"));
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
         helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 		
         javaMailSender.send(message);
     } catch (MessagingException | UnsupportedEncodingException e) {
@@ -231,12 +249,20 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         helper.setReplyTo("noreply@yourdomain.com");
 		
         // Add the logo as an inline resource
-        FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
         helper.addInline("proliferateLogo", logoResource);
-        
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
         // Add the drawing as an inline resource
-        FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.jpg"));
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
         helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 		
         javaMailSender.send(message);
     } catch (MessagingException | UnsupportedEncodingException e) {
@@ -267,14 +293,22 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 
-            // Add the logo as an inline resource
-            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
-            helper.addInline("proliferateLogo", logoResource);
-
-            // Add the signature as an inline resource
-            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
-            helper.addInline("signature", signatureResource);
-
+        // Add the logo as an inline resource
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
+        helper.addInline("proliferateLogo", logoResource);
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
+        // Add the drawing as an inline resource
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
+        helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
+		
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -359,13 +393,21 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 			
-			// Add the logo as an inline resource
-            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
-             helper.addInline("proliferateLogo", logoResource);
- 
-            // Add the signature as an inline resource
-            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
-            helper.addInline("signature", signatureResource);
+        // Add the logo as an inline resource
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
+        helper.addInline("proliferateLogo", logoResource);
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
+        // Add the drawing as an inline resource
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
+        helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
@@ -413,13 +455,21 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 			
-			// Add the logo as an inline resource
-            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
-             helper.addInline("proliferateLogo", logoResource);
- 
-            // Add the signature as an inline resource
-            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
-            helper.addInline("signature", signatureResource);
+        // Add the logo as an inline resource
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
+        helper.addInline("proliferateLogo", logoResource);
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
+        // Add the drawing as an inline resource
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
+        helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
@@ -471,13 +521,21 @@ public void sendPaymentFailureEmail(
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 			
-			// Add the logo as an inline resource
-            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
-             helper.addInline("proliferateLogo", logoResource);
- 
-            // Add the signature as an inline resource
-            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
-            helper.addInline("signature", signatureResource);
+        // Add the logo as an inline resource
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
+        helper.addInline("proliferateLogo", logoResource);
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
+        // Add the drawing as an inline resource
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
+        helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
@@ -527,13 +585,21 @@ public void sendPaymentFailureEmail(
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 			
-			// Add the logo as an inline resource
-            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
-             helper.addInline("proliferateLogo", logoResource);
- 
-            // Add the signature as an inline resource
-            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
-            helper.addInline("signature", signatureResource);
+        // Add the logo as an inline resource
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
+        helper.addInline("proliferateLogo", logoResource);
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
+        // Add the drawing as an inline resource
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
+        helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
@@ -584,13 +650,21 @@ public void sendPaymentFailureEmail(
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 			
-			// Add the logo as an inline resource
-            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
-             helper.addInline("proliferateLogo", logoResource);
- 
-            // Add the signature as an inline resource
-            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
-            helper.addInline("signature", signatureResource);
+        // Add the logo as an inline resource
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
+        helper.addInline("proliferateLogo", logoResource);
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
+        // Add the drawing as an inline resource
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
+        helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
@@ -641,13 +715,21 @@ public void sendPaymentFailureEmail(
             helper.setFrom(new InternetAddress("tolex20004real@gmail.com", "Proliferate Team"));
             helper.setReplyTo("noreply@yourdomain.com");
 			
-			// Add the logo as an inline resource
-            FileSystemResource logoResource = new FileSystemResource(new File("src/main/resources/logo/proliferate-logo.png"));
-             helper.addInline("proliferateLogo", logoResource);
- 
-            // Add the signature as an inline resource
-            FileSystemResource signatureResource = new FileSystemResource(new File("src/main/resources/logo/signature.png"));
-            helper.addInline("signature", signatureResource);
+        // Add the logo as an inline resource
+        Resource logoResource = new ClassPathResource("logo/proliferate-logo.png");
+        helper.addInline("proliferateLogo", logoResource);
+        if (logoResource.exists()) {
+			System.out.println("Logo found!");
+			} else {
+		System.out.println("Logo not found!");}
+		
+        // Add the drawing as an inline resource
+        Resource signatureResource = new ClassPathResource("logo/signature.jpg");
+        helper.addInline("signature", signatureResource);
+        if (signatureResource.exists()) {
+			System.out.println("Signature found!");
+			} else {
+		System.out.println("Signature not found!");}
 
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
