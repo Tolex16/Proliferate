@@ -121,7 +121,7 @@ public class EmailService {
     
     
     // Add the drawing image
-    bodyBuilder.append("<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100%; max-width: 400px;\"></div>");
+    bodyBuilder.append("<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30%;\"></div>");
     
     bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
     bodyBuilder.append("<div style=\"text-align: right; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>");
@@ -165,7 +165,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             "<a href=\"https://proliferate.ai\" style=\"background-color: #007BFF; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;\">Join Proliferate</a>" +
             "</div>" +
             "<p>I look forward to seeing you on Proliferate and exploring all the amazing learning opportunities together!</p>" +
-             "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100%; max-width: 400px;\"></div>"
+             "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30%; max-width: 400px;\"></div>"
     
             + "<p>Best regards,</p>" +
 			"<p>" + senderName + "</p>"
@@ -226,7 +226,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             + "<p>If you did not request this password reset, please ignore this email.</p>"
             
 			
-            + "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100%; max-width: 400px;\"></div>"
+            + "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30%; max-width: 400px;\"></div>"
     
             + "<p>Best regards,<br>The Proliferate Team</p>"
 			
@@ -429,7 +429,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
                 "<p>We're excited to have you in the class and look forward to your participation.</p>" +
                 "<p>Happy learning!</p>" +
                 "<div style=\"text-align: left; margin: 20px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
@@ -495,7 +495,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
                 "<p>Your subscription is now active for another month. Enjoy learning with us!</p>" +
                 
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
@@ -559,7 +559,7 @@ public void sendPaymentFailureEmail(
                 "<p>If you have any questions or need assistance, feel free to contact our support team at support@proliferate.ai.</p>" +
                 
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
@@ -624,7 +624,7 @@ public void sendPaymentFailureEmail(
 
 				     
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
@@ -689,7 +689,7 @@ public void sendPaymentFailureEmail(
 
 				     
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
@@ -756,7 +756,7 @@ public void sendPaymentFailureEmail(
                 "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
-                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
+                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 30px;\"></div>" +
                 "<hr style=\"margin: 20px 0;\">" +
                 "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
                 "</div>" +
