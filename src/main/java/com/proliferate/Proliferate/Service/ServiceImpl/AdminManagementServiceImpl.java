@@ -24,10 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -182,6 +179,8 @@ public class AdminManagementServiceImpl implements AdminManagementService {
     }
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
+        dto.setNotificationId(notifications.getNotificationId());
+        dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));

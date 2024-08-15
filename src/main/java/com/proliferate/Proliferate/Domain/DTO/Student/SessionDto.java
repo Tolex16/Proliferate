@@ -12,8 +12,10 @@ import lombok.RequiredArgsConstructor;
 public class SessionDto {
     private Long sessionId;
 
+    @NotNull
     private Long subjectId;
 
+    @NotNull
     private Long tutorId;
 
     private Long studentId;

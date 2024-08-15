@@ -276,6 +276,10 @@ public ResponseEntity<?> completeRegistration() {
         for (AdminEntity admin : admins) {
             Notifications notification = new Notifications();
             notification.setAdmin(admin);
+
+            if (tutorEntity.getTutorImage() != null) {
+                notification.setProfileImage(tutorEntity.getTutorImage());
+            }
             notification.setType("Tutor Applies to Join");
             notification.setMessage("New tutor application: A tutor has applied to join the platform. " +
                     "Please review their profile and qualifications.");
@@ -324,7 +328,9 @@ public ResponseEntity<?> completeRegistration() {
                 Notifications notification = new Notifications();
 
                 notification.setTutor(tutor);
-
+                if (tutor.getTutorImage() != null) {
+                    notification.setProfileImage(tutor.getTutorImage());
+                }
                 notification.setType("Request for Profile Update");
                 notification.setMessage("Profile update required: Please update your profile with your photo, ID and relevant certificate to make your profile visible on our platform.");
                 notification.setCreatedAt(LocalDateTime.now());

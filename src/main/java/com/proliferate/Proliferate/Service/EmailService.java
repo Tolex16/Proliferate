@@ -121,22 +121,18 @@ public class EmailService {
     
     
     // Add the drawing image
-    bodyBuilder.append("<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30%;\"></div>");
+    bodyBuilder.append("<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\"></div>");
     
     bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
     bodyBuilder.append("<div style=\"text-align: right; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>");
     bodyBuilder.append("<hr style=\"margin: 20px 0;\">");
-    bodyBuilder.append("<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>");
+    bodyBuilder.append("<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>");
     bodyBuilder.append("</div>");
     bodyBuilder.append("</body>");
     bodyBuilder.append("</html>");
 
     return bodyBuilder.toString();
 }
-
-	
-	//"<img src=\"src\\main\\resources\\logo\\proliferate-logo.png\" alt=\"Proliferate Logo\">"
-
 
 public void sendInvitationEmail(String to, String friendName, String senderName) {
     String subject = "Join Proliferate and Start Learning Together!";
@@ -165,7 +161,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             "<a href=\"https://proliferate.ai\" style=\"background-color: #007BFF; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;\">Join Proliferate</a>" +
             "</div>" +
             "<p>I look forward to seeing you on Proliferate and exploring all the amazing learning opportunities together!</p>" +
-             "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30%; max-width: 400px;\"></div>"
+             "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px; \"></div>"
     
             + "<p>Best regards,</p>" +
 			"<p>" + senderName + "</p>"
@@ -173,7 +169,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             
             "<hr style=\"border-top: 1px solid #ddd;\">" +
             "<p style=\"font-size: 12px; color: #555; text-align: center;\">© 2024 proliferate.ai All rights reserved.</p>" +
-            "<p style=\"font-size: 12px; color: #555; text-align: center;\">For any questions, please visit our <a href=\"https://proliferate.ai/contact\">contact us</a> page or call us at 1-289-952-2596.</p>" +
+            "<p style=\"font-size: 12px; color: #555; text-align: center;\">For any questions, please visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">contact us</a> page or call us at 1-289-952-2596.</p>" +
             "<p style=\"font-size: 12px; color: #555; text-align: center;\"><strong>Note: This email was sent from an address that cannot receive replies. Please do not reply to this email.</strong></p>" +
             "</div>" +
             "</body>" +
@@ -226,7 +222,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             + "<p>If you did not request this password reset, please ignore this email.</p>"
             
 			
-            + "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30%; max-width: 400px;\"></div>"
+            + "<div style=\"text-align: left; margin: 20px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\"></div>"
     
             + "<p>Best regards,<br>The Proliferate Team</p>"
 			
@@ -234,7 +230,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
     
 			
             + "<hr style=\"margin: 20px 0;\">"
-            + "<p style=\"font-size: 12px; color: #999;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\">Contact Us</a> page.</p>"
+            + "<p style=\"font-size: 12px; color: #999;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>"
             + "</div>"
             + "</body>"
             + "</html>";
@@ -360,17 +356,18 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         bodyBuilder.append("</ul>");
 
         bodyBuilder.append("<p>Thank you for providing this information. It will help us match you with students that fit your expertise, teaching style, and availability. If you have any questions or need assistance, please don't hesitate to <a href=\"https://proliferate.ai/contact\">contact us</a>. Our team is here to help you every step of the way.</p>");
+
         bodyBuilder.append("<p>We are confident that you will make a valuable contribution to our platform and positively impact the learning journey of our students. If you have any questions or need assistance, please feel free to reach out to us at <a href=\"mailto:support@proliferate.ai\">support@proliferate.ai</a>. Our team is here to support you every step of the way.</p>");
         bodyBuilder.append("<p>We are excited to support you as you help shape the futures of learners around the world. Our support team is always here to help.</p>");
         bodyBuilder.append("<p>Welcome aboard, and we're excited to start this journey together!</p>");
 
         bodyBuilder.append("<p style=\"text-align: center; margin-top: 30px;\"><a style=\"background-color: #0000ff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;\" href=\"").append(token).append("\">Setup Your Tutor Profile Now</a></p>");
-        bodyBuilder.append("<div style=\"text-align: left; margin: 40px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\"></div>");
+        bodyBuilder.append("<div style=\"text-align: left; margin: 40px 0;\"><img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\"></div>");
 
         bodyBuilder.append("<p>Best regards,<br>The Proliferate Team</p>");
         bodyBuilder.append("<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>");
         bodyBuilder.append("<hr style=\"margin: 20px 0;\">");
-        bodyBuilder.append("<p style=\"font-size: 12px; color: #999;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\">Contact Us</a> page.</p>");
+        bodyBuilder.append("<p style=\"font-size: 12px; color: #999;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>");
         bodyBuilder.append("</div>");
         bodyBuilder.append("</body>");
         bodyBuilder.append("</html>");
@@ -423,18 +420,21 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
                 "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
                 "<h2 style=\"text-align: center; color: #333;\">Class Enrollment <br> Confirmation</h2>" +
                 "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
+
                 "<p>Congratulations! You are now enrolled in <strong>" + className + "</strong> on Proliferate.ai.</p>" +
-                "<p><strong>Class Start Date:</strong> " + startDate + "<br>" +
-                "<strong>Tutor:</strong> " + tutorLastName + " " + tutorFirstName +  "</p>" +
+
+                "<p><strong>Class Start Date: </strong> " + startDate + "<br>" +
+
+                "<strong>Tutor: </strong> " + tutorLastName + " " + tutorFirstName +  "</p>" +
                 "<p>We're excited to have you in the class and look forward to your participation.</p>" +
                 "<p>Happy learning!</p>" +
                 "<div style=\"text-align: left; margin: 20px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
                 "<hr style=\"margin: 20px 0;\">" +
-                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>" +
                 "</div>" +
                 "</body>" +
                 "</html>";
@@ -488,19 +488,19 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
                 "<p>Thank you for your payment! We have successfully received your monthly subscription payment for Proliferate.ai.</p>" +
                 
 				"<p><strong>Transaction Details:</strong>" +
-                "<p> Amount: </p> " + amount +  "</p>" +
-				"<p> Date: </p> " + date +  "</p>" +
-				"<p> Payment Method: </p> " + paymentMethod +  "</p>" +
+                "<p>Amount: " + amount +  "</p>" +
+				"<p>Date: " + date +  "</p>" +
+				"<p>Payment Method: " + paymentMethod +  "</p>" +
 				
                 "<p>Your subscription is now active for another month. Enjoy learning with us!</p>" +
                 
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
                 "<hr style=\"margin: 20px 0;\">" +
-                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>" +
                 "</div>" +
                 "</body>" +
                 "</html>";
@@ -559,12 +559,12 @@ public void sendPaymentFailureEmail(
                 "<p>If you have any questions or need assistance, feel free to contact our support team at support@proliferate.ai.</p>" +
                 
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
                 "<hr style=\"margin: 20px 0;\">" +
-                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>" +
                 "</div>" +
                 "</body>" +
                 "</html>";
@@ -616,20 +616,20 @@ public void sendPaymentFailureEmail(
                 "<h2 style=\"text-align: center; color: #333;\">New Assignment <br>  Notification</h2>" +
                 "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
 				
-                "<p>A new assignment, " + assignmentTitle + " , has been posted in " + className+"</p>" +
+                "<p>A new assignment, " + assignmentTitle + " has been posted in " + className+"</p>" +
 				
-				"<p>Due Date: </p> " + dueDate +  "</p>" +
+				"<p><strong>Due Date: </strong>" + dueDate +  "</p>" +
 				
 				"<p>Please log in to your account to review the assignment details and submit your work by the due date.</p>" +
 
 				     
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
                 "<hr style=\"margin: 20px 0;\">" +
-                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>" +
                 "</div>" +
                 "</body>" +
                 "</html>";
@@ -681,7 +681,7 @@ public void sendPaymentFailureEmail(
                 "<h2 style=\"text-align: center; color: #333;\">Assignment Submission <br> Confirmation</h2>" +
                 "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
 				
-                "<p>We have received your assignment submission for  " + assignmentTitle + " , in " + className +"</p>" +
+                "<p>We have received your assignment submission for  " + assignmentTitle + ", in " + className +"</p>" +
 				
 				"<p> Our instructors will review your submission and provide feedback shortly </p>" +
 				
@@ -689,12 +689,12 @@ public void sendPaymentFailureEmail(
 
 				     
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 30px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
                 "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
                 "<hr style=\"margin: 20px 0;\">" +
-                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>" +
                 "</div>" +
                 "</body>" +
                 "</html>";
@@ -753,12 +753,12 @@ public void sendPaymentFailureEmail(
 				"<p>Thank you for your understanding.</p>" +
 
                 "<div style=\"text-align: left; margin: 40px 0;\">" +
-                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 100px;\">" +
+                "<img src=\"cid:signature\" alt=\"Signature\" style=\"width: 70px;\">" +
                 "</div>" +
                 "<p>Best regards,<br>The Proliferate Team</p>" +
-                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 30px;\"></div>" +
+                "<div style=\"text-align: center; margin-top: 20px;\"><img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\"></div>" +
                 "<hr style=\"margin: 20px 0;\">" +
-                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #4CAF50;\">Contact Us</a> page.</p>" +
+                "<p style=\"font-size: 12px; color: #999; text-align: center;\">This is an automated email. Please do not reply to this email. If you have any questions, visit our <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">Contact Us</a> page.</p>" +
                 "</div>" +
                 "</body>" +
                 "</html>";

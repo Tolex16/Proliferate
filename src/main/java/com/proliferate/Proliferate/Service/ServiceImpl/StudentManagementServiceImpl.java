@@ -44,7 +44,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private final SessionRepository sessionRepository;
     private final AdminRepository adminRepository;
     private final ScoreRepository scoreRepository;
-
+    private final ReportRepository reportRepository;
     private final FeedbackRepository feedbackRepository;
     private final SubjectRepository subjectRepository;
     @Autowired
@@ -84,6 +84,9 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             for (AdminEntity admin : admins) {
                 Notifications notification = new Notifications();
                 notification.setAdmin(admin);
+                if (tutor.getTutorImage() != null) {
+                    notification.setProfileImage(tutor.getTutorImage());
+                }
                 notification.setType("Uploaded Assignment by Tutor");
                 notification.setMessage("Assignment uploaded: " + tutor.getFirstName() + " " + tutor.getLastName() + " has uploaded an Assignment for " + student.getFirstName() + " " + student.getLastName() + ".");
                 notification.setCreatedAt(LocalDateTime.now());
@@ -93,6 +96,10 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             Notifications notification1 = new Notifications();
 
             notification1.setStudent(student);
+            if (tutor.getTutorImage() != null) {
+                notification1.setProfileImage(tutor.getTutorImage());
+            }
+
             notification1.setType("Uploaded Study Materials by Tutor");
             notification1.setMessage("Assignment available: " + tutor.getFirstName() + " " + tutor.getLastName() + " has uploaded Assignments. Please review them.");
             notification1.setCreatedAt(LocalDateTime.now());
@@ -114,12 +121,12 @@ public class StudentManagementServiceImpl implements StudentManagementService {
                     dto.setAssignedStudentName(assignment.getAssignedStudent().getFirstName() + " " + assignment.getAssignedStudent().getLastName());
                     if (assignment.getAssignmentFile() != null) {
                         String base64File = Base64.getEncoder().encodeToString(assignment.getAssignmentFile());
-                        //String fileType = determineFileType(base64File);
+
                         dto.setAssignmentFileBase64(base64File);
                     }
                     if (assignment.getAssignmentSolution() != null) {
                         String base64File = Base64.getEncoder().encodeToString(assignment.getAssignmentSolution());
-                        //String fileType = determineFileType(base64File);
+
                         dto.setAssignmentSolutionBase64(base64File);
                     }
                     return dto;
@@ -207,7 +214,7 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
         dto.setNotificationId(notifications.getNotificationId());
-        //dto.setProfileImage(notifications.getProfileImage());
+        dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
@@ -244,6 +251,9 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             Notifications notification = new Notifications();
 
             notification.setStudent(session.get().getStudent());
+            if (tutor.getTutorImage() != null) {
+                notification.setProfileImage(tutor.getTutorImage());
+            }
             notification.setType("Session Request Declined by Tutor");
             notification.setMessage( "Session declined: Unfortunately, " + tutor.getFirstName() + " " + tutor.getLastName() + " has declined your tutoring session request. Consider choosing another available tutor.");
             notification.setCreatedAt(LocalDateTime.now());
@@ -254,6 +264,9 @@ public class StudentManagementServiceImpl implements StudentManagementService {
                 Notifications notification1 = new Notifications();
 
                 notification1.setAdmin(admin);
+                if (tutor.getTutorImage() != null) {
+                    notification1.setProfileImage(tutor.getTutorImage());
+                }
                 notification1.setType("Session Rescheduled by Tutor");
                 notification1.setMessage("Session Rescheduled: " + tutor.getFirstName() + " " + tutor.getLastName() + "has canceled the tutoring session with " + session.get().getStudent().getFirstName() + " " + session.get().getStudent().getLastName() + " on "+ session.get().getStudent().getAvailability() +".");
                 notification1.setCreatedAt(LocalDateTime.now());
@@ -302,8 +315,6 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
         return scoreRepository.save(score);
     }
-
-	private final ReportRepository reportRepository;
 
     public List<Report> getAllReports() {
         return reportRepository.findAll();

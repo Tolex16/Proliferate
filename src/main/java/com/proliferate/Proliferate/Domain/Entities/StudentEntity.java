@@ -120,7 +120,7 @@ public class StudentEntity implements UserDetails {
     private LocalDateTime tokenExpirationTime;
 	
 //	@Column(name = "is_2fa_enabled")
-//    private boolean is2FAEnabled = false;
+//    private boolean is2FAEnabled;
 //
 //    @Column(name = "2fa_code", length = 6)
 //    private String twoFactorCode;

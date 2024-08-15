@@ -17,6 +17,7 @@ import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -134,6 +135,19 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
             }
         }
         return forgotPassToken;
+    }
+
+    @Scheduled(cron = "0 0 * * * *") // This cron expression runs every minute
+    public void clearTokenAfterExpiration() {
+        List<ForgotPassToken> forgotPassTokens = forgotPassTokenRep.findAll();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (ForgotPassToken forgotPassToken : forgotPassTokens) {
+            LocalDateTime tokenExpire = forgotPassToken.getExpireTime();
+            if (now.isAfter(tokenExpire)) {
+                forgotPassTokenRep.delete(forgotPassToken); // This line deletes the entire row
+            }
+        }
     }
 
     public LocalDateTime expireTimeRange(){

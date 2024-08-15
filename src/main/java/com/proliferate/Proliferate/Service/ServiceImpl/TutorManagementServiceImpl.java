@@ -60,7 +60,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         Feedback feedback = new Feedback();
 
         Long studentId = jwtService.getUserId();
-        feedback.setStudent(studentRepository.findById(studentId).orElseThrow(() -> new  UserNotFoundException("Student not found")));
+        StudentEntity student =studentRepository.findById(studentId).orElseThrow(() -> new  UserNotFoundException("Student not found"));
+        feedback.setStudent(student);
         feedback.setTutor(tutorRepository.findById(feedbackDto.getTutorId()).orElseThrow(() -> new UserNotFoundException("Tutor not found")));
         feedback.setSubject(subjectRepository.findById(feedbackDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not found")));
         feedback.setSessionDate(feedbackDto.getSessionDate());
@@ -72,6 +73,9 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             Notifications notification = new Notifications();
 
             notification.setAdmin(admin);
+            if (student.getStudentImage() != null) {
+                notification.setProfileImage(student.getStudentImage());
+            }
             notification.setType("Review and Rating Received");
             notification.setMessage("New review and rating: " + feedback.getStudent().getFirstName() + " " + feedback.getStudent().getLastName() + "has provided a review and rating for the session with " + feedback.getTutor().getFirstName() + " " + feedback.getTutor().getLastName() + ".");
             notification.setCreatedAt(LocalDateTime.now());
@@ -104,8 +108,10 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 emailService.sendAssignmentSubmissionEmail(student.getEmail(),student.getFirstName(),student.getLastName(),assignment.getTitle(),assignment.getSubject().getTitle());
                 Notifications notification = new Notifications();
 
-               notification.setTutor(assignment.getTutor());
-
+                notification.setTutor(assignment.getTutor());
+                if (student.getStudentImage() != null) {
+                    notification.setProfileImage(student.getStudentImage());
+                }
                 notification.setType("Uploaded Answers by Student");
                 notification.setMessage("Assignment Solution uploaded: " + assignment.getAssignedStudent().getFirstName() + " "+ assignment.getAssignedStudent().getLastName() + " " + "has uploaded the study's " +
                         "solution for " + assignment.getTutor().getFirstName() + " " + assignment.getTutor().getLastName() + ".");
@@ -201,7 +207,9 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 Notifications notification = new Notifications();
 
                 notification.setTutor(classSchedule.getTutor());
-
+                if (student.getStudentImage() != null) {
+                    notification.setProfileImage(student.getStudentImage());
+                }
                 notification.setType("Session Rescheduled by Student");
                 notification.setMessage("Session rescheduled: " + student.getFirstName() + " " + student.getLastName() + "  has rescheduled the tutoring session with" + classSchedule.getTutor().getFirstName()
                         + " " + classSchedule.getTutor().getLastName() + " from "+ classScheduleOpt.get().getDate() + " and " + classScheduleOpt.get().getTime() + " to " + schedule.getDate() + " and " + schedule.getTime() + " due to " + schedule.getReason() + ".");
@@ -254,7 +262,9 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         Notifications notification = new Notifications();
 
         notification.setTutor(tutor);
-
+        if (student.getStudentImage() != null) {
+            notification.setProfileImage(student.getStudentImage());
+        }
         notification.setType("Student Books a Tutoring Session");
         notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring session with you on " + student.getAvailability() + ". Please review and confirm.");
         notification.setCreatedAt(LocalDateTime.now());
@@ -393,9 +403,11 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
             Notifications notification = new Notifications();
 
             notification.setStudent(student);
-
+            if (student.getStudentImage() != null) {
+                notification.setProfileImage(student.getStudentImage());
+            }
             notification.setType("Session Request Cancellation by Student");
-            notification.setMessage(  "Session canceled: You have canceled the tutoring session request with " + session.get().getTutor().getFirstName() + " " + session.get().getTutor().getLastName() +  " on " + student.getAvailability() + ".");
+            notification.setMessage("Session canceled: You have canceled the tutoring session request with " + session.get().getTutor().getFirstName() + " " + session.get().getTutor().getLastName() +  " on " + student.getAvailability() + ".");
             notification.setCreatedAt(LocalDateTime.now());
             notificationRepository.save(notification);
         } else {
@@ -436,6 +448,7 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
 		dto.setNotificationId(notifications.getNotificationId());
+        dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
