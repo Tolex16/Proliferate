@@ -37,7 +37,7 @@ public class TutorDisplayMapperImpl implements Mapper<TutorEntity, TutorDisplay>
         }
 
         tutorDisplay.setFullName(tutor.getFirstName() + " " + tutor.getLastName());
-
+        tutorDisplay.setEmail(tutor.getEmail());
         List<Feedback> feedbacks = feedbackRepository.findByTutorTutorId(tutor.getTutorId());
         double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
         tutorDisplay.setRatings(averageRating);

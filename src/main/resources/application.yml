@@ -1,18 +1,31 @@
-#spring.application.name=Proliferate
-#  spring:
-#   security:
+#spring:
+#  security:
 #    oauth2:
-#	client:
-#     registration:
-#	  e auth0:
-#	    client-id: uBaBdv9pMEKMOzXgcSwFf9VosLaKYkOS
-#		client-secret: y-QDnLjBxX1D22wmyed_K9tnHLyWaEnlN-p6EKMf2W6WfhdTUdmfM0tXObZ-7y7t
+#      client:
+#        registration:
+#          google:
+#            client-id: YOUR_GOOGLE_CLIENT_ID
+#            client-secret: YOUR_GOOGLE_CLIENT_SECRET
+#            scope: profile, email
+#            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+#            client-authentication-method: post
+#            authorization-grant-type: authorization_code
+#            client-name: Google
 #
-#		 scope:
-#		   - openid
-#		   - profile
-#		   - email
-#
-#	  provider:
-#	    auth0:
-#		issuer-url: https://dev-be3owcp4bhsip3m1.us.auth0.com
+#          facebook:
+#            client-id: YOUR_FACEBOOK_CLIENT_ID
+#            client-secret: YOUR_FACEBOOK_CLIENT_SECRET
+#            scope: email, public_profile
+#            redirect-uri: "{baseUrl}/login/oauth2/code/facebook"
+#            client-authentication-method: post
+#            authorization-grant-type: authorization_code
+#            client-name: Facebook
+
+#          linkedin:
+#            client-id: YOUR_LINKEDIN_CLIENT_ID
+#            client-secret: YOUR_LINKEDIN_CLIENT_SECRET
+#            scope: r_liteprofile, r_emailaddress
+#            redirect-uri: "{baseUrl}/login/oauth2/code/linkedin"
+#            client-authentication-method: post
+#            authorization-grant-type: authorization_code
+#            client-name: LinkedIn

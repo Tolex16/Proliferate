@@ -3,6 +3,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Student.ReportDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.ScoreDto;
+import com.proliferate.Proliferate.Domain.DTO.Student.TwoFactorAuthRequest;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.EducationExperience;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -79,13 +81,15 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
             assignmentRepository.save(assignment);
 
-            emailService.sendNewAssignmentNotificationEmail(student.getEmail(),student.getFirstName(),student.getLastName(),assignment.getTitle(),assignment.getSubject().getTitle(), assignment.getDueDate());
+            emailService.sendNewAssignmentNotificationEmail(student.getEmail(), student.getFirstName(), student.getLastName(), assignment.getTitle(), assignment.getSubject().getTitle(), assignment.getDueDate());
             List<AdminEntity> admins = adminRepository.findAll();
             for (AdminEntity admin : admins) {
                 Notifications notification = new Notifications();
                 notification.setAdmin(admin);
                 if (tutor.getTutorImage() != null) {
                     notification.setProfileImage(tutor.getTutorImage());
+                } else {
+                    notification.setProfileImage(null); // Or set an empty string if preferred
                 }
                 notification.setType("Uploaded Assignment by Tutor");
                 notification.setMessage("Assignment uploaded: " + tutor.getFirstName() + " " + tutor.getLastName() + " has uploaded an Assignment for " + student.getFirstName() + " " + student.getLastName() + ".");
@@ -98,6 +102,8 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             notification1.setStudent(student);
             if (tutor.getTutorImage() != null) {
                 notification1.setProfileImage(tutor.getTutorImage());
+            } else {
+                notification1.setProfileImage(null); // Or set an empty string if preferred
             }
 
             notification1.setType("Uploaded Study Materials by Tutor");
@@ -144,17 +150,18 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     }
 
     private boolean validateFileSize(MultipartFile file) {
-    List<String> allowedContentTypes = Arrays.asList("application/pdf", "image/png", "image/jpeg", "application/msword");
+        List<String> allowedContentTypes = Arrays.asList("application/pdf", "image/png", "image/jpeg", "application/msword");
 
-    String contentType = file.getContentType();
-    if (contentType == null || !allowedContentTypes.contains(contentType)) {
-        return false;
+        String contentType = file.getContentType();
+        if (contentType == null || !allowedContentTypes.contains(contentType)) {
+            return false;
+        }
+
+        return file.getSize() <= MAX_FILE_SIZE;
     }
 
-    return file.getSize() <= MAX_FILE_SIZE;
-    }
-
-    @Scheduled(cron = "0 0 * * * *") // This cron expression runs every hour
+    @Transactional(readOnly = true)
+    @Scheduled(cron = "0 0 1 * * *") // This cron expression runs every hour
     public void clearAssignmentsAfterDueDate() {
         List<Assignment> assignments = assignmentRepository.findAll();
         LocalDateTime now = LocalDateTime.now();
@@ -175,11 +182,12 @@ public class StudentManagementServiceImpl implements StudentManagementService {
 
     public List<FeedbackDto> getFeedbackByTutorId() {
         Long tutorId = jwtService.getUserId();
-        List<Feedback> feedbacks =feedbackRepository.findByTutorTutorId(tutorId);
+        List<Feedback> feedbacks = feedbackRepository.findByTutorTutorId(tutorId);
         return feedbacks.stream()
                 .map(this::convertToFeedback)
                 .collect(Collectors.toList());
     }
+
     private FeedbackDto convertToFeedback(Feedback feedback) {
         FeedbackDto dto = new FeedbackDto();
         dto.setStudentName(feedback.getStudent().getFirstName() + " " + feedback.getStudent().getLastName());
@@ -211,16 +219,25 @@ public class StudentManagementServiceImpl implements StudentManagementService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
         dto.setNotificationId(notifications.getNotificationId());
-        dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
+
+        // Check if profileImage is null before encoding
+        if (notifications.getProfileImage() != null) {
+            dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
+        } else {
+            dto.setProfileImage(null); // Or set an empty string if preferred
+        }
+
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
 
         return dto;
     }
+
 
     public String calculateTimeAgo(LocalDateTime createdAt) {
         Duration duration = Duration.between(createdAt, LocalDateTime.now());
@@ -253,9 +270,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             notification.setStudent(session.get().getStudent());
             if (tutor.getTutorImage() != null) {
                 notification.setProfileImage(tutor.getTutorImage());
+            } else {
+                notification.setProfileImage(null); // Or set an empty string if preferred
             }
             notification.setType("Session Request Declined by Tutor");
-            notification.setMessage( "Session declined: Unfortunately, " + tutor.getFirstName() + " " + tutor.getLastName() + " has declined your tutoring session request. Consider choosing another available tutor.");
+            notification.setMessage("Session declined: Unfortunately, " + tutor.getFirstName() + " " + tutor.getLastName() + " has declined your tutoring session request. Consider choosing another available tutor.");
             notification.setCreatedAt(LocalDateTime.now());
             notificationRepository.save(notification);
 
@@ -266,9 +285,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
                 notification1.setAdmin(admin);
                 if (tutor.getTutorImage() != null) {
                     notification1.setProfileImage(tutor.getTutorImage());
+                } else {
+                    notification1.setProfileImage(null); // Or set an empty string if preferred
                 }
                 notification1.setType("Session Rescheduled by Tutor");
-                notification1.setMessage("Session Rescheduled: " + tutor.getFirstName() + " " + tutor.getLastName() + "has canceled the tutoring session with " + session.get().getStudent().getFirstName() + " " + session.get().getStudent().getLastName() + " on "+ session.get().getStudent().getAvailability() +".");
+                notification1.setMessage("Session Rescheduled: " + tutor.getFirstName() + " " + tutor.getLastName() + "has canceled the tutoring session with " + session.get().getStudent().getFirstName() + " " + session.get().getStudent().getLastName() + " on " + session.get().getStudent().getAvailability() + ".");
                 notification1.setCreatedAt(LocalDateTime.now());
 
                 notificationRepository.save(notification1);
@@ -321,15 +342,15 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     }
 
     public Report addReport(ReportDto reportDto) {
-		Report report = new Report();
-		report.setStudent(studentRepository.findById(reportDto.getStudentId()).orElseThrow(() -> new UserNotFoundException("Student not found")));
+        Report report = new Report();
+        report.setStudent(studentRepository.findById(reportDto.getStudentId()).orElseThrow(() -> new UserNotFoundException("Student not found")));
         report.setSubject(subjectRepository.findById(reportDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject not present")));
-		report.setStatus(reportDto.getStatus());
+        report.setStatus(reportDto.getStatus());
 
         return reportRepository.save(report);
     }
 
-	public void deleteNotification(Long notificationId) {
+    public void deleteNotification(Long notificationId) {
         Optional<Notifications> notification = notificationRepository.findById(notificationId);
 
         if (notification.isPresent()) {
@@ -359,5 +380,48 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         } catch (Exception error) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public ResponseEntity<?> enableTutor2fa(TwoFactorAuthRequest request) {
+        try {
+            Long tutorId = jwtService.getUserId();
+            TutorEntity tutor = tutorRepository.findById(tutorId)
+                    .orElseThrow(() -> new UserNotFoundException("Tutor not present"));
+
+            // Check if the tutor already has 2FA enabled
+            if (request.isEnable() && tutor.getIsTwoFactorAuthEnabled()) {
+                return new ResponseEntity<>("2FA is already enabled for this tutor", HttpStatus.BAD_REQUEST);
+            }
+
+            // If enabling 2FA, update the tutor entity
+            if (request.isEnable()) {
+                tutor.setIsTwoFactorAuthEnabled(true);
+                Optional.ofNullable(request.getTwoFactorAuthPhoneNumber()).ifPresent(tutor::setTwoFactorAuthPhoneNumber);
+                //tutor.setTwoFactorAuthPhoneNumber(request.getTwoFactorAuthPhoneNumber());
+            } else {
+                // Disabling 2FA
+                tutor.setIsTwoFactorAuthEnabled(false);
+                tutor.setTwoFactorAuthPhoneNumber(null); // Clear the phone number if disabling 2FA
+            }
+
+            tutorRepository.save(tutor);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Override
+    public Map<String, Boolean> getTutor2faStatus() {
+        Long tutorId = jwtService.getUserId();
+        TutorEntity tutor = tutorRepository.findById(tutorId)
+                .orElseThrow(() -> new UserNotFoundException("Tutor not present"));
+
+        // Prepare the response map
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isTwoFactorAuthEnabled", tutor.getIsTwoFactorAuthEnabled());
+
+        return response;
+
     }
 }

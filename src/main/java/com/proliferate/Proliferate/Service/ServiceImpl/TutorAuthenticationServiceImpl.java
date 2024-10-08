@@ -1,10 +1,9 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
+import com.proliferate.Proliferate.Domain.DTO.Student.StudentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
-import com.proliferate.Proliferate.Domain.Entities.AdminEntity;
-import com.proliferate.Proliferate.Domain.Entities.Notifications;
-import com.proliferate.Proliferate.Domain.Entities.Role;
-import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
+import com.proliferate.Proliferate.Domain.DTO.Verify2FARequest;
+import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AccountNotVerifiedException;
 import com.proliferate.Proliferate.ExeceptionHandler.StudentEmailPresentException;
@@ -17,6 +16,9 @@ import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
 import com.proliferate.Proliferate.Service.*;
+import com.proliferate.Proliferate.config.TwilioConfig;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,8 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
 
     @PersistenceContext
     private final EntityManager entityManager;
+    @Autowired
+    private final TwilioConfig twilioConfig;
 
     @Autowired
     private final UserService tutorService;
@@ -78,10 +82,10 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
     private final AuthenticationManager authenticationManager;
 
     public ResponseEntity<?> tutorRegister(TutorRegister tutorRegister){
-        if(tutorRepository.existsByEmail(tutorRegister.getEmail())){
+        if(tutorRepository.existsByEmailIgnoreCase(tutorRegister.getEmail())){
             throw new UserAlreadyExistsException("There is a tutor account associated with this email already");
         }
-        if(studentRepository.existsByEmail(tutorRegister.getEmail())){
+        if(studentRepository.existsByEmailIgnoreCase(tutorRegister.getEmail())){
             throw new StudentEmailPresentException("There is an student account associated with this email already");
         }
         try {
@@ -90,7 +94,7 @@ public class TutorAuthenticationServiceImpl implements TutorAuthenticationServic
             tutorEntity.setRole(Role.TUTOR);
             tutorRepository.save(tutorEntity);
 
-            var tutor = tutorRepository.findByEmail(tutorRegister.getEmail()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
+            var tutor = tutorRepository.findByEmailIgnoreCase(tutorRegister.getEmail()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
             var jwt = jwtService.genToken(tutor, null);
 
             PersonDetailsResponse response = new PersonDetailsResponse(jwt);
@@ -239,10 +243,10 @@ public ResponseEntity<?> completeRegistration() {
         TutorEntity tutorEntity = tutorRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Tutor not found"));
         tutorEntity.setVerificationToken(generateToken());
-        tutorEntity.setTokenExpirationTime(LocalDateTime.now().plusMinutes(5));
+        tutorEntity.setTokenExpirationTime(LocalDateTime.now().plusMinutes(15));
         tutorEntity.setEmailVerified(false);
 
-        String confirmLink = "https://proliferate-site.vercel.app/auth/account-verified?token=" + tutorEntity.getVerificationToken();
+        String confirmLink = "https://lms.proliferate.ai/auth/account-verified?token=" + tutorEntity.getVerificationToken();
 
             tutorEntity  = getTutorWithLob(userId);
             emailService.tutorRegistrationConfirmationEmail(
@@ -279,6 +283,8 @@ public ResponseEntity<?> completeRegistration() {
 
             if (tutorEntity.getTutorImage() != null) {
                 notification.setProfileImage(tutorEntity.getTutorImage());
+            }else {
+                notification.setProfileImage(null); // Or set an empty string if preferred
             }
             notification.setType("Tutor Applies to Join");
             notification.setMessage("New tutor application: A tutor has applied to join the platform. " +
@@ -314,30 +320,27 @@ public ResponseEntity<?> completeRegistration() {
         }
         // Try to find the user as a tutor
 
-        var tutorOpt = tutorRepository.findByEmailAndEmailVerifiedIsTrue(loginTutorRequest.getEmail());
+        var tutorOpt = tutorRepository.findByEmailIgnoreCaseAndEmailVerifiedIsTrue(loginTutorRequest.getEmail());
 
         if (tutorOpt.isPresent()) {
             var tutor = tutorOpt.get();
-                UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
-                var jwt = jwtService.genToken(userDetails, tutor);
-                TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
-				boolean hasBioPresent = hasBio(tutor); // Check if tutor has bio
-                boolean hasImagePresent = hasImage(tutor); // Check if tutor has image
+            // Check if 2FA is enabled for the tutor
+            if (Boolean.TRUE.equals(tutor.getIsTwoFactorAuthEnabled())) { // Null-safe check
+                // Generate the 2FA code
+                String code = generateToken();
+                tutor.setTwoFactorCode(code);
+                tutor.setTwoFactorCodeExpiry(LocalDateTime.now().plusMinutes(15));
+                tutorRepository.save(tutor); // Save the 2FA code and expiry time
 
-            if (!hasImagePresent) {
-                Notifications notification = new Notifications();
+                // Send the 2FA code via text message to the tutor's contact number
+               // sendSms(tutor.getTwoFactorAuthPhoneNumber(), "Hello "+ tutor.getFirstName() +"Your 2FA otp is  "+ code + ". It will expire in the next 15 mins ");
 
-                notification.setTutor(tutor);
-                if (tutor.getTutorImage() != null) {
-                    notification.setProfileImage(tutor.getTutorImage());
-                }
-                notification.setType("Request for Profile Update");
-                notification.setMessage("Profile update required: Please update your profile with your photo, ID and relevant certificate to make your profile visible on our platform.");
-                notification.setCreatedAt(LocalDateTime.now());
-
-                notificationRepository.save(notification);
+                // Return a response indicating that the 2FA code has been sent
+                return new LoginResponse("2FA code sent, please verify" + " " + code ,  null);
+            } else {
+                // If 2FA is not enabled, finalize the login process
+                return finalizeTutorLogin(tutor);
             }
-                return new LoginResponse(null, loggedInTutor, jwt, hasBioPresent);
         } else throw new AccountNotVerifiedException("Account not verified for this tutor, please check your email to verify");
     }
 	
@@ -347,6 +350,54 @@ public ResponseEntity<?> completeRegistration() {
 
     public boolean hasImage(TutorEntity tutor) {
         return tutor.getTutorImage() != null;
+    }
+
+    private LoginResponse finalizeTutorLogin(TutorEntity tutor) {
+        // Load user details for JWT generation
+        UserDetails userDetails = tutorService.userDetailsService().loadUserByUsername(tutor.getEmail());
+        var jwt = jwtService.genToken(userDetails, tutor);
+        TutorDto loggedInTutor = tutorMapper.mapTo(tutor);
+        boolean hasBioPresent = hasBio(tutor); // Check if tutor has bio
+        boolean hasImagePresent = hasImage(tutor); // Check if tutor has image
+
+        if (!hasImagePresent) {
+            Notifications notification = new Notifications();
+
+            notification.setTutor(tutor);
+            if (tutor.getTutorImage() != null) {
+                notification.setProfileImage(tutor.getTutorImage());
+            }else {
+                notification.setProfileImage(null); // Or set an empty string if preferred
+            }
+            notification.setType("Request for Profile Update");
+            notification.setMessage("Profile update required: Please update your profile with your photo, ID and relevant certificate to make your profile visible on our platform.");
+            notification.setCreatedAt(LocalDateTime.now());
+
+            notificationRepository.save(notification);
+        }
+        return new LoginResponse( jwt, hasBioPresent);
+    }
+
+    public void sendSms(String to, String message) {
+        Message.creator(
+                new PhoneNumber(to),
+                new PhoneNumber(twilioConfig.getTrialNumber()),
+                message
+        ).create();
+    }
+
+    public ResponseEntity<?> verifyTutor2FACode(Verify2FARequest request) {
+        var tutorOpt = tutorRepository.findByEmailIgnoreCaseAndEmailVerifiedIsTrue(request.getEmail());
+        if (tutorOpt.isPresent()) {
+            var tutor = tutorOpt.get();
+            if (tutor.getTwoFactorCode().equals(request.getCode()) &&
+                    tutor.getTwoFactorCodeExpiry().isAfter(LocalDateTime.now())) {
+                return ResponseEntity.ok(finalizeTutorLogin(tutor));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired 2FA code");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tutor not found");
     }
 
     public String generateToken(){
@@ -364,12 +415,8 @@ public ResponseEntity<?> completeRegistration() {
     public Map<String, Boolean> checkMail(String email) {
         Map<String, Boolean> result = new HashMap<>();
 
-        boolean isEmailPresent = tutorRepository.findByEmail(email).isPresent();
+        boolean isEmailPresent = tutorRepository.findByEmailIgnoreCase(email).isPresent();
         result.put("email", isEmailPresent);
-
-        // Check if the email is present in the student repository
-       // boolean isEmailStudentPresent = studentRepository.findByEmail(email).isPresent();
-        //result.put("email", isEmailStudentPresent);
 
         return result;
 	}
@@ -393,10 +440,6 @@ public ResponseEntity<?> completeRegistration() {
                                 }
 								  }
                             }
-                            Optional.ofNullable(updateTutor.getFirstName()).ifPresent(existingUser::setFirstName);
-                            Optional.ofNullable(updateTutor.getLastName()).ifPresent(existingUser::setLastName);
-                            Optional.ofNullable(updateTutor.getEmail()).ifPresent(existingUser::setEmail);
-                            Optional.ofNullable(updateTutor.getPhoneNumber()).ifPresent(existingUser::setContactNumber);
                             Optional.ofNullable(updateTutor.getBio()).ifPresent(existingUser::setBio);
 
 
@@ -432,5 +475,5 @@ public ResponseEntity<?> completeRegistration() {
         tutor.getTutorImage();
         return tutor;
     }
-	
+
 }

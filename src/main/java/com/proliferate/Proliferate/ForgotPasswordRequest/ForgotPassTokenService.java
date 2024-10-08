@@ -11,4 +11,6 @@ public interface ForgotPassTokenService {
 
     @Transactional
     ResponseEntity<String> resetPassword(ResetPassword resetPassword);
+
+    void clearTokenAfterExpiration();
 }

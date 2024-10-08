@@ -13,6 +13,8 @@ public class TutorDisplay {
 
     private String fullName;
 
+    private String email;
+
     private String bio;
 
     private String subject;

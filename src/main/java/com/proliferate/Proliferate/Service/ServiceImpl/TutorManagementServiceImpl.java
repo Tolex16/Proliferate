@@ -2,10 +2,7 @@ package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
-import com.proliferate.Proliferate.Domain.DTO.Student.FriendInvite;
-import com.proliferate.Proliferate.Domain.DTO.Student.SessionDto;
-import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
-import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
+import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
@@ -28,10 +25,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,7 +69,9 @@ public class TutorManagementServiceImpl implements TutorManagementService {
             notification.setAdmin(admin);
             if (student.getStudentImage() != null) {
                 notification.setProfileImage(student.getStudentImage());
-            }
+            } else {
+             notification.setProfileImage(null); // Or set an empty string if preferred
+           }
             notification.setType("Review and Rating Received");
             notification.setMessage("New review and rating: " + feedback.getStudent().getFirstName() + " " + feedback.getStudent().getLastName() + "has provided a review and rating for the session with " + feedback.getTutor().getFirstName() + " " + feedback.getTutor().getLastName() + ".");
             notification.setCreatedAt(LocalDateTime.now());
@@ -111,6 +107,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 notification.setTutor(assignment.getTutor());
                 if (student.getStudentImage() != null) {
                     notification.setProfileImage(student.getStudentImage());
+                } else {
+                notification.setProfileImage(null); // Or set an empty string if preferred
                 }
                 notification.setType("Uploaded Answers by Student");
                 notification.setMessage("Assignment Solution uploaded: " + assignment.getAssignedStudent().getFirstName() + " "+ assignment.getAssignedStudent().getLastName() + " " + "has uploaded the study's " +
@@ -209,6 +207,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
                 notification.setTutor(classSchedule.getTutor());
                 if (student.getStudentImage() != null) {
                     notification.setProfileImage(student.getStudentImage());
+                } else {
+                notification.setProfileImage(null); // Or set an empty string if preferred
                 }
                 notification.setType("Session Rescheduled by Student");
                 notification.setMessage("Session rescheduled: " + student.getFirstName() + " " + student.getLastName() + "  has rescheduled the tutoring session with" + classSchedule.getTutor().getFirstName()
@@ -264,6 +264,8 @@ public class TutorManagementServiceImpl implements TutorManagementService {
         notification.setTutor(tutor);
         if (student.getStudentImage() != null) {
             notification.setProfileImage(student.getStudentImage());
+        } else {
+             notification.setProfileImage(null); // Or set an empty string if preferred
         }
         notification.setType("Student Books a Tutoring Session");
         notification.setMessage("New session request: " + student.getFirstName() + " " + student.getLastName() + " has booked a tutoring session with you on " + student.getAvailability() + ". Please review and confirm.");
@@ -405,7 +407,9 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
             notification.setStudent(student);
             if (student.getStudentImage() != null) {
                 notification.setProfileImage(student.getStudentImage());
-            }
+            } else {
+             notification.setProfileImage(null); // Or set an empty string if preferred
+           }
             notification.setType("Session Request Cancellation by Student");
             notification.setMessage("Session canceled: You have canceled the tutoring session request with " + session.get().getTutor().getFirstName() + " " + session.get().getTutor().getLastName() +  " on " + student.getAvailability() + ".");
             notification.setCreatedAt(LocalDateTime.now());
@@ -445,16 +449,24 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-    private NotificationDTO convertToDto(Notifications notifications) {
-        NotificationDTO dto = new NotificationDTO();
-		dto.setNotificationId(notifications.getNotificationId());
-        dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
-        dto.setType(notifications.getType());
-        dto.setMessage(notifications.getMessage());
-        dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
+   private NotificationDTO convertToDto(Notifications notifications) {
+    NotificationDTO dto = new NotificationDTO();
+    dto.setNotificationId(notifications.getNotificationId());
 
-        return dto;
+    // Check if profileImage is null before encoding
+    if (notifications.getProfileImage() != null) {
+        dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
+    } else {
+        dto.setProfileImage(null); // Or set an empty string if preferred
     }
+
+    dto.setType(notifications.getType());
+    dto.setMessage(notifications.getMessage());
+    dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));
+
+    return dto;
+   }
+
 
     public String calculateTimeAgo(LocalDateTime createdAt) {
         Duration duration = Duration.between(createdAt, LocalDateTime.now());
@@ -472,6 +484,47 @@ private double calculatePrice(StudentEntity student, Subject subject, String dur
             long months = days / 30;
             return months + (months == 1 ? " month ago" : " months ago");
         }
+    }
+    public ResponseEntity<?> enableStudent2fa(TwoFactorAuthRequest request) {
+        try {
+            Long studentId = jwtService.getUserId();
+            StudentEntity student = studentRepository.findById(studentId)
+                    .orElseThrow(() -> new UserNotFoundException("Student not present"));
+
+            // Check if the tutor already has 2FA enabled
+            if (request.isEnable() && student.getIsTwoFactorAuthEnabled()) {
+                return new ResponseEntity<>("2FA is already enabled for this tutor", HttpStatus.BAD_REQUEST);
+            }
+
+            // If enabling 2FA, update the tutor entity
+            if (request.isEnable()) {
+                student.setIsTwoFactorAuthEnabled(true);
+                Optional.ofNullable(request.getTwoFactorAuthPhoneNumber()).ifPresent(student::setTwoFactorAuthPhoneNumber);
+                //student.setTwoFactorAuthPhoneNumber(request.getTwoFactorAuthPhoneNumber());
+            } else {
+                // Disabling 2FA
+                student.setIsTwoFactorAuthEnabled(false);
+                student.setTwoFactorAuthPhoneNumber(null); // Clear the phone number if disabling 2FA
+            }
+
+            studentRepository.save(student);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Override
+    public Map<String, Boolean> getStudent2faStatus() {
+        Long studentId = jwtService.getUserId();
+        StudentEntity student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new UserNotFoundException("Student not present"));
+
+        // Prepare the response map
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isTwoFactorAuthEnabled", student.getIsTwoFactorAuthEnabled());
+
+        return response;
     }
 	
 	

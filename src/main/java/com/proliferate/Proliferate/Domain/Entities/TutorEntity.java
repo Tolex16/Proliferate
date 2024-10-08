@@ -148,15 +148,19 @@ public class TutorEntity implements UserDetails {
     @JsonIgnore
     @Column(name = "token_expiration_time")
     private LocalDateTime tokenExpirationTime;
-	
-//	@Column(name = "is_2fa_enabled")
-//    private boolean is2FAEnabled;
-//
-//    @Column(name = "2fa_code", length = 6)
-//    private String twoFactorCode;
-//
-//    @Column(name = "2fa_code_expiry")
-//    private LocalDateTime twoFactorCodeExpiry;
+
+    @Column(name = "two_factor_auth_enabled")
+    private Boolean isTwoFactorAuthEnabled = false;
+
+    @Column(name = "two_factor_auth_phone_number")
+    private String twoFactorAuthPhoneNumber;
+
+    @Column(name = "two_factor_auth_code", length = 6)
+    private String twoFactorCode;
+
+    @Column(name = "two_factor_auth_code_expiry")
+    private LocalDateTime twoFactorCodeExpiry;
+
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;

@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Service.ServiceImpl;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
+import com.proliferate.Proliferate.Domain.DTO.Verify2FARequest;
 import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.*;
@@ -11,6 +12,9 @@ import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Response.PersonDetailsResponse;
 import com.proliferate.Proliferate.Service.*;
+import com.proliferate.Proliferate.config.TwilioConfig;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import lombok.RequiredArgsConstructor;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -48,6 +52,9 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
     private final AdminRepository adminRepository;
     @Autowired
     private final UserService userService;
+
+    @Autowired
+    private final TwilioConfig twilioConfig;
 	
 	@Autowired
 	private final TokenService tokenService;
@@ -71,13 +78,13 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
     private final AuthenticationManager authenticationManager;
 
     public ResponseEntity<?> studentRegister(StudentRegisterPersDeets studentRegisterPersDeets){
-        if(studentRepository.existsByUserName(studentRegisterPersDeets.getUserName())){
+        if(studentRepository.existsByUserNameIgnoreCase(studentRegisterPersDeets.getUserName())){
             throw new UserAlreadyExistsException("There is an student account with this username.");
         }
-        if(studentRepository.existsByEmail(studentRegisterPersDeets.getEmail())){
+        if(studentRepository.existsByEmailIgnoreCase(studentRegisterPersDeets.getEmail())){
             throw new UserAlreadyExistsException("There is an student account associated with this email already");
         }
-        if(tutorRepository.existsByEmail(studentRegisterPersDeets.getEmail())){
+        if(tutorRepository.existsByEmailIgnoreCase(studentRegisterPersDeets.getEmail())){
             throw new TutorEmailPresentException("There is a tutor account associated with this email already");
         }
         try {
@@ -86,7 +93,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
             studentEntity.setRole(Role.STUDENT);
             studentRepository.save(studentEntity);
 
-            var student = studentRepository.findByUserName(studentRegisterPersDeets.getUserName()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
+            var student = studentRepository.findByUserNameIgnoreCase(studentRegisterPersDeets.getUserName()).orElseThrow(() -> new IllegalArgumentException("Error in username and password"));
             var jwt = jwtService.genToken(student, null);
 
             PersonDetailsResponse response = new PersonDetailsResponse(jwt);
@@ -177,10 +184,10 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
         Long userId = jwtService.getUserId();
         StudentEntity studentEntity = studentRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Student not found"));
         studentEntity.setVerificationToken(generateToken());
-        studentEntity.setTokenExpirationTime(LocalDateTime.now().plusMinutes(10));
+        studentEntity.setTokenExpirationTime(LocalDateTime.now().plusMinutes(15));
         studentEntity.setEmailVerified(false);
 
-        String confirmLink = "https://proliferate-site.vercel.app/auth/account-verified?token=" + studentEntity.getVerificationToken();
+        String confirmLink = "https://lms.proliferate.ai/auth/account-verified?token=" + studentEntity.getVerificationToken();
 
             emailService.studentRegistrationConfirmationEmail(
                     studentEntity.getEmail(),
@@ -264,6 +271,11 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
             //TutorEntity tutor = tutorRepository.findById(tutorEntity.getTutorId()).orElseThrow(() -> new UserNotFoundException("Admin not found"));
             notification.setTutor(tutorEntity);
+            if (tutorEntity.getTutorImage() != null) {
+             notification.setProfileImage(tutorEntity.getTutorImage());
+            } else {
+             notification.setProfileImage(null); // Or set an empty string if preferred
+            }
             notification.setType("Account Approval");
             notification.setMessage("Account approved: Congratulations! Your tutor account on Proliferate has been approved. You can now start offering tutoring services.");
             notification.setCreatedAt(LocalDateTime.now());
@@ -299,53 +311,95 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
         return termsAndConditions.toString();
     }
 
-  @Transactional
-  public LoginResponse login(LoginStudentRequest loginStudentRequest) {
-      try {
-          // Authenticate the user
-          authenticationManager.authenticate(
-                  new UsernamePasswordAuthenticationToken(
-                          loginStudentRequest.getUserName(),
-                          loginStudentRequest.getPassword()
-                  )
-          );
-      } catch (BadCredentialsException e) {
-          throw new IllegalArgumentException("Invalid student username or password", e);
-      }
+   @Transactional
+   public LoginResponse login(LoginStudentRequest loginStudentRequest) {
+    try {
+        // Authenticate the user
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginStudentRequest.getUserName(),
+                        loginStudentRequest.getPassword()
+                )
+        );
+    } catch (BadCredentialsException e) {
+        throw new IllegalArgumentException("Invalid student username or password", e);
+    }
 
-      // Try to find the user as a student first
-      var studentOpt = studentRepository.findByUserNameAndEmailVerifiedIsTrue(loginStudentRequest.getUserName());
-      if (studentOpt.isPresent()) {
-          var student = studentOpt.get();
-          UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
-          var jwt = jwtService.genToken(userDetails, student);
-          StudentDto loggedInStudent = studentMapper.mapTo(student);
-          boolean hasBioPresent = hasBio(student); // Check if tutor has bio
-         // boolean hasImagePresent = hasImage(student); // Check if tutor has image
+    // Try to find the user as a student first
+    var studentOpt = studentRepository.findByUserNameIgnoreCaseAndEmailVerifiedIsTrue(loginStudentRequest.getUserName());
+    if (studentOpt.isPresent()) {
+        var student = studentOpt.get();
+        // Check if 2FA is enabled for the tutor
+        if (Boolean.TRUE.equals(student.getIsTwoFactorAuthEnabled())) { // Null-safe check
+            // Generate the 2FA code
+            String code = generateToken();
+            student.setTwoFactorAuthCode(code);
+            student.setTwoFactorCodeExpiry(LocalDateTime.now().plusMinutes(15));
+            studentRepository.save(student); // Save the 2FA code and expiry time
 
-//          if (!hasImagePresent) {
-//              Notifications notification = new Notifications();
-//
-//              notification.setStudent(student);
-//              notification.setType("Request for Profile Update");
-//              notification.setMessage("Profile update required: Please update your profile with your photo, " +
-//                      "ID and relevant certificate to make your profile visible on our platform.");
-//              notification.setCreatedAt(LocalDateTime.now());
-//
-//              notificationRepository.save(notification);
-//          }
+            // Send the 2FA code via text message to the tutor's contact number
+            //sendSms(student.getTwoFactorAuthPhoneNumber(), "Dear " + student.getFirstName() + "Your 2FA otp is " + code + ". It will expire in the next 15 mins ");
 
-          return new LoginResponse(loggedInStudent, null, jwt, hasBioPresent);
+            // Return a response indicating that the 2FA code has been sent
+            return new LoginResponse("2FA code sent, please verify" + " " + code , null);
+        } else {
+            // If 2FA is not enabled, finalize the login process
+            return finalizeLogin(student);
+        }
+    } else {
+        throw new AccountNotVerifiedException("Account not verified for this student, please check your email to verify");
+    }
+   }
 
-      } else throw new AccountNotVerifiedException("Account not verified for this student, please check your email to verify");
-  }
     public boolean hasBio(StudentEntity student) {
         return student.getBio() != null && !student.getBio().isEmpty();
     }
 
 //    public boolean hasImage(StudentEntity student) {
 //        return student.getStudentImage() != null;
-//    }
+//    
+
+   private LoginResponse finalizeLogin(StudentEntity student) {
+    // Load user details for JWT generation
+    UserDetails userDetails = userService.userDetailsService().loadUserByUsername(student.getUsername());
+
+    // Generate JWT token
+    var jwt = jwtService.genToken(userDetails, student);
+
+
+    // Map the student entity to a DTO
+    StudentDto loggedInStudent = studentMapper.mapTo(student);
+
+    // Check if the student has a bio
+    boolean hasBioPresent = hasBio(student); // Check if student has bio
+
+
+    // Return the login response with the JWT token and other relevant information
+    return new LoginResponse(jwt, hasBioPresent);
+}
+
+    public void sendSms(String to, String message) {
+        Message.creator(
+            new PhoneNumber(to),
+            new PhoneNumber(twilioConfig.getTrialNumber()),
+            message
+        ).create();
+    }
+	
+    public ResponseEntity<?> verifyStudent2FACode(Verify2FARequest request) {
+        var studentOpt = studentRepository.findByEmailIgnoreCaseAndEmailVerifiedIsTrue(request.getEmail());
+    if (studentOpt.isPresent()) {
+        var student = studentOpt.get();
+        if (student.getTwoFactorAuthCode().equals(request.getCode()) &&
+            student.getTwoFactorCodeExpiry().isAfter(LocalDateTime.now())) {
+            return ResponseEntity.ok(finalizeLogin(student));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired 2FA code");
+        }
+    }
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tutor not found");
+}
+
 
     public String generateToken(){
         List<CharacterRule> rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
@@ -369,16 +423,12 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
     Map<String, Boolean> result = new HashMap<>();
 
     // Check if the userName is present in the student repository
-    boolean isUserNamePresent = studentRepository.findByUserName(username).isPresent();
+    boolean isUserNamePresent = studentRepository.findByUserNameIgnoreCase(username).isPresent();
     result.put("userName", isUserNamePresent);
 
     // Check if the email is present in the student repository
-    boolean isEmailPresent = studentRepository.findByEmail(email).isPresent();
+    boolean isEmailPresent = studentRepository.findByEmailIgnoreCase(email).isPresent();
     result.put("email", isEmailPresent);
-
-    // Check if the email is present in the tutor repository
-    //boolean isEmailTutorPresent = tutorRepository.findByEmail(email).isPresent();
-    //result.put("email", isEmailTutorPresent);
 
     return result;
 }
@@ -391,21 +441,20 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
                 return studentRepository.findById(userId).map(
                         existingUser -> {
                             if (updateStudent.getStudentImage() != null && !updateStudent.getStudentImage().isEmpty()) {
+								System.out.println("Received student image of size: " + updateStudent.getStudentImage().getSize());
                                 if (!validateFileSize(updateStudent.getStudentImage())) {
                                     return new ResponseEntity<>("Student Image exceeds the maximum allowed size of 5MB", HttpStatus.BAD_REQUEST);
                                 }
                                 if (!updateStudent.getStudentImage().isEmpty()) {
                                     try {
                                         existingUser.setStudentImage(updateStudent.getStudentImage().getBytes());
+                                        System.out.println("Successfully set student image");
                                     } catch (IOException e) {
-                                        throw new RuntimeException(e);
+                                   System.out.println("Error setting student image");
+                                    throw new RuntimeException(e);
                                     }
                                 }
                             }
-                            Optional.ofNullable(updateStudent.getFirstName()).ifPresent(existingUser::setFirstName);
-                            Optional.ofNullable(updateStudent.getLastName()).ifPresent(existingUser::setLastName);
-                            Optional.ofNullable(updateStudent.getEmail()).ifPresent(existingUser::setEmail);
-                            Optional.ofNullable(updateStudent.getPhoneNumber()).ifPresent(existingUser::setContactNumber);
                             Optional.ofNullable(updateStudent.getBio()).ifPresent(existingUser::setBio);
 
 
@@ -421,6 +470,7 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+	
     private boolean validateFileSize(MultipartFile file) {
         List<String> allowedContentTypes = Arrays.asList("application/pdf", "image/png", "image/jpeg");
 
@@ -431,4 +481,5 @@ public class StudentAuthenticationServiceImpl implements StudentAuthenticationSe
 
         return file.getSize() <= MAX_FILE_SIZE;
     }
+
 }

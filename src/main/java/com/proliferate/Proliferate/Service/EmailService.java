@@ -79,8 +79,8 @@ public class EmailService {
     bodyBuilder.append("<html>");
     bodyBuilder.append("<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">");
     bodyBuilder.append("<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">");
-    bodyBuilder.append("<h1 style=\"text-align: center; color: #4CAF50;\">Congratulations</h1>");
-    bodyBuilder.append("<p style=\"text-align: center;\">Congratulations on successfully registering with Proliferate! We're excited to have you join our community of learners and tutors.</p>");
+    bodyBuilder.append("<h1 style=\"text-align: center;\">Congratulations</h1>");
+    bodyBuilder.append("<p>Congratulations on successfully registering with Proliferate! We're excited to have you join our community of learners and tutors.</p>");
     bodyBuilder.append("<p>Here's a summary of the information you provided during registration:</p>");
 
     bodyBuilder.append("<h2 style=\"color: #333;\">Personal Information:</h2>");
@@ -142,7 +142,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
             "<body style=\"font-family: Arial, sans-serif;\">" +
             "<div style=\"max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;\">" +
             "<div style=\"text-align: center;\">" +
-            "<img src=\"https://proliferate.ai/logo.png\" alt=\"Proliferate Logo\" style=\"max-width: 200px;\">" +
+            "<img src=\"cid:proliferateLogo\" alt=\"Proliferate Logo\" style=\"width: 100px;\">" +
             "</div>" +
             "<h2 style=\"color: #333;\">Hi " + friendName + ",</h2>" +
             "<p>I hope this email finds you well! I wanted to reach out and share something exciting with you.</p>" +
@@ -322,7 +322,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         bodyBuilder.append("<html>");
         bodyBuilder.append("<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">");
         bodyBuilder.append("<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">");
-        bodyBuilder.append("<h1 style=\"text-align: center; color: #4CAF50;\">Congratulations</h1>");
+        bodyBuilder.append("<h1 style=\"text-align: center;\">Congratulations</h1>");
 
         bodyBuilder.append("<h2 style=\"color: #333;\">Dear ").append(tutorLastName).append(" ").append(tutorFirstName).append(",</h2>");
         bodyBuilder.append("<p>Congratulations on successfully registering with Proliferate! We're excited to have you join our community of learners and tutors.</p>");
@@ -355,7 +355,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         bodyBuilder.append("<li>Preferred Subjects: ").append(preferredSubjects).append("</li>");
         bodyBuilder.append("</ul>");
 
-        bodyBuilder.append("<p>Thank you for providing this information. It will help us match you with students that fit your expertise, teaching style, and availability. If you have any questions or need assistance, please don't hesitate to <a href=\"https://proliferate.ai/contact\">contact us</a>. Our team is here to help you every step of the way.</p>");
+        bodyBuilder.append("<p>Thank you for providing this information. It will help us match you with students that fit your expertise, teaching style, and availability. If you have any questions or need assistance, please don't hesitate to <a href=\"https://proliferate.ai/contact\" style=\"color: #2196F3;\">contact us</a>. Our team is here to help you every step of the way.</p>");
 
         bodyBuilder.append("<p>We are confident that you will make a valuable contribution to our platform and positively impact the learning journey of our students. If you have any questions or need assistance, please feel free to reach out to us at <a href=\"mailto:support@proliferate.ai\">support@proliferate.ai</a>. Our team is here to support you every step of the way.</p>");
         bodyBuilder.append("<p>We are excited to support you as you help shape the futures of learners around the world. Our support team is always here to help.</p>");
@@ -418,7 +418,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         return "<html>" +
                 "<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">" +
                 "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
-                "<h2 style=\"text-align: center; color: #333;\">Class Enrollment <br> Confirmation</h2>" +
+                "<h2 style=\"text-align: center; \">Class Enrollment <br> Confirmation</h2>" +
                 "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
 
                 "<p>Congratulations! You are now enrolled in <strong>" + className + "</strong> on Proliferate.ai.</p>" +
@@ -483,7 +483,7 @@ public void sendInvitationEmail(String to, String friendName, String senderName)
         return "<html>" +
                 "<body style=\"font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9; margin: 0; padding: 0;\">" +
                 "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\">"  +
-                "<h2 style=\"text-align: center; color: #333;\">Payment Confirmation</h2>" +
+                "<h2 style=\"text-align: center; \">Payment Confirmation</h2>" +
                 "<p>Dear " + studentLastName + " " + studentFirstName + ",</p>" +
                 "<p>Thank you for your payment! We have successfully received your monthly subscription payment for Proliferate.ai.</p>" +
                 

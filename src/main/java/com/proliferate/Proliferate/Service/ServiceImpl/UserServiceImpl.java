@@ -31,19 +31,19 @@ public UserDetailsService userDetailsService() {
         @Override
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
             // Try to find the user as a student
-            var studentOpt = studentRepository.findByUserName(username);
+            var studentOpt = studentRepository.findByUserNameIgnoreCase(username);
             if (studentOpt.isPresent()) {
                 return studentOpt.get();
             }
 
             // If not found as a student, try to find the user as a tutor
-            var tutorOpt = tutorRepository.findByEmail(username);
+            var tutorOpt = tutorRepository.findByEmailIgnoreCase(username);
             if (tutorOpt.isPresent()) {
                 return tutorOpt.get();
             }
 
             // If not found as a student, try to find the user as a tutor
-            var adminOpt = adminRepository.findByEmail(username);
+            var adminOpt = adminRepository.findByEmailIgnoreCase(username);
             if (adminOpt.isPresent()) {
                 return adminOpt.get();
             }

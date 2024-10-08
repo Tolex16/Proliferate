@@ -3,6 +3,7 @@ package com.proliferate.Proliferate.Domain.Entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.proliferate.Proliferate.Domain.DTO.Chat.MessageType;
 import jakarta.persistence.*;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,14 +17,12 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-	
-//    @Column(name = "sender_id")
-//    private Long senderId;
-//
-//	@Column(name = "receiver_id")
-//    private Long receiverId;
+
     @Column(name = "sender_name")
     private String senderFullName;
+
+    @Column(name = "sender_id")
+    private Long senderId;
 
     @Column(name = "receiver_name")
     private String receiverFullName;
@@ -38,14 +37,14 @@ public class Message {
     @JsonBackReference
     private TutorEntity tutor;
 
-    @ManyToOne
-    @JoinColumn(name = "admin_id")
-    @JsonBackReference
-    private AdminEntity admin;
+//    @ManyToOne
+//    @JoinColumn(name = "admin_id")
+//    @JsonBackReference
+//    private AdminEntity admin;
 
-    @Column(name = "content")
+    @Column(name = "content",  length = 1024)
     private String content;
-	
+
 	@Column(name = "timestamp")
     private LocalDateTime timestamp;
 	

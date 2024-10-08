@@ -1,8 +1,8 @@
 package com.proliferate.Proliferate.Controller;
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
+import com.proliferate.Proliferate.Domain.DTO.Verify2FARequest;
 import com.proliferate.Proliferate.ExeceptionHandler.*;
-import com.proliferate.Proliferate.Response.LoginResponse;
 import com.proliferate.Proliferate.Service.TutorAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -132,5 +132,8 @@ public class TutorAuthController {
         }
     }
 
-
+    @PostMapping("/verify-tutor-2fa")
+    public ResponseEntity<?> verifyStudent2FACode(@Valid @RequestBody Verify2FARequest request) {
+        return authenticationService.verifyTutor2FACode(request);
+    }
 }

@@ -9,7 +9,6 @@ import com.proliferate.Proliferate.ExeceptionHandler.EmailNotFoundException;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
 import com.proliferate.Proliferate.Service.EmailService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -21,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -51,11 +51,11 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
     public void initiateForgotPass(TutorVerification tutorVerification) {
         try {
             UserDetails existingUser = null;
-            Optional<StudentEntity> studentOpt = studentRepository.findByEmail(tutorVerification.getEmail());
+            Optional<StudentEntity> studentOpt = studentRepository.findByEmailIgnoreCaseAndEmailVerifiedIsTrue(tutorVerification.getEmail());
             if (studentOpt.isPresent()) {
                 existingUser = studentOpt.get();
             } else {
-                Optional<TutorEntity> tutorOpt = tutorRepository.findByEmail(tutorVerification.getEmail());
+                Optional<TutorEntity> tutorOpt = tutorRepository.findByEmailIgnoreCaseAndEmailVerifiedIsTrue(tutorVerification.getEmail());
                 if (tutorOpt.isPresent()) {
                     existingUser = tutorOpt.get();
                 }
@@ -137,7 +137,8 @@ public class ForgotPassServiceImpl implements ForgotPassTokenService{
         return forgotPassToken;
     }
 
-    @Scheduled(cron = "0 0 * * * *") // This cron expression runs every minute
+    @Transactional(readOnly = true)
+    @Scheduled(cron = "0 0 1 * * *") // This cron expression runs every minute
     public void clearTokenAfterExpiration() {
         List<ForgotPassToken> forgotPassTokens = forgotPassTokenRep.findAll();
         LocalDateTime now = LocalDateTime.now();

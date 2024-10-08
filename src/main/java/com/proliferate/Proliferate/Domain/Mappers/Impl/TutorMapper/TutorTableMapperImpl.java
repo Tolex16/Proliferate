@@ -30,6 +30,7 @@ public class TutorTableMapperImpl implements Mapper<TutorEntity, TutorTable> {
             tutorTable.setProfileImage(null); // or set a default image, if applicable
         }
         tutorTable.setAvailability(tutor.getWeeklyAvailability());
+        tutorTable.setEmail(tutor.getEmail());
         tutorTable.setBio(tutor.getBio());
         return tutorTable;
     }

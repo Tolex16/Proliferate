@@ -51,7 +51,7 @@ public class AdminManagementServiceImpl implements AdminManagementService {
 
     @PostConstruct
     public void createAdminUsers() {
-        Optional<AdminEntity> adminUser = adminRepository.findByEmail("techproliferate@gmail.com");
+        Optional<AdminEntity> adminUser = adminRepository.findByEmailIgnoreCase("techproliferate@gmail.com");
         if (adminUser.isEmpty()) {
             AdminEntity createAdmin = new AdminEntity();
             createAdmin.setFirstName("tech");
@@ -62,7 +62,7 @@ public class AdminManagementServiceImpl implements AdminManagementService {
             adminRepository.save(createAdmin);
         }
 
-        Optional<AdminEntity> adminUser2 = adminRepository.findByEmail("oseremio@gmail.com");
+        Optional<AdminEntity> adminUser2 = adminRepository.findByEmailIgnoreCase("oseremio@gmail.com");
         if (adminUser2.isEmpty()) {
             AdminEntity createAdmin = new AdminEntity();
             createAdmin.setFirstName("tech");
@@ -87,13 +87,13 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         }
 
         // Try to find the user as an admin
-        var adminOpt = adminRepository.findByEmail(loginAdminRequest.getEmail());
+        var adminOpt = adminRepository.findByEmailIgnoreCase(loginAdminRequest.getEmail());
 
         if (adminOpt.isPresent()) {
             var admin = adminOpt.get();
             UserDetails userDetails = userService.userDetailsService().loadUserByUsername(admin.getEmail());
             var jwt = jwtService.genToken(userDetails, admin);
-            return new LoginResponse(null, null, jwt, null);
+            return new LoginResponse(jwt, null);
         }
 
         // If no admin is found, throw an exception
@@ -102,9 +102,9 @@ public class AdminManagementServiceImpl implements AdminManagementService {
 
    @Transactional
     public void deleteStudent(String userName) {
-        Optional<StudentEntity> student = studentRepository.findByUserName(userName);
+        Optional<StudentEntity> student = studentRepository.findByUserNameIgnoreCase(userName);
         if (student.isPresent()) {
-            studentRepository.deleteByUserName(userName);
+            studentRepository.deleteByUserNameIgnoreCase(userName);
         } else {
             throw new UserNotFoundException("Student not found with username: " + userName);
         }
@@ -112,9 +112,9 @@ public class AdminManagementServiceImpl implements AdminManagementService {
 
     @Transactional
     public void deleteTutor(String email) {
-        Optional<TutorEntity> tutor = tutorRepository.findByEmail(email);
+        Optional<TutorEntity> tutor = tutorRepository.findByEmailIgnoreCase(email);
         if (tutor.isPresent()) {
-            tutorRepository.deleteByEmail(email);
+            tutorRepository.deleteByEmailIgnoreCase(email);
         } else {
             throw new UserNotFoundException("Tutor not found with email: " + email);
         }
@@ -122,7 +122,7 @@ public class AdminManagementServiceImpl implements AdminManagementService {
 
     @Transactional
     public Map<String, byte[]> getDocuments(String email, String documentType) {
-        TutorEntity tutor = tutorRepository.findByEmail(email)
+        TutorEntity tutor = tutorRepository.findByEmailIgnoreCaseAndEmailVerifiedIsTrue(email)
                 .orElseThrow(() -> new UserNotFoundException("Tutor not found"));
 
         Map<String, byte[]> documents = new HashMap<>();
@@ -180,7 +180,12 @@ public class AdminManagementServiceImpl implements AdminManagementService {
     private NotificationDTO convertToDto(Notifications notifications) {
         NotificationDTO dto = new NotificationDTO();
         dto.setNotificationId(notifications.getNotificationId());
-        dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
+        // Check if profileImage is null before encoding
+        if (notifications.getProfileImage() != null) {
+            dto.setProfileImage(Base64.getEncoder().encodeToString(notifications.getProfileImage()));
+        } else {
+            dto.setProfileImage(null); // Or set an empty string if preferred
+        }
         dto.setType(notifications.getType());
         dto.setMessage(notifications.getMessage());
         dto.setTimeAgo(calculateTimeAgo(notifications.getCreatedAt()));

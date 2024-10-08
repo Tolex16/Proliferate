@@ -12,18 +12,12 @@ import com.proliferate.Proliferate.ExeceptionHandler.*;
 import com.proliferate.Proliferate.Repository.AdminRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
-import com.proliferate.Proliferate.Response.LoginResponse;
-import com.proliferate.Proliferate.Response.PersonDetailsResponse;
+
 import com.proliferate.Proliferate.Service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

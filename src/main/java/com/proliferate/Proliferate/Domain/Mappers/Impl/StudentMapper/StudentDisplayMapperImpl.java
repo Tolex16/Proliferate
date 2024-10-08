@@ -26,6 +26,7 @@ private final ModelMapper modelMapper;
             studentDisplay.setProfileImage(base64File);
         }
         studentDisplay.setFullName(student.getFirstName() + " " + student.getLastName());
+        studentDisplay.setUserName(student.getUsername());
         studentDisplay.setBio(student.getBio());
 
         return studentDisplay;

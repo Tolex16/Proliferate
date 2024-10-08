@@ -10,10 +10,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LoginResponse {
 
-    private final StudentDto studentDto;
-	
-	private final TutorDto tutorDto;
-
     @JsonProperty("token")
     private final String token;
 	

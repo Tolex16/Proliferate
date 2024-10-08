@@ -65,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
 			PaymentIntent paymentIntent;
             if ("Credit Card".equalsIgnoreCase(paymentRequest.getPaymentMethod())) {
 				// Tokenize the card details
-               // Token token = createStripeToken(paymentRequest);
+
 				// Create a payment intent
                 paymentIntent = createCreditCardPaymentIntent(paymentRequest);
             } else if ("Bank Transfer".equalsIgnoreCase(paymentRequest.getPaymentMethod())) {
@@ -178,6 +178,11 @@ public class PaymentServiceImpl implements PaymentService {
         for (AdminEntity admin : admins) {
             Notifications notification = new Notifications();
             notification.setAdmin(admin);
+            if (student.getStudentImage() != null) {
+                notification.setProfileImage(student.getStudentImage());
+            } else {
+                notification.setProfileImage(null); // Or set an empty string if preferred
+            }
             notification.setType("Payment Confirmation");
             notification.setMessage("Payment received: " + student.getFirstName() + " " + student.getLastName() + " has successfully paid for the tutoring session with " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + ".");
             notification.setCreatedAt(LocalDateTime.now());
@@ -189,11 +194,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         notification1.setStudent(student);
 
-//            if (student.getStudentImage() != null) {
-//                notification1.setProfileImage(Base64.getEncoder().encodeToString(student.getStudentImage()));
-//            } else {
-//                notification1.setProfileImage(null); // or set a default image, if applicable
-//            }
+        if (student.getStudentImage() != null) {
+            notification1.setProfileImage(student.getStudentImage());
+        } else {
+            notification1.setProfileImage(null); // Or set an empty string if preferred
+        }
         notification1.setType("Payment Confirmation for Session");
         notification1.setMessage("Payment received: Your payment for the tutoring session with  " + tutor.getFirstName() + " " + tutor.getLastName() + " on " + payment.getDate() + " has been successfully processed.");
         notification1.setCreatedAt(LocalDateTime.now());
@@ -226,6 +231,11 @@ public class PaymentServiceImpl implements PaymentService {
                 Notifications notification = new Notifications();
 
                 notification.setAdmin(admin);
+                if (payment.getStudent().getStudentImage() != null) {
+                    notification.setProfileImage(payment.getStudent().getStudentImage());
+                } else {
+                    notification.setProfileImage(null); // Or set an empty string if preferred
+                }
                 notification.setType("Payment Failure Notice");
                 notification.setMessage("Payment failure alert: A payment for the tutoring session with " + payment.getTutor().getFirstName() + " " + payment.getTutor().getLastName() + " on " + payment.getDate() + " by " + payment.getStudent().getFirstName() + " " + payment.getStudent().getLastName() +
                         " has failed. Please review the payment details and contact the user to resolve the issue.");

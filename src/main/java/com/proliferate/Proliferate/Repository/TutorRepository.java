@@ -12,24 +12,15 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface TutorRepository extends JpaRepository<TutorEntity, Long>{
-    Optional<TutorEntity> findByEmail(String email);
+    Optional<TutorEntity> findByEmailIgnoreCase(String email);
     Optional<TutorEntity> findByFirstName(String firstName);
     TutorEntity findByRole(Role role);
-    Optional<TutorEntity> findByEmailAndEmailVerifiedIsTrue(String email);
+    Optional<TutorEntity> findByEmailIgnoreCaseAndEmailVerifiedIsTrue(String email);
     Optional<TutorEntity> findByVerificationToken(String token);
-    Boolean existsByEmail(String email);
-    void deleteByEmail(String email);
+    Boolean existsByEmailIgnoreCase(String email);
+    void deleteByEmailIgnoreCase(String email);
     @Query("SELECT DISTINCT p.tutor FROM Payment p WHERE p.student.id = :studentId")
     List<TutorEntity> findTutorsByStudentPayments(@Param("studentId") Long studentId);
-
-    //@Query("SELECT t FROM TutorEntity t WHERE :subjectTitle IN elements(t.preferredSubjects)")
-    //List<TutorEntity> findTutorsByPreferredSubject(@Param("subjectTitle") String subjectTitle);
-
-    //@Query("SELECT t FROM TutorEntity t JOIN t.preferredSubjects s WHERE s = :subjectTitle")
-    //List<TutorEntity> findTutorsByPreferredSubjectContainingIgnoreCase(@Param("subjectTitle") String subjectTitle);
-	
-	//@Query("SELECT t FROM TutorEntity t WHERE LOWER(:subjectTitle) IN (SELECT LOWER(subject) FROM TutorEntity tut JOIN tut.preferredSubjects subject WHERE tut = t)")
-    //List<TutorEntity> findTutorsByPreferredSubjectContainingIgnoreCase(@Param("subjectTitle") String subjectTitle);
 	
 	@Query("SELECT t FROM TutorEntity t WHERE LOWER(:subjectTitle) IN (SELECT LOWER(subject) FROM TutorEntity tut JOIN tut.preferredSubjects subject WHERE tut = t) AND t.teachingGrade = :gradeLevel")
     List<TutorEntity> findTutorsBySubjectAndGrade(@Param("subjectTitle") String subjectTitle, @Param("gradeLevel") String gradeLevel);

@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.*;
+import com.proliferate.Proliferate.Domain.DTO.Verify2FARequest;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public interface TutorAuthenticationService {
     
 	@Transactional
     ResponseEntity updateTutor (UpdateTutor updateTutor);
-	
+
+    ResponseEntity<?> verifyTutor2FACode(Verify2FARequest request);
 
 }

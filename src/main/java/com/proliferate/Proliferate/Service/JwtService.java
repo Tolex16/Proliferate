@@ -16,4 +16,6 @@ public interface JwtService {
     String genToken(UserDetails userDetails, Object o);
 
     Long getUserId();
+
+    Long geTutorId();
 }

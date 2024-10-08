@@ -13,21 +13,23 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<StudentEntity, Long>{
 
-    Optional<StudentEntity> findByUserName(String userName);
-    Optional<StudentEntity> findByUserNameAndEmailVerifiedIsTrue(String userName);
+    Optional<StudentEntity> findByUserNameIgnoreCase(String userName);
+    Optional<StudentEntity> findByUserNameIgnoreCaseAndEmailVerifiedIsTrue(String userName);
     Optional<StudentEntity> findByFirstName(String firstName);
     Optional<StudentEntity> findByVerificationToken(String token);
-    Optional<StudentEntity> findByEmail(String email);
+    Optional<StudentEntity> findByEmailIgnoreCase(String email);
 
-    Optional<StudentEntity> findByFriendEmail(String email);
+    Optional<StudentEntity> findByEmailIgnoreCaseAndEmailVerifiedIsTrue(String email);
 
-    Boolean existsByUserName(String userName);
+    Optional<StudentEntity> findByFriendEmailIgnoreCase(String email);
+
+    Boolean existsByUserNameIgnoreCase(String userName);
 
     StudentEntity findByRole(Role role);
 
-    Boolean existsByEmail(String email);
+    Boolean existsByEmailIgnoreCase(String email);
 
-    void deleteByUserName(String userName);
+    void deleteByUserNameIgnoreCase(String userName);
     @Query("SELECT DISTINCT p.student FROM Payment p WHERE p.tutor.id = :tutorId")
     List<StudentEntity> findStudentsByTutorPayments(@Param("tutorId") Long tutorId);
 }

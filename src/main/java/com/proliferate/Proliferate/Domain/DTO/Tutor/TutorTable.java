@@ -12,6 +12,8 @@ public class TutorTable {
 
     private String fullName;
 
+    private String email;
+
     private String profileImage;
 
     private String availability;

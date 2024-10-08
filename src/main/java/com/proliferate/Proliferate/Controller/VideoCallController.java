@@ -7,16 +7,12 @@ import com.proliferate.Proliferate.Domain.DTO.Video.SignalRequest;
 import com.proliferate.Proliferate.Domain.Entities.Notifications;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
-import com.proliferate.Proliferate.ExeceptionHandler.UserAlreadyExistsException;
 import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.NotificationRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.TutorRepository;
-import com.proliferate.Proliferate.Service.JwtService;
-import com.proliferate.Proliferate.Service.UserService;
 import com.proliferate.Proliferate.config.VideoCallWebSocketHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +20,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,10 +41,10 @@ public class VideoCallController {
         if (request.getCaller() == null || request.getCallee() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Caller and Callee must be specified");
         }
-        if (!studentRepository.existsByUserName(request.getCaller()) && !tutorRepository.existsByEmail(request.getCaller())) {
+        if (!studentRepository.existsByUserNameIgnoreCase(request.getCaller()) && !tutorRepository.existsByEmailIgnoreCase(request.getCaller())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Caller not found");
         }
-        if (!studentRepository.existsByUserName(request.getCallee()) && !tutorRepository.existsByEmail(request.getCallee())) {
+        if (!studentRepository.existsByUserNameIgnoreCase(request.getCallee()) && !tutorRepository.existsByEmailIgnoreCase(request.getCallee())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Callee not found");
         }
 
@@ -78,16 +73,16 @@ public class VideoCallController {
         if (request.getCaller() == null || request.getCallee() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Caller and Callee must be specified");
         }
-        if (!studentRepository.existsByUserName(request.getCaller()) && !tutorRepository.existsByEmail(request.getCaller())) {
+        if (!studentRepository.existsByUserNameIgnoreCase(request.getCaller()) && !tutorRepository.existsByEmailIgnoreCase(request.getCaller())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Caller not found");
         }
-        if (!studentRepository.existsByUserName(request.getCallee()) && !tutorRepository.existsByEmail(request.getCallee())) {
+        if (!studentRepository.existsByUserNameIgnoreCase(request.getCallee()) && !tutorRepository.existsByEmailIgnoreCase(request.getCallee())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Callee not found");
         }
         
         Notifications notification = new Notifications();
-        StudentEntity student = studentRepository.findByUserName(request.getCaller()).orElseThrow(() -> new UserNotFoundException("Student not present"));
-        TutorEntity tutor = tutorRepository.findByEmail(request.getCallee()).orElseThrow(() -> new UserNotFoundException("Tutor not present"));
+        StudentEntity student = studentRepository.findByUserNameIgnoreCaseAndEmailVerifiedIsTrue(request.getCaller()).orElseThrow(() -> new UserNotFoundException("Student not present"));
+        TutorEntity tutor = tutorRepository.findByEmailIgnoreCaseAndEmailVerifiedIsTrue(request.getCallee()).orElseThrow(() -> new UserNotFoundException("Tutor not present"));
         notification.setStudent(student);
         notification.setType("Review and Rating Request");
         notification.setMessage( "Feedback requested: Please provide a review and rating for your recent tutoring session with " + tutor.getFirstName() + " " + tutor.getLastName() + ". Your feedback is valuable.");

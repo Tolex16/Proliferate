@@ -2,10 +2,7 @@ package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.NotificationDTO;
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
-import com.proliferate.Proliferate.Domain.DTO.Student.FriendInvite;
-import com.proliferate.Proliferate.Domain.DTO.Student.SessionDto;
-import com.proliferate.Proliferate.Domain.DTO.Student.SubjectDto;
-import com.proliferate.Proliferate.Domain.DTO.Student.Submission;
+import com.proliferate.Proliferate.Domain.DTO.Student.*;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
 import com.proliferate.Proliferate.Domain.DTO.Tutor.FeedbackDto;
 import com.proliferate.Proliferate.Domain.Entities.*;
@@ -13,6 +10,7 @@ import com.proliferate.Proliferate.Response.SessionResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface TutorManagementService {
@@ -42,5 +40,9 @@ public interface TutorManagementService {
     SubjectDto getSubjectById(Long subjectId);
 	
 	void deleteNotification(Long notificationId);
+
+    ResponseEntity<?> enableStudent2fa(TwoFactorAuthRequest twoFactorAuth);
+
+    Map<String, Boolean> getStudent2faStatus();
 
 }

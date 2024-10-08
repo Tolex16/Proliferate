@@ -88,5 +88,13 @@ public class JwtServiceImpl implements JwtService {
         throw new IllegalArgumentException("Unknown principal type");
     }
 }
+    @Override
+    public Long geTutorId() {
+        TutorEntity user = (TutorEntity) SecurityContextHolder
+                .getContext().
+                getAuthentication()
+                .getPrincipal();
 
+        return user.getTutorId();
+    }
 }

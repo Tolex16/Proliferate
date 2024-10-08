@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -159,6 +160,26 @@ public class StudentManagementController {
         return ResponseEntity.ok(tutorSchedules);
     }
 
+    @PostMapping("/enable-tutor-2fa")
+    public ResponseEntity<?> enableTutor2fa(@RequestBody TwoFactorAuthRequest twoFactorAuth){
+        try {
+            authenticationService.enableTutor2fa(twoFactorAuth);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
+
+    @GetMapping("/2fa-status")
+    public ResponseEntity<Map<String, Boolean>> getTutor2faStatus() {
+        try {
+            Map<String, Boolean> checkTutor2fa = authenticationService.getTutor2faStatus();
+            return new ResponseEntity<>(checkTutor2fa, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/add-score")
     public ResponseEntity<Score> addScore(@RequestBody ScoreDto scoreDto){
         return new ResponseEntity<>(authenticationService.addScore(scoreDto), HttpStatus.OK);
@@ -169,7 +190,7 @@ public class StudentManagementController {
         return authenticationService.getAllReports();
     }
 
-    @PostMapping("add-report")
+    @PostMapping("/add-report")
     public Report addReport(@RequestBody ReportDto reportDto) {
         return authenticationService.addReport(reportDto);
     }

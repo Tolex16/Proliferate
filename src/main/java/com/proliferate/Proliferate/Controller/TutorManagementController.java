@@ -9,6 +9,7 @@ import com.proliferate.Proliferate.Domain.Entities.*;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import com.proliferate.Proliferate.ExeceptionHandler.AssignmentNotCreatedException;
 import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
+import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Response.SessionResponse;
 import com.proliferate.Proliferate.Service.TutorManagementService;
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -156,13 +158,32 @@ public class TutorManagementController {
             return new ResponseEntity<>(assignments, HttpStatus.OK);
     }
 
-
-
     @PostMapping("/friend-invite")
     public ResponseEntity<?> sendFriendInvite(@Valid @RequestBody FriendInvite friendInvite, BindingResult result){
         System.out.println("Has errors?" + result.hasErrors());
         if (result.hasErrors()){ return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
 
         return feedbackService.friendInvite(friendInvite);
+    }
+
+    @PostMapping("/enable-student-2fa")
+    public ResponseEntity<?> enableStudent2fa(@RequestBody TwoFactorAuthRequest twoFactorAuth){
+        try {
+            feedbackService.enableStudent2fa(twoFactorAuth);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        } catch (UserNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
+
+    @GetMapping("/2fa-status")
+    public ResponseEntity<Map<String, Boolean>> getStudent2faStatus() {
+        try {
+            Map<String, Boolean> checkStudent2fa = feedbackService.getStudent2faStatus();
+            return new ResponseEntity<>(checkStudent2fa, HttpStatus.OK);
+        } catch (UserNotFoundException ex) {
+            // In case of any unexpected exceptions, return an internal server error
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

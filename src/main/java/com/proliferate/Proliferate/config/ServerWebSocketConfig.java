@@ -19,7 +19,7 @@ public class ServerWebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 		registry.addHandler(videoCallWebSocketHandler(), "/ws/call")
-                .setAllowedOrigins("https://proliferate-2.onrender.com")
+                .setAllowedOrigins("*")
 				.withSockJS(); // Add SockJS support if needed for fallback
     }
 

@@ -17,6 +17,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -30,43 +36,73 @@ public class SecurityConfiguration   {
 
     @Autowired
     private final UserService userService;
+    @Autowired
+    private final CustomOAuth2AuthenticationSuccessHandler successHandler;
 
+    @Autowired
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomLogOutHandler logoutHandler;
     private final PasswordEncoderConfig passwordEncoderConfig;
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+ 
+     @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/studentPersonalDetails","/api/v1/authorize/tutorPersonalDetails","/api/v1/auth/verify","/api/v1/auth/login","/api/v1/authorize/login-tutor","/api/v1/auth/admin/**","/api/v1/forgot-password/**","/ws/**","/app/**","/api/v1/call/**", "/api/v1/chat/**","/api/v1/auth/check-student/{username}/{email}","/api/v1/authorize/check-email/{email}","/api/v1/health")
-                        .permitAll()
-                        .requestMatchers("/api/v1/student/**","/api/v1/auth/academicDetail", "/api/v1/auth/preferences","/api/v1/auth/learningGoals","/api/v1/auth/student-completeRegistration","/api/v1/auth/update-student","/api/v1/friend-invite").hasAnyAuthority(Role.STUDENT.name())
-                        .requestMatchers("/api/v1/tutor/**", "/api/v1/authorize/educationExperience","/api/v1/authorize/teachingStyleApproach","/api/v1/authorize/availabilityPreference", "/api/v1/authorize/upload-documents","/api/v1/authorize/tutorCompleteRegistration","/api/v1/authorize/update-tutor").hasAnyAuthority(Role.TUTOR.name())
-                        .requestMatchers("/api/v1/admin/**").hasAnyAuthority(Role.ADMIN.name())
-                        .requestMatchers("/api/v1/payments/**","/api/v1/change-password","/api/v1/auth/logout").hasAnyAuthority(Role.TUTOR.name(), Role.STUDENT.name(), Role.ADMIN.name())
-                        .anyRequest().authenticated())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(
-                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class
+            .authorizeHttpRequests(request -> request
+                .requestMatchers(
+                    "/api/v1/auth/studentPersonalDetails", "/api/v1/authorize/tutorPersonalDetails",
+                    "/api/v1/auth/verify", "/api/v1/auth/login", "/api/v1/authorize/login-tutor",
+                    "/api/v1/auth/admin/**", "/api/v1/forgot-password/**", "/ws/**",
+                    "/api/v1/call/**", "/api/v1/chat/**", "/api/v1/auth/check-student/{username}/{email}",
+                    "/api/v1/authorize/check-email/{email}", "/api/v1/auth/verify-student-2fa", "/api/v1/authorize/verify-tutor-2fa","/api/v1/meet/**","/api/v1/oauth/**"
+                ).permitAll()
+                .requestMatchers(
+                    "/api/v1/student/**", "/api/v1/auth/academicDetail", "/api/v1/auth/preferences",
+                    "/api/v1/auth/learningGoals", "/api/v1/auth/student-completeRegistration",
+                    "/api/v1/auth/update-student","/api/v1/auth/enable-student-2fa", "/api/v1/friend-invite"
+                ).hasAnyAuthority(Role.STUDENT.name())
+                .requestMatchers(
+                    "/api/v1/tutor/**", "/api/v1/authorize/educationExperience",
+                    "/api/v1/authorize/teachingStyleApproach", "/api/v1/authorize/availabilityPreference",
+                    "/api/v1/authorize/upload-documents", "/api/v1/authorize/tutorCompleteRegistration",
+                    "/api/v1/authorize/update-tutor", "/api/v1/authorize/enable-tutor-2fa"
+                ).hasAnyAuthority(Role.TUTOR.name())
+                .requestMatchers("/api/v1/admin/**").hasAnyAuthority(Role.ADMIN.name())
+                .requestMatchers("/api/v1/payments/**", "/api/v1/change-password", "/api/v1/auth/logout")
+                .hasAnyAuthority(Role.TUTOR.name(), Role.STUDENT.name(), Role.ADMIN.name())
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(e -> e
+                .accessDeniedHandler((request, response, accessDeniedException) -> response.setStatus(403))
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .loginPage("/api/v1/auth/login")  // Set the login page for OAuth2
+                .successHandler(successHandler)   // Set custom success handler  // Redirect to this URL after successful login
+                .failureUrl("/api/v1/auth/login?error=true")  // Redirect to this URL on failure
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService)  // Custom UserService to load user information
                 )
-                .exceptionHandling(
-                        e->e.accessDeniedHandler(
-                                        (request, response, accessDeniedException)->response.setStatus(403)
-                                )
-                                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .logout(logout -> logout
-                     .logoutUrl("/api/v1/auth/t")
-                    .addLogoutHandler(logoutHandler)
-                    .logoutSuccessHandler((request, response, authentication) -> {
+            )
+            .logout(logout -> logout
+                .logoutUrl("/api/v1/auth/logout")
+                .addLogoutHandler(logoutHandler)
+                .logoutSuccessHandler((request, response, authentication) -> {
                     SecurityContextHolder.clearContext();
+                    response.setStatus(HttpStatus.OK.value());
+                    response.getWriter().flush();
                     System.out.println("Logout successful");
-                        }).permitAll()
-                        .invalidateHttpSession(true)
-                       .deleteCookies("JSESSIONID")
-                );
+                })
+                .permitAll()
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+            );
 
         return http.build();
     }
+
 
     @Bean
     AuthenticationProvider authenticationProvider(){
@@ -82,4 +118,18 @@ public class SecurityConfiguration   {
     AuthenticationManager authenticationManager (AuthenticationConfiguration config) throws Exception{
         return config.getAuthenticationManager();
     }
+	
+	@Bean
+    public OAuth2AuthorizedClientService authorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
+        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+   }
+
+	@Bean
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService() {
+        return new CustomOAuth2UserService(userService);  // Custom implementation
+    }
+//    @Bean
+//    public CustomOAuth2UserService customOAuth2UserService() {
+//        return new CustomOAuth2UserService();
+//    }
 }

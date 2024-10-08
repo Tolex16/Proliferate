@@ -1,6 +1,7 @@
 package com.proliferate.Proliferate.Service;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.*;
+import com.proliferate.Proliferate.Domain.DTO.Verify2FARequest;
 import com.proliferate.Proliferate.Response.LoginResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -30,4 +31,6 @@ public interface StudentAuthenticationService {
     LoginResponse login(LoginStudentRequest loginStudentRequest);
 
     ResponseEntity<?> updateStudent(UpdateStudent updateStudent);
+	
+	ResponseEntity<?> verifyStudent2FACode(Verify2FARequest request);
 }
