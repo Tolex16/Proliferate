@@ -70,6 +70,13 @@
     <artifactId>google-api-services-calendar</artifactId>
     <version>v3-rev411-1.25.0</version>
 </dependency>
+<!-- Google OAuth2 Client Library for Service Account -->
+<!-- https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
+<dependency>
+    <groupId>com.google.auth</groupId>
+    <artifactId>google-auth-library-oauth2-http</artifactId>
+    <version>1.29.0</version>
+</dependency>
 
         <!-- WebClient for API calls -->
 <!--        <dependency>-->
@@ -182,7 +189,7 @@
         <artifactId>jakarta.validation-api</artifactId>
         <version>3.1.0</version>
 	    </dependency>
-
+		
 		<dependency>
         <groupId>com.stripe</groupId>
         <artifactId>stripe-java</artifactId>

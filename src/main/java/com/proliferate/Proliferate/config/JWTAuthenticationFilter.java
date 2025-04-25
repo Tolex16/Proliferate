@@ -43,7 +43,18 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = authHeader.substring(7);
+
+		String ipAddress = request.getHeader("X-FORWARDED-FOR");
 		
+		if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr(); // Fallback to direct request IP
+            } else if (ipAddress.contains(",")) {
+            ipAddress = ipAddress.split(",")[0].trim(); // Extract the real client IP
+             }
+
+       // Now ipAddress contains the correct client IP
+       logger.info("User logged in from IP: " + ipAddress);
+
        if (jwt != null && !tokenService.isTokenBlacklisted(jwt) && !jwtservice.isTokenExpired(jwt)) {
         username = jwtservice.extractUsername(jwt);
 

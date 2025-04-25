@@ -11,7 +11,7 @@ import java.security.GeneralSecurityException;
 
 
 public interface GoogleCalenderService {
-    GoogleMeetEventResponse createGoogleMeetEvent(String title, String description, String startDateTime, String endDateTime, String calendarId, String googleAccessToken) throws GeneralSecurityException, IOException;
+    GoogleMeetEventResponse createGoogleMeetEvent(String title, String description, String startDateTime, String endDateTime, String googleAccessToken) throws GeneralSecurityException, IOException;
 
     String getAccessToken(OAuth2AuthenticationToken authentication);
 }

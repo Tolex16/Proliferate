@@ -24,8 +24,6 @@ public class TutorDisplayMapperImpl implements Mapper<TutorEntity, TutorDisplay>
     private final ModelMapper modelMapper;
 
     private final FeedbackRepository feedbackRepository;
-
-    private final TutorRepository tutorRepository;
     private final SessionRepository sessionRepository;
     @Override
     public TutorDisplay mapTo(TutorEntity tutor) {

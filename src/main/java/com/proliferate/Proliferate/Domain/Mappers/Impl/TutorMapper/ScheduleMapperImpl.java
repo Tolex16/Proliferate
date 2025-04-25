@@ -2,11 +2,9 @@ package com.proliferate.Proliferate.Domain.Mappers.Impl.TutorMapper;
 
 
 import com.proliferate.Proliferate.Domain.DTO.Schedule;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.AssignmentDto;
-import com.proliferate.Proliferate.Domain.Entities.*;
+import com.proliferate.Proliferate.Domain.Entities.ClassSchedule;
+import com.proliferate.Proliferate.Domain.Entities.Feedback;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
-import com.proliferate.Proliferate.ExeceptionHandler.SubjectNotFoundException;
-import com.proliferate.Proliferate.ExeceptionHandler.UserNotFoundException;
 import com.proliferate.Proliferate.Repository.FeedbackRepository;
 import com.proliferate.Proliferate.Repository.StudentRepository;
 import com.proliferate.Proliferate.Repository.SubjectRepository;

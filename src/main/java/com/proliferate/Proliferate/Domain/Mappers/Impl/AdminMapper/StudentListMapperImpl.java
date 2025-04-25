@@ -1,7 +1,6 @@
 package com.proliferate.Proliferate.Domain.Mappers.Impl.AdminMapper;
 
-import com.proliferate.Proliferate.Domain.DTO.Admin.StudentList;
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
+import com.proliferate.Proliferate.Domain.DTO.Admin.StudentList;;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import lombok.RequiredArgsConstructor;

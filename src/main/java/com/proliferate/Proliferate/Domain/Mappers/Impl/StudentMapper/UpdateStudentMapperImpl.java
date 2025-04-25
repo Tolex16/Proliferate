@@ -1,9 +1,7 @@
 package com.proliferate.Proliferate.Domain.Mappers.Impl.StudentMapper;
 
 import com.proliferate.Proliferate.Domain.DTO.Student.UpdateStudent;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.UpdateTutor;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
-import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import lombok.Data;
 import org.modelmapper.ModelMapper;

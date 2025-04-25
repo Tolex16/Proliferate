@@ -1,6 +1,5 @@
 package com.proliferate.Proliferate.Domain.Mappers.Impl.StudentMapper;
 
-import com.proliferate.Proliferate.Domain.DTO.Student.StudentDto;
 import com.proliferate.Proliferate.Domain.DTO.Student.StudentTable;
 import com.proliferate.Proliferate.Domain.Entities.StudentEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;

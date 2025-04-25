@@ -6,8 +6,6 @@ public enum Status {
 	PENDING, 
 	
 	COMPLETED,
-	
-	ENROLLED,
 
 	FAILED
 }

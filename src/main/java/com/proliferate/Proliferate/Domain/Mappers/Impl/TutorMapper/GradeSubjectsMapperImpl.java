@@ -2,7 +2,6 @@ package com.proliferate.Proliferate.Domain.Mappers.Impl.TutorMapper;
 
 
 import com.proliferate.Proliferate.Domain.DTO.Tutor.GradeSubjects;
-import com.proliferate.Proliferate.Domain.DTO.Tutor.UpdateTutor;
 import com.proliferate.Proliferate.Domain.Entities.TutorEntity;
 import com.proliferate.Proliferate.Domain.Mappers.Mapper;
 import lombok.Data;

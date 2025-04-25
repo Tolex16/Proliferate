@@ -44,16 +44,16 @@ public class GoogleMeetController{
      * @param description   The description of the event.
      * @param startDateTime The start datetime in RFC3339 format (e.g., "2024-09-28T10:00:00-01:00").
      * @param endDateTime   The end datetime in RFC3339 format.
-     * @param calendarId    The ID of the calendar to insert the event into (use "primary" for the main calendar).
-     * @return The created Event object containing details including the Google Meet link.
+     * @param //calendarId    The ID of the calendar to insert the event into (use "primary" for the main calendar).
+     * @return The created Event object containing details including the Google Meet link. @RequestParam String calendarId
      * @throws GeneralSecurityException
      * @throws IOException
      */
     @PostMapping("/create")
     public ResponseEntity<?> createGoogleMeetEvent(@RequestParam String title, @RequestParam String description,
-                                        @RequestParam String startDateTime, @RequestParam String endDateTime,
-                                        @RequestParam String calendarId, @RequestHeader("Google-Authorization") String googleAccessToken) throws GeneralSecurityException, IOException {
-        GoogleMeetEventResponse event = googleCalendarService.createGoogleMeetEvent(title, description, startDateTime, endDateTime, calendarId, googleAccessToken);
+                                        @RequestParam String startDateTime, @RequestParam String endDateTime
+                                       , @RequestHeader("Google-Authorization") String googleAccessToken) throws GeneralSecurityException, IOException {
+        GoogleMeetEventResponse event = googleCalendarService.createGoogleMeetEvent(title, description, startDateTime, endDateTime, googleAccessToken);
         return new ResponseEntity<>(event, HttpStatus.CREATED); // Return the link to the created Google Meet
     }
 	
